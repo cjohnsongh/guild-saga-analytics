@@ -1,0 +1,51 @@
+{
+  "kpis": {
+    "public_mint_supply": 9900,
+    "unique_public_minters": 4888,
+    "mint_price_sol": 1.5,
+    "public_mint_proceeds_sol": 14850.0
+  },
+  "mint_phases": [
+    {
+      "order": 1,
+      "phase": "Phase I",
+      "heroes_minted": 1299,
+      "unique_minters": 672,
+      "first_mint": "2022-02-25T16:00:03Z",
+      "last_mint": "2022-02-25T16:58:57Z"
+    },
+    {
+      "order": 2,
+      "phase": "Phase II",
+      "heroes_minted": 2758,
+      "unique_minters": 2758,
+      "first_mint": "2022-02-25T17:00:02Z",
+      "last_mint": "2022-02-25T17:58:58Z"
+    },
+    {
+      "order": 3,
+      "phase": "Phase III",
+      "heroes_minted": 5843,
+      "unique_minters": 3243,
+      "first_mint": "2022-02-25T18:00:00Z",
+      "last_mint": "2022-02-25T18:33:17Z"
+    }
+  ],
+  "public_mint_distribution": [
+    {
+      "heroes_minted": 1,
+      "minters": 1896,
+      "total_heroes": 1896
+    },
+    {
+      "heroes_minted": 2,
+      "minters": 972,
+      "total_heroes": 1944
+    },
+    {
+      "heroes_minted": 3,
+      "minters": 2020,
+      "total_heroes": 6060
+    }
+  ]
+}

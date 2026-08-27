@@ -1,0 +1,380 @@
+{
+  "as_of": "2026-08-26",
+  "kpis": {
+    "secondary_sales": 19797,
+    "secondary_volume_sol": 35725.707237474,
+    "unique_buyers": 5472,
+    "heroes_ever_sold": 8405,
+    "guild_saga_royalties_sol": 1742.09,
+    "mint_plus_royalties_sol": 16592.09
+  },
+  "monthly_activity": [
+    {
+      "month": "2022-02-01",
+      "sales": 5876,
+      "volume_sol": 12887.77,
+      "royalties_sol": 695.94
+    },
+    {
+      "month": "2022-03-01",
+      "sales": 3402,
+      "volume_sol": 6776.46,
+      "royalties_sol": 365.93
+    },
+    {
+      "month": "2022-04-01",
+      "sales": 1817,
+      "volume_sol": 3233.43,
+      "royalties_sol": 174.61
+    },
+    {
+      "month": "2022-05-01",
+      "sales": 1107,
+      "volume_sol": 2126.96,
+      "royalties_sol": 114.86
+    },
+    {
+      "month": "2022-06-01",
+      "sales": 1072,
+      "volume_sol": 2909.8,
+      "royalties_sol": 157.13
+    },
+    {
+      "month": "2022-07-01",
+      "sales": 473,
+      "volume_sol": 971.75,
+      "royalties_sol": 52.47
+    },
+    {
+      "month": "2022-08-01",
+      "sales": 397,
+      "volume_sol": 517.47,
+      "royalties_sol": 27.94
+    },
+    {
+      "month": "2022-09-01",
+      "sales": 299,
+      "volume_sol": 422.92,
+      "royalties_sol": 22.84
+    },
+    {
+      "month": "2022-10-01",
+      "sales": 229,
+      "volume_sol": 314.8,
+      "royalties_sol": 10.41
+    },
+    {
+      "month": "2022-11-01",
+      "sales": 621,
+      "volume_sol": 1188.24,
+      "royalties_sol": 20.28
+    },
+    {
+      "month": "2022-12-01",
+      "sales": 406,
+      "volume_sol": 902.14,
+      "royalties_sol": 10.86
+    },
+    {
+      "month": "2023-01-01",
+      "sales": 271,
+      "volume_sol": 609.4,
+      "royalties_sol": 5.1
+    },
+    {
+      "month": "2023-02-01",
+      "sales": 123,
+      "volume_sol": 218.54,
+      "royalties_sol": 4.39
+    },
+    {
+      "month": "2023-03-01",
+      "sales": 200,
+      "volume_sol": 323.67,
+      "royalties_sol": 7.63
+    },
+    {
+      "month": "2023-04-01",
+      "sales": 171,
+      "volume_sol": 248.75,
+      "royalties_sol": 2.8
+    },
+    {
+      "month": "2023-05-01",
+      "sales": 137,
+      "volume_sol": 198.19,
+      "royalties_sol": 5.37
+    },
+    {
+      "month": "2023-06-01",
+      "sales": 116,
+      "volume_sol": 148.42,
+      "royalties_sol": 1.22
+    },
+    {
+      "month": "2023-07-01",
+      "sales": 96,
+      "volume_sol": 153.94,
+      "royalties_sol": 5.95
+    },
+    {
+      "month": "2023-08-01",
+      "sales": 32,
+      "volume_sol": 33.78,
+      "royalties_sol": 0.93
+    },
+    {
+      "month": "2023-09-01",
+      "sales": 82,
+      "volume_sol": 76.57,
+      "royalties_sol": 1.07
+    },
+    {
+      "month": "2023-10-01",
+      "sales": 71,
+      "volume_sol": 38.91,
+      "royalties_sol": 1.02
+    },
+    {
+      "month": "2023-11-01",
+      "sales": 440,
+      "volume_sol": 194.54,
+      "royalties_sol": 6.15
+    },
+    {
+      "month": "2023-12-01",
+      "sales": 705,
+      "volume_sol": 644.88,
+      "royalties_sol": 24.85
+    },
+    {
+      "month": "2024-01-01",
+      "sales": 275,
+      "volume_sol": 218.68,
+      "royalties_sol": 9.74
+    },
+    {
+      "month": "2024-02-01",
+      "sales": 122,
+      "volume_sol": 104.74,
+      "royalties_sol": 4.1
+    },
+    {
+      "month": "2024-03-01",
+      "sales": 141,
+      "volume_sol": 83.59,
+      "royalties_sol": 2.46
+    },
+    {
+      "month": "2024-04-01",
+      "sales": 80,
+      "volume_sol": 36.13,
+      "royalties_sol": 1.21
+    },
+    {
+      "month": "2024-05-01",
+      "sales": 32,
+      "volume_sol": 17.34,
+      "royalties_sol": 0.62
+    },
+    {
+      "month": "2024-06-01",
+      "sales": 33,
+      "volume_sol": 8.27,
+      "royalties_sol": 0.24
+    },
+    {
+      "month": "2024-07-01",
+      "sales": 12,
+      "volume_sol": 4.07,
+      "royalties_sol": 0.19
+    },
+    {
+      "month": "2024-08-01",
+      "sales": 73,
+      "volume_sol": 12.15,
+      "royalties_sol": 0.57
+    },
+    {
+      "month": "2024-09-01",
+      "sales": 33,
+      "volume_sol": 4.99,
+      "royalties_sol": 0.11
+    },
+    {
+      "month": "2024-10-01",
+      "sales": 33,
+      "volume_sol": 8.35,
+      "royalties_sol": 0.28
+    },
+    {
+      "month": "2024-11-01",
+      "sales": 80,
+      "volume_sol": 10.18,
+      "royalties_sol": 0.21
+    },
+    {
+      "month": "2024-12-01",
+      "sales": 22,
+      "volume_sol": 3.13,
+      "royalties_sol": 0.1
+    },
+    {
+      "month": "2025-01-01",
+      "sales": 33,
+      "volume_sol": 4.87,
+      "royalties_sol": 0.18
+    },
+    {
+      "month": "2025-02-01",
+      "sales": 28,
+      "volume_sol": 4.8,
+      "royalties_sol": 0.14
+    },
+    {
+      "month": "2025-03-01",
+      "sales": 50,
+      "volume_sol": 10.88,
+      "royalties_sol": 0.49
+    },
+    {
+      "month": "2025-04-01",
+      "sales": 37,
+      "volume_sol": 4.17,
+      "royalties_sol": 0.04
+    },
+    {
+      "month": "2025-05-01",
+      "sales": 6,
+      "volume_sol": 0.46,
+      "royalties_sol": 0.02
+    },
+    {
+      "month": "2025-06-01",
+      "sales": 36,
+      "volume_sol": 9.83,
+      "royalties_sol": 0.33
+    },
+    {
+      "month": "2025-07-01",
+      "sales": 11,
+      "volume_sol": 1.05,
+      "royalties_sol": 0.01
+    },
+    {
+      "month": "2025-08-01",
+      "sales": 74,
+      "volume_sol": 6.53,
+      "royalties_sol": 0.19
+    },
+    {
+      "month": "2025-09-01",
+      "sales": 15,
+      "volume_sol": 1.83,
+      "royalties_sol": 0.02
+    },
+    {
+      "month": "2025-10-01",
+      "sales": 25,
+      "volume_sol": 2.63,
+      "royalties_sol": 0.05
+    },
+    {
+      "month": "2025-11-01",
+      "sales": 269,
+      "volume_sol": 12.06,
+      "royalties_sol": 0.55
+    },
+    {
+      "month": "2025-12-01",
+      "sales": 15,
+      "volume_sol": 1.23,
+      "royalties_sol": 0.05
+    },
+    {
+      "month": "2026-01-01",
+      "sales": 20,
+      "volume_sol": 1.89,
+      "royalties_sol": 0.1
+    },
+    {
+      "month": "2026-02-01",
+      "sales": 38,
+      "volume_sol": 3.02,
+      "royalties_sol": 0.16
+    },
+    {
+      "month": "2026-03-01",
+      "sales": 4,
+      "volume_sol": 0.64,
+      "royalties_sol": 0.02
+    },
+    {
+      "month": "2026-04-01",
+      "sales": 10,
+      "volume_sol": 1.84,
+      "royalties_sol": 0.04
+    },
+    {
+      "month": "2026-05-01",
+      "sales": 6,
+      "volume_sol": 0.28,
+      "royalties_sol": 0.01
+    },
+    {
+      "month": "2026-06-01",
+      "sales": 16,
+      "volume_sol": 1.18,
+      "royalties_sol": 0.06
+    },
+    {
+      "month": "2026-07-01",
+      "sales": 7,
+      "volume_sol": 0.38,
+      "royalties_sol": 0.01
+    },
+    {
+      "month": "2026-08-01",
+      "sales": 18,
+      "volume_sol": 3.17,
+      "royalties_sol": 0.05
+    }
+  ],
+  "first_resale_timing": [
+    {
+      "order": 1,
+      "bucket": "≤24h",
+      "heroes": 3866
+    },
+    {
+      "order": 2,
+      "bucket": "2–7d",
+      "heroes": 1236
+    },
+    {
+      "order": 3,
+      "bucket": "8–30d",
+      "heroes": 832
+    },
+    {
+      "order": 4,
+      "bucket": "31–90d",
+      "heroes": 1113
+    },
+    {
+      "order": 5,
+      "bucket": "91–365d",
+      "heroes": 948
+    },
+    {
+      "order": 6,
+      "bucket": ">1y",
+      "heroes": 410
+    },
+    {
+      "order": 7,
+      "bucket": "Never sold",
+      "heroes": 1495
+    }
+  ]
+}

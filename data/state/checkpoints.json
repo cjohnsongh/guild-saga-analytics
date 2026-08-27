@@ -1,0 +1,7 @@
+{
+  "cutover_date": "2026-08-26",
+  "hero_state_checkpoint": "2026-08-26 07:49:15.352 UTC",
+  "market_checkpoint_date": "2026-08-26",
+  "floor_checkpoint_date": "2026-08-26",
+  "notes": "Canonical production seed created from final Dune state exports. Dune query files are intentionally not part of this repository."
+}

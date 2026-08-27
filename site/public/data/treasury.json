@@ -1,0 +1,295 @@
+{
+  "initial_mint_treasury_split": [
+    {
+      "order": 1,
+      "destination": "Primary branch",
+      "sol": 14107.72,
+      "pct": 95.0
+    },
+    {
+      "order": 2,
+      "destination": "Secondary branch",
+      "sol": 742.512,
+      "pct": 5.0
+    }
+  ],
+  "asset_handoff": {
+    "usdc_transferred": 57000,
+    "sol_transferred": 150,
+    "guild_heroes_transferred": 7,
+    "other_nft_assets_transferred": 4
+  },
+  "core_wallet_usdc_distribution": [
+    {
+      "order": 1,
+      "destination": "3xQ project-connected wallet",
+      "usdc": 120361.0
+    },
+    {
+      "order": 2,
+      "destination": "FS9b project-connected wallet",
+      "usdc": 120361.0
+    }
+  ],
+  "conversion_history": [
+    {
+      "month": "2022-03-01",
+      "sol_sold": 2690.0,
+      "total_sol_sold": 2690.0,
+      "usdc_purchased": 280240.88,
+      "total_usdc_purchased": 280240.88
+    },
+    {
+      "month": "2022-04-01",
+      "sol_sold": 375.0,
+      "total_sol_sold": 3065.0,
+      "usdc_purchased": 50318.36,
+      "total_usdc_purchased": 330559.24
+    },
+    {
+      "month": "2022-05-01",
+      "sol_sold": 850.0,
+      "total_sol_sold": 3915.0,
+      "usdc_purchased": 48775.1,
+      "total_usdc_purchased": 379334.34
+    },
+    {
+      "month": "2022-06-01",
+      "sol_sold": 1200.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 40004.68,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2022-07-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2022-08-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2022-09-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2022-10-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2022-11-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2022-12-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2023-01-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2023-02-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2023-03-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2023-04-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2023-05-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2023-06-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2023-07-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2023-08-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 5115.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 419339.02
+    },
+    {
+      "month": "2023-09-01",
+      "sol_sold": 550.0,
+      "total_sol_sold": 5665.0,
+      "usdc_purchased": 10531.28,
+      "total_usdc_purchased": 429870.3
+    },
+    {
+      "month": "2023-10-01",
+      "sol_sold": 800.0,
+      "total_sol_sold": 6465.0,
+      "usdc_purchased": 19219.71,
+      "total_usdc_purchased": 449090.01
+    },
+    {
+      "month": "2023-11-01",
+      "sol_sold": 450.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 24466.13,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2023-12-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-01-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-02-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-03-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-04-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-05-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-06-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-07-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-08-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-09-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-10-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-11-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2024-12-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2025-01-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2025-02-01",
+      "sol_sold": 0.0,
+      "total_sol_sold": 6915.0,
+      "usdc_purchased": 0.0,
+      "total_usdc_purchased": 473556.15
+    },
+    {
+      "month": "2025-03-01",
+      "sol_sold": 168.903,
+      "total_sol_sold": 7083.903,
+      "usdc_purchased": 25927.43,
+      "total_usdc_purchased": 499483.58
+    }
+  ]
+}
