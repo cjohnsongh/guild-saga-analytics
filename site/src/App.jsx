@@ -1200,7 +1200,7 @@ function ImageLightbox({ items, index, onClose, onChange, label }) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <button type="button" className="image-lightbox-close" aria-label="Close image viewer" onClick={onClose}>×</button>
+      <button type="button" className="image-lightbox-close" aria-label="Close image viewer" onClick={onClose}><span aria-hidden="true">×</span></button>
       {items.length > 1 && (
         <button
           type="button"
@@ -2014,14 +2014,31 @@ function Ownership({ data }) {
         <h2 id="ownership-title">Ownership</h2>
       </section>
 
-      <div className="ownership-staking-grid">
-        <section className="joint-domain-panel" aria-labelledby="holder-distribution-title">
-          <section className="snapshot-strip joint-snapshot ownership-snapshot" aria-label="Ownership statistics">
-            <SnapshotStat label="Active Supply" value={formatInt(data.summary.hero.active_supply)} />
-            <SnapshotStat label="Holders" value={formatInt(totalHolders)} />
-            <SnapshotStat label="1–4 Heroes" value={formatInt(small?.holder_count)} sub={`${formatPercent(totalHolders ? Number(small?.holder_count || 0) / totalHolders * 100 : 0)} of holders`} />
-            <SnapshotStat label="50+ Heroes" value={formatInt(largeHolders)} sub={`${formatPercent(largeSupply)} of active supply`} />
-          </section>
+      <div className="ownership-layout">
+        <section className="snapshot-strip joint-snapshot ownership-snapshot ownership-stats" aria-label="Ownership statistics">
+          <SnapshotStat label="Active Supply" value={formatInt(data.summary.hero.active_supply)} />
+          <SnapshotStat label="Holders" value={formatInt(totalHolders)} />
+          <SnapshotStat label="1–4 Heroes" value={formatInt(small?.holder_count)} sub={`${formatPercent(totalHolders ? Number(small?.holder_count || 0) / totalHolders * 100 : 0)} of holders`} />
+          <SnapshotStat label="50+ Heroes" value={formatInt(largeHolders)} sub={`${formatPercent(largeSupply)} of active supply`} />
+        </section>
+
+        <section className="snapshot-strip joint-snapshot staking-snapshot staking-stats" aria-label="Staking and quest statistics">
+          <SnapshotStat label="Staked" value={formatInt(staked)} sub={`${formatPercent(data.summary.hero.staked_supply_pct)} of active supply`} />
+          <SnapshotStat label="Active ≤7d" value={formatInt(active7)} sub={`${formatPercent(staked ? active7 / staked * 100 : 0)} of staked`} />
+          <SnapshotStat label="Active ≤30d" value={formatInt(active30)} sub={`${formatPercent(staked ? active30 / staked * 100 : 0)} of staked`} />
+          <SnapshotStat label="Idle 1+ Year" value={formatInt(idleYearCombined)} sub={`${formatPercent(staked ? idleYearCombined / staked * 100 : 0)} of staked`} />
+        </section>
+
+        <section className="ownership-staked-meter" aria-label={`Staked: ${formatPercent(data.summary.hero.staked_supply_pct)} of active supply`}>
+          <div className="ownership-staked-track">
+            <div className="ownership-staked-fill" style={{ width: `${Math.max(0, Math.min(100, Number(data.summary.hero.staked_supply_pct || 0)))}%` }}>
+              <strong>Staked</strong>
+              <span>{formatPercent(data.summary.hero.staked_supply_pct)}</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="joint-domain-panel ownership-chart-panel" aria-labelledby="holder-distribution-title">
           <div className="joint-chart-head">
             <strong id="holder-distribution-title">Holder Distribution</strong>
             <span>Share of holders vs share of active supply</span>
@@ -2029,13 +2046,7 @@ function Ownership({ data }) {
           <div className="domain-chart joint-domain-chart"><Chart option={ownershipOption} /></div>
         </section>
 
-        <section className="joint-domain-panel" aria-labelledby="quest-activity-title">
-          <section className="snapshot-strip joint-snapshot staking-snapshot" aria-label="Staking and quest statistics">
-            <SnapshotStat label="Staked" value={formatInt(staked)} sub={`${formatPercent(data.summary.hero.staked_supply_pct)} of active supply`} />
-            <SnapshotStat label="Active ≤7d" value={formatInt(active7)} sub={`${formatPercent(staked ? active7 / staked * 100 : 0)} of staked`} />
-            <SnapshotStat label="Active ≤30d" value={formatInt(active30)} sub={`${formatPercent(staked ? active30 / staked * 100 : 0)} of staked`} />
-            <SnapshotStat label="Idle 1+ Year" value={formatInt(idleYearCombined)} sub={`${formatPercent(staked ? idleYearCombined / staked * 100 : 0)} of staked`} />
-          </section>
+        <section className="joint-domain-panel staking-chart-panel" aria-labelledby="quest-activity-title">
           <div className="joint-chart-head">
             <strong id="quest-activity-title">Quest Activity</strong>
             <span>Time since the last qualifying quest restart</span>
@@ -2142,14 +2153,13 @@ function Economy({ data }) {
       <section className="domain-chart-block">
         <div className="section-bar">
           <span className="section-title">Royalties over time</span>
-          <strong>Guild Saga 90% wallet</strong>
         </div>
         <div className="section-note">Monthly royalties received from secondary-market sales</div>
         <div className="domain-chart economy-royalties-chart"><Chart option={royaltiesOption} /></div>
       </section>
 
       <section className="economy-section">
-        <div className="section-bar"><span className="section-title">Mint proceeds split</span><strong>Feb 26, 2022</strong></div>
+        <div className="section-bar"><span className="section-title">Mint Proceeds</span><strong>Feb 26, 2022</strong></div>
         <div className="mint-split-layout">
           <div className="treasury-split-chart"><Chart option={splitOption} /></div>
           <div className="economy-copy">

@@ -1158,7 +1158,7 @@ html { scroll-behavior: smooth; }
   background: #13191b;
 }
 
-/* Major section headings use a short underline under the label, not a full-width rule. */
+/* Major section headings use a true text underline rather than a separate rule. */
 .section-heading {
   min-height: 46px;
   border-bottom: 0;
@@ -1167,8 +1167,13 @@ html { scroll-behavior: smooth; }
 .section-heading h2 {
   width: max-content;
   max-width: 100%;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #62626a;
+  padding-bottom: 0;
+  border-bottom: 0;
+  text-decoration-line: underline;
+  text-decoration-color: #62626a;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 7px;
+  text-decoration-skip-ink: auto;
 }
 
 /* Active-supply participation is one compact two-row chart. */
@@ -1798,7 +1803,7 @@ html { scroll-behavior: smooth; }
   display: block;
   font-size: 31px;
   line-height: 1;
-  transform: translateY(-1px);
+  transform: translateY(2px);
 }
 
 .labyrinths-arrow:hover {
@@ -1857,6 +1862,11 @@ html { scroll-behavior: smooth; }
   height: 44px;
   font-size: 30px;
   line-height: 1;
+}
+.image-lightbox-close span {
+  display: block;
+  line-height: 1;
+  transform: translateY(2px);
 }
 
 .image-lightbox-arrow {
@@ -1991,6 +2001,52 @@ html { scroll-behavior: smooth; }
 }
 .hero-showcase-copy h1 { margin-bottom: 16px; }
 
+/* UX21: eight Ownership stats share one desktop row pair, followed by the
+   staked-supply meter and the two related charts. Mobile restores the
+   stat -> chart -> stat -> meter -> chart reading order. */
+.ownership-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "ownership-stats staking-stats"
+    "staked-meter staked-meter"
+    "ownership-chart staking-chart";
+  column-gap: 32px;
+  row-gap: 22px;
+  align-items: start;
+}
+.ownership-stats { grid-area: ownership-stats; }
+.staking-stats { grid-area: staking-stats; }
+.ownership-layout .joint-snapshot { margin-bottom: 0; }
+.ownership-staked-meter {
+  grid-area: staked-meter;
+  padding: 0;
+  border: 0;
+}
+.ownership-chart-panel { grid-area: ownership-chart; }
+.staking-chart-panel { grid-area: staking-chart; }
+.ownership-staked-track {
+  width: 100%;
+  height: 32px;
+  overflow: hidden;
+  background: #2a2a30;
+}
+.ownership-staked-fill {
+  min-width: 110px;
+  height: 100%;
+  padding: 0 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #668a95;
+  color: #f5f5f7;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.ownership-staked-fill strong { font-weight: 650; }
+.ownership-staked-fill span { font-weight: 600; }
+
 /* Ownership is the parent domain; staking/quest state lives inside it. */
 .ownership-page { gap: 22px; }
 .ownership-main-heading { margin-bottom: 0; }
@@ -2034,6 +2090,16 @@ html { scroll-behavior: smooth; }
     font-size: 12px;
   }
   .hero-showcase-copy h1 { font-size: clamp(23px, 1.8vw, 29px); }
+  .ownership-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "ownership-stats"
+      "ownership-chart"
+      "staking-stats"
+      "staked-meter"
+      "staking-chart";
+    row-gap: 22px;
+  }
   .ownership-snapshot,
   .staking-snapshot { grid-template-columns: 1fr 1fr; }
   .ownership-snapshot .snapshot-stat,
