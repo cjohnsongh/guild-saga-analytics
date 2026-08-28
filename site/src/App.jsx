@@ -13,9 +13,41 @@ const DATA_PATHS = [
 
 const GOLD_MASTER_UPDATED_AT = '2026-08-26T14:30:00Z';
 
-const TENSOR_IMAGE = 'https://prod-image-cdn.tensor.trade/images/slug=guild_saga_heroes/400x400/freeze=false/https%3A%2F%2Fgldhero-production.s3.amazonaws.com%2F0.png';
-const LAB_GAMEPLAY_IMAGE = 'https://guildsaga.com/avif/lab-screenshot1.avif';
-const LAB_REWARDS_IMAGE = 'https://i.imgur.com/43NGU4Y.png';
+const HERO_ZERO_ORIGINAL = 'https://gldhero-production.s3.amazonaws.com/0.png';
+const HERO_ZERO_BODY_PFP = '/assets/heroes/0-body-pfp.png';
+const HERO_ZERO_FACE_PFP = '/assets/heroes/0-face-pfp.png';
+
+const HERO_SHOWCASE_ITEMS = [
+  {
+    id: 'original',
+    label: 'Original NFT',
+    src: HERO_ZERO_ORIGINAL,
+    alt: 'Guild Saga Hero #0 original NFT image',
+    actionLabel: 'Open image',
+  },
+  {
+    id: 'body',
+    label: 'Body PFP',
+    src: HERO_ZERO_BODY_PFP,
+    alt: 'Guild Saga Hero #0 body profile picture',
+    actionLabel: 'Open PNG',
+  },
+  {
+    id: 'face',
+    label: 'Face PFP',
+    src: HERO_ZERO_FACE_PFP,
+    alt: 'Guild Saga Hero #0 face profile picture',
+    actionLabel: 'Open PNG',
+  },
+];
+
+const LABYRINTHS_SLIDES = [
+  {
+    id: 'combat',
+    src: 'https://guildsaga.com/avif/lab-screenshot1.avif',
+    alt: 'Guild Saga: Labyrinths tactical combat gameplay',
+  },
+];
 
 const RANGE_OPTIONS = [
   { id: '1w', label: '1W', days: 7, defaultGranularity: '1d' },
@@ -1023,67 +1055,150 @@ function ShareMeter({ label, value, pct, tone = 'accent' }) {
   );
 }
 
-function IntroGallery() {
-  const items = [
-    {
-      id: 'gameplay',
-      src: LAB_GAMEPLAY_IMAGE,
-      alt: 'Guild Saga: Labyrinths gameplay',
-      label: 'Guild Saga: Labyrinths',
-    },
-    {
-      id: 'hero',
-      src: TENSOR_IMAGE,
-      alt: 'Guild Saga Hero NFT',
-      label: 'Guild Saga Hero',
-    },
-    {
-      id: 'rewards',
-      src: LAB_REWARDS_IMAGE,
-      alt: 'Guild Saga: Labyrinths items and rewards',
-      label: 'Items & rewards',
-    },
-  ];
-  const [active, setActive] = useState('gameplay');
-  const current = items.find((item) => item.id === active) || items[0];
+function HeroImageCard({ item, mobileActive }) {
+  return (
+    <article className={`hero-visual-card hero-visual-${item.id} ${mobileActive ? 'is-mobile-active' : ''}`}>
+      <div className="hero-visual-heading">
+        <strong>{item.label}</strong>
+        <span>Hero #0</span>
+      </div>
+      <a
+        className="hero-visual-image-link"
+        href={item.src}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`Open ${item.label} for Guild Saga Hero #0`}
+      >
+        <img src={item.src} alt={item.alt} />
+      </a>
+      <div className="hero-visual-footer">
+        <a href={item.src} target="_blank" rel="noreferrer">{item.actionLabel} <span aria-hidden="true">↗</span></a>
+      </div>
+    </article>
+  );
+}
+
+function HeroShowcase() {
+  const [mobileView, setMobileView] = useState('original');
 
   return (
-    <section className="overview-intro">
-      <div className="overview-intro-copy">
-        <p className="intro-lead">
-          Guild Saga Heroes is a 10,000-piece Solana NFT collection that can be used in <strong>Guild Saga: Labyrinths</strong>, a tactical RPG from Ocelot Technologies.
-        </p>
-        <p className="intro-body">
-          This site tracks the collection's supply, holders, staking activity, burns and secondary-market history using on-chain data.
-        </p>
-        <div className="intro-actions">
-          <a href="https://www.tensor.trade/trade/guild_saga_heroes" target="_blank" rel="noreferrer">Trade on Tensor <span aria-hidden="true">↗</span></a>
-          <a href="https://magiceden.io/marketplace/guild_saga_heroes" target="_blank" rel="noreferrer">Trade on Magic Eden <span aria-hidden="true">↗</span></a>
-          <a href="https://store.epicgames.com/p/guild-saga-labyrinths-ca0f96?lang=en-US" target="_blank" rel="noreferrer">Wishlist Guild Saga: Labyrinths <span aria-hidden="true">↗</span></a>
+    <section className="hero-showcase" aria-labelledby="hero-showcase-title">
+      <div className="hero-showcase-copy">
+        <div>
+          <span className="showcase-kicker">Collection</span>
+          <h1 id="hero-showcase-title">Guild Saga Heroes</h1>
+          <p className="intro-lead">
+            A 10,000-piece Solana NFT collection that can be used in <strong>Guild Saga: Labyrinths</strong>, a tactical RPG from Ocelot Technologies.
+          </p>
+          <p className="intro-body">
+            This site tracks the collection's supply, holders, staking activity, burns and secondary-market history using on-chain data.
+          </p>
+        </div>
+
+        <div className="hero-showcase-copy-bottom">
+          <div className="selected-hero" aria-label="Selected Hero number 0">
+            <span>Selected Hero</span>
+            <strong>#0</strong>
+          </div>
+          <div className="intro-actions hero-trade-actions">
+            <a href="https://www.tensor.trade/trade/guild_saga_heroes" target="_blank" rel="noreferrer">Tensor <span aria-hidden="true">↗</span></a>
+            <a href="https://magiceden.io/marketplace/guild_saga_heroes" target="_blank" rel="noreferrer">Magic Eden <span aria-hidden="true">↗</span></a>
+          </div>
         </div>
       </div>
 
-      <div className="intro-gallery" aria-label="Guild Saga Heroes and Labyrinths gallery">
-        <figure className="intro-gallery-main">
-          <img src={current.src} alt={current.alt} />
-          <figcaption>{current.label}</figcaption>
-        </figure>
-        <div className="intro-gallery-thumbs" role="list" aria-label="Gallery images">
-          {items.map((item) => (
+      <div className="hero-mobile-tabs" role="tablist" aria-label="Hero image type">
+        {HERO_SHOWCASE_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            role="tab"
+            aria-selected={mobileView === item.id}
+            className={mobileView === item.id ? 'is-active' : ''}
+            onClick={() => setMobileView(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {HERO_SHOWCASE_ITEMS.map((item) => (
+        <HeroImageCard key={item.id} item={item} mobileActive={mobileView === item.id} />
+      ))}
+    </section>
+  );
+}
+
+function LabyrinthsShowcase() {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused || LABYRINTHS_SLIDES.length < 2) return undefined;
+    const timer = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % LABYRINTHS_SLIDES.length);
+    }, 7500);
+    return () => window.clearInterval(timer);
+  }, [paused]);
+
+  const current = LABYRINTHS_SLIDES[activeSlide] || LABYRINTHS_SLIDES[0];
+  const hasMultipleSlides = LABYRINTHS_SLIDES.length > 1;
+
+  return (
+    <section className="labyrinths-showcase" aria-labelledby="labyrinths-showcase-title">
+      <div className="labyrinths-heading-row">
+        <div>
+          <span className="showcase-kicker">Game</span>
+          <h2 id="labyrinths-showcase-title">Guild Saga: Labyrinths</h2>
+          <p>A tactical RPG from Ocelot Technologies where standard adventurers or Guild Saga Heroes can descend into procedurally generated chambers.</p>
+        </div>
+        <a className="epic-wishlist-link" href="https://store.epicgames.com/p/guild-saga-labyrinths-ca0f96?lang=en-US" target="_blank" rel="noreferrer">
+          Wishlist on Epic Games Store <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+
+      <div
+        className="labyrinths-stage"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        <img key={current.id} src={current.src} alt={current.alt} />
+        {hasMultipleSlides && (
+          <>
             <button
-              key={item.id}
               type="button"
-              className={active === item.id ? 'is-active' : ''}
-              onClick={() => setActive(item.id)}
-              aria-pressed={active === item.id}
-              aria-label={`Show ${item.label}`}
+              className="labyrinths-arrow labyrinths-arrow-prev"
+              aria-label="Previous Labyrinths screenshot"
+              onClick={() => setActiveSlide((activeSlide - 1 + LABYRINTHS_SLIDES.length) % LABYRINTHS_SLIDES.length)}
             >
-              <img src={item.src} alt="" />
-              <span>{item.label}</span>
+              ‹
             </button>
+            <button
+              type="button"
+              className="labyrinths-arrow labyrinths-arrow-next"
+              aria-label="Next Labyrinths screenshot"
+              onClick={() => setActiveSlide((activeSlide + 1) % LABYRINTHS_SLIDES.length)}
+            >
+              ›
+            </button>
+          </>
+        )}
+      </div>
+
+      {hasMultipleSlides && (
+        <div className="labyrinths-dots" aria-label="Labyrinths screenshots">
+          {LABYRINTHS_SLIDES.map((slide, index) => (
+            <button
+              type="button"
+              key={slide.id}
+              className={index === activeSlide ? 'is-active' : ''}
+              aria-label={`Show Labyrinths screenshot ${index + 1}`}
+              aria-pressed={index === activeSlide}
+              onClick={() => setActiveSlide(index)}
+            />
           ))}
         </div>
-      </div>
+      )}
     </section>
   );
 }
@@ -1093,7 +1208,8 @@ function Overview({ data }) {
 
   return (
     <div className="page-stack overview-page">
-      <IntroGallery />
+      <HeroShowcase />
+      <LabyrinthsShowcase />
 
       <section className="snapshot-strip snapshot-strip-four" aria-label="Current collection statistics">
         <SnapshotStat label="Active Supply" value={formatInt(s.hero.active_supply)} sub="of 10,000" />
