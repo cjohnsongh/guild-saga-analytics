@@ -55,9 +55,8 @@ const GRANULARITY_OPTIONS = [
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', target: 'overview' },
+  { id: 'ownership', label: 'Ownership', target: 'ownership' },
   { id: 'market', label: 'Market', target: 'market' },
-  { id: 'ownership', label: 'Ownership', target: 'ownership-staking' },
-  { id: 'staking', label: 'Staking', target: 'ownership-staking' },
   { id: 'collection', label: 'Collection', target: 'collection' },
   { id: 'economy', label: 'Economy', target: 'economy' },
 ];
@@ -606,6 +605,132 @@ function makeTradingMarketOption(displayRows, marketRows, startDate, endDate, ra
         z: 3,
       },
     ],
+  };
+}
+
+
+function installMarketYAxisDrag(chart) {
+  const zr = chart.getZr();
+  const initial = chart.getOption().yAxis.map((axis) => ({
+    min: Number(axis.min),
+    max: Number(axis.max),
+    interval: Number(axis.interval),
+  }));
+  let drag = null;
+
+  const pointOf = (event) => ({
+    x: Number(event.offsetX ?? event.event?.offsetX ?? 0),
+    y: Number(event.offsetY ?? event.event?.offsetY ?? 0),
+  });
+
+  const hitRightAxis = (event) => {
+    const { x, y } = pointOf(event);
+    const width = chart.getWidth();
+    for (const gridIndex of [0, 1]) {
+      const grid = chart.getModel().getComponent('grid', gridIndex)?.coordinateSystem;
+      const rect = grid?.getRect?.();
+      if (!rect) continue;
+      const inY = y >= rect.y && y <= rect.y + rect.height;
+      const inAxisGutter = x >= rect.x + rect.width - 5 && x <= width;
+      if (inY && inAxisGutter) return gridIndex === 0 ? 0 : 2;
+    }
+    return null;
+  };
+
+  const setCursor = (event) => {
+    chart.getDom().style.cursor = hitRightAxis(event) !== null ? 'ns-resize' : '';
+  };
+
+  const patchAxis = (axisIndex, min, max) => {
+    const span = Math.max(1e-9, max - min);
+    const integer = axisIndex === 2;
+    const interval = integer
+      ? Math.max(1, Math.round(niceStep(span / 5)))
+      : niceStep(span / 5);
+    const patch = { min, max, interval };
+    const yAxis = [{}, {}, {}];
+    yAxis[axisIndex] = patch;
+    chart.setOption({ yAxis }, { lazyUpdate: true });
+  };
+
+  const onMouseDown = (event) => {
+    const raw = event.event;
+    if (raw?.button !== undefined && raw.button !== 0) return;
+    const axisIndex = hitRightAxis(event);
+    if (axisIndex === null) return;
+
+    const option = chart.getOption().yAxis?.[axisIndex] || {};
+    const min = Number(option.min);
+    const max = Number(option.max);
+    if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) return;
+
+    const { y } = pointOf(event);
+    drag = {
+      axisIndex,
+      startY: y,
+      startMin: min,
+      startMax: max,
+      startSpan: max - min,
+      center: (min + max) / 2,
+    };
+    chart.getDom().style.cursor = 'ns-resize';
+    raw?.preventDefault?.();
+  };
+
+  const onMouseMove = (event) => {
+    if (!drag) {
+      setCursor(event);
+      return;
+    }
+
+    const { y } = pointOf(event);
+    const deltaY = y - drag.startY;
+    const factor = Math.exp(deltaY * 0.009);
+    const span = Math.min(drag.startSpan * 25, Math.max(drag.startSpan * 0.04, drag.startSpan * factor));
+    let min = drag.center - span / 2;
+    let max = drag.center + span / 2;
+
+    if (min < 0) {
+      max -= min;
+      min = 0;
+    }
+    if (drag.axisIndex === 2) {
+      min = Math.max(0, Math.floor(min));
+      max = Math.max(min + 1, Math.ceil(max));
+    }
+
+    patchAxis(drag.axisIndex, min, max);
+    event.event?.preventDefault?.();
+  };
+
+  const stopDrag = () => {
+    drag = null;
+    chart.getDom().style.cursor = '';
+  };
+
+  const onDoubleClick = (event) => {
+    const axisIndex = hitRightAxis(event);
+    if (axisIndex === null) return;
+    const axis = initial[axisIndex];
+    if (!axis || !Number.isFinite(axis.min) || !Number.isFinite(axis.max)) return;
+    const yAxis = [{}, {}, {}];
+    yAxis[axisIndex] = axis;
+    chart.setOption({ yAxis }, { lazyUpdate: true });
+  };
+
+  zr.on('mousedown', onMouseDown);
+  zr.on('mousemove', onMouseMove);
+  zr.on('mouseup', stopDrag);
+  zr.on('globalout', stopDrag);
+  zr.on('dblclick', onDoubleClick);
+
+  return () => {
+    zr.off('mousedown', onMouseDown);
+    zr.off('mousemove', onMouseMove);
+    zr.off('mouseup', stopDrag);
+    zr.off('globalout', stopDrag);
+    zr.off('dblclick', onDoubleClick);
+    chart.getDom().style.cursor = '';
   };
 }
 
@@ -1566,10 +1691,25 @@ function HeroShowcase({ onIdentityCandidate }) {
   );
 }
 
+function EpicGamesIcon() {
+  return (
+    <svg className="epic-games-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path fill="currentColor" d="M3.537 0C2.165 0 1.66.506 1.66 1.879V18.44c0 .145.007.29.02.433.031.3.037.59.316.92.027.033.311.245.311.245.153.075.258.13.43.2l8.335 3.491c.433.199.614.276.928.27.314.006.495-.071.928-.27l8.335-3.492c.172-.07.277-.124.43-.2 0 0 .284-.211.311-.243.28-.33.285-.621.316-.92.014-.144.02-.288.02-.434V1.879C22.34.506 21.834 0 20.462 0H3.537Zm1.18 3.19h3.114v1.274H6.117v2.603h1.648v1.275H6.117v2.774h1.74v1.275h-3.14V3.19Zm3.816 0h2.198c1.138 0 1.7.564 1.7 1.708v2.445c0 1.144-.562 1.71-1.7 1.71h-.799v3.338h-1.4V3.19Zm4.53 0h1.4v9.201h-1.4V3.19Zm3.84-.08h.68c1.138 0 1.688.553 1.688 1.696v1.88h-1.374v-1.8c0-.369-.17-.54-.523-.54h-.235c-.367 0-.537.17-.537.539v5.81c0 .369.17.54.537.54h.262c.353 0 .523-.171.523-.54V8.619h1.373v2.143c0 1.144-.562 1.71-1.7 1.71h-.694c-1.138 0-1.7-.566-1.7-1.71V4.82c0-1.144.562-1.709 1.7-1.709ZM9.933 4.425v3.392h.575c.354 0 .523-.171.523-.54V4.965c0-.368-.17-.54-.523-.54h-.575Zm-3.74 10.147c.215 0 .412.036.591.108.18.073.343.172.49.299l-.452.546a1.247 1.247 0 0 0-.308-.195.91.91 0 0 0-.363-.068.658.658 0 0 0-.28.06.703.703 0 0 0-.224.163.783.783 0 0 0-.151.243.799.799 0 0 0-.056.299v.008c0 .111.019.214.056.31a.7.7 0 0 0 .157.245.736.736 0 0 0 .238.16.774.774 0 0 0 .303.058.79.79 0 0 0 .445-.116v-.339h-.548v-.565H7.37v1.255a2.019 2.019 0 0 1-.524.307 1.789 1.789 0 0 1-.683.123 1.642 1.642 0 0 1-.602-.107 1.46 1.46 0 0 1-.478-.3 1.371 1.371 0 0 1-.318-.455 1.438 1.438 0 0 1-.115-.58v-.008c0-.203.038-.393.113-.57.075-.178.179-.331.312-.46.133-.13.291-.233.474-.309.183-.074.382-.111.598-.111h.046Zm11.963.008c.22 0 .424.031.612.094.188.062.357.155.507.277l-.386.546a1.562 1.562 0 0 0-.39-.205 1.178 1.178 0 0 0-.388-.07.347.347 0 0 0-.208.052.154.154 0 0 0-.07.127v.008c0 .032.007.06.022.084a.198.198 0 0 0 .076.066.831.831 0 0 0 .147.06c.062.02.14.04.236.061.16.037.303.078.43.122.127.045.236.101.328.17a.678.678 0 0 1 .207.24.739.739 0 0 1 .071.337v.008a.865.865 0 0 1-.081.382.82.82 0 0 1-.229.285 1.032 1.032 0 0 1-.353.18 1.606 1.606 0 0 1-.46.061 2.16 2.16 0 0 1-.71-.116 1.718 1.718 0 0 1-.593-.346l.43-.514c.277.223.578.335.9.335a.457.457 0 0 0 .236-.05.157.157 0 0 0 .082-.142v-.008a.15.15 0 0 0-.02-.077.204.204 0 0 0-.073-.066.753.753 0 0 0-.143-.062 2.45 2.45 0 0 0-.233-.062 5.036 5.036 0 0 1-.413-.113 1.26 1.26 0 0 1-.331-.16.72.72 0 0 1-.222-.243.73.73 0 0 1-.082-.36v-.008c0-.128.025-.248.074-.359a.794.794 0 0 1 .214-.283 1.007 1.007 0 0 1 .34-.185c.133-.044.282-.066.448-.066h.025Zm-9.358.025h.742l1.183 2.81h-.825l-.203-.499H8.623l-.198.498h-.81l1.183-2.81Zm2.197.02h.814l.663 1.08.663-1.08h.814v2.79h-.766v-1.602l-.711 1.091h-.016l-.707-1.083v1.593h-.754v-2.79Zm3.469 0h2.235v.658h-1.473v.422h1.334v.61h-1.334v.442h1.493v.658h-2.255v-2.79Zm-5.3.897-.315.793h.624l-.31-.793Zm-1.145 5.19h8.014l-4.09 1.348-3.924-1.348Z" />
+    </svg>
+  );
+}
+
+function getLabyrinthsCarouselLayout() {
+  const width = window.innerWidth;
+  if (width <= 520) return { step: 84, offset: 8 };
+  if (width <= 780) return { step: 50, offset: 0 };
+  if (width <= 1120) return { step: 100 / 3, offset: 0 };
+  return { step: 25, offset: 0 };
+}
+
 function LabyrinthsShowcase() {
-  const VISIBLE_COUNT = 4;
   const REAL_COUNT = LABYRINTHS_SLIDES.length;
-  const LOOP_PAD = Math.min(VISIBLE_COUNT, REAL_COUNT);
+  const LOOP_PAD = Math.min(4, REAL_COUNT);
   const START_INDEX = LOOP_PAD;
   const loopSlides = useMemo(() => {
     if (!REAL_COUNT) return [];
@@ -1585,6 +1725,7 @@ function LabyrinthsShowcase() {
   const [carouselTransition, setCarouselTransition] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [carouselLayout, setCarouselLayout] = useState(() => getLabyrinthsCarouselLayout());
   const carouselLocked = useRef(false);
 
   useEffect(() => {
@@ -1593,6 +1734,13 @@ function LabyrinthsShowcase() {
     update();
     media.addEventListener?.('change', update);
     return () => media.removeEventListener?.('change', update);
+  }, []);
+
+  useEffect(() => {
+    const update = () => setCarouselLayout(getLabyrinthsCarouselLayout());
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
   }, []);
 
   useEffect(() => {
@@ -1648,7 +1796,8 @@ function LabyrinthsShowcase() {
           <p>A tactical RPG from Ocelot Technologies where Guild Saga Heroes can be used alongside standard adventurers.</p>
         </div>
         <a className="epic-wishlist-link" href="https://store.epicgames.com/p/guild-saga-labyrinths-ca0f96?lang=en-US" target="_blank" rel="noreferrer">
-          Wishlist on Epic Games Store
+          <EpicGamesIcon />
+          <span>Wishlist on Epic Games Store</span>
         </a>
       </div>
 
@@ -1660,7 +1809,7 @@ function LabyrinthsShowcase() {
         <div className="labyrinths-carousel-viewport">
           <div
             className={`labyrinths-carousel-track ${carouselTransition && !reducedMotion ? 'is-animated' : ''}`}
-            style={{ transform: `translateX(-${carouselIndex * 25}%)` }}
+            style={{ transform: `translateX(${carouselLayout.offset - carouselIndex * carouselLayout.step}%)` }}
             onTransitionEnd={finishCarouselMove}
           >
             {loopSlides.map((slide) => {
@@ -1669,6 +1818,7 @@ function LabyrinthsShowcase() {
                 <button
                   type="button"
                   className="labyrinths-carousel-item"
+                  style={{ flex: `0 0 ${carouselLayout.step}%` }}
                   key={slide.loopKey}
                   onClick={() => setLightboxIndex(actualIndex)}
                   aria-label={`Open Guild Saga: Labyrinths screenshot ${actualIndex + 1}`}
@@ -1711,38 +1861,11 @@ function LabyrinthsShowcase() {
   );
 }
 
-function Overview({ data, onHeroIdentityCandidate }) {
-  const { summary: s } = data;
-
+function Overview({ onHeroIdentityCandidate }) {
   return (
     <div className="page-stack overview-page">
       <HeroShowcase onIdentityCandidate={onHeroIdentityCandidate} />
       <LabyrinthsShowcase />
-
-      <section className="snapshot-strip snapshot-strip-four" aria-label="Current collection statistics">
-        <SnapshotStat label="Active Supply" value={formatInt(s.hero.active_supply)} sub="of 10,000" />
-        <SnapshotStat label="Burned" value={formatInt(s.hero.burned)} />
-        <SnapshotStat label="Holders" value={formatInt(s.hero.beneficial_holders)} />
-        <SnapshotStat label="Staked" value={formatInt(s.hero.staked_heroes)} sub={formatPercent(s.hero.staked_supply_pct)} />
-      </section>
-
-      <section className="overview-supply-state overview-staked-only" aria-label={`Staked Heroes: ${formatInt(s.hero.staked_heroes)}, ${formatPercent(s.hero.staked_supply_pct)} of active supply`}>
-        <div className="supply-state-chart">
-          <div className="supply-state-row">
-            <strong>Staked</strong>
-            <div className="supply-state-track-wrap" aria-hidden="true">
-              <div className="supply-state-scale">
-                <span className="supply-state-value-label" style={{ left: `${s.hero.staked_supply_pct}%` }}>{formatPercent(s.hero.staked_supply_pct)}</span>
-                <span className="supply-state-maximum-label">100%</span>
-              </div>
-              <div className="supply-state-track">
-                <span className="supply-state-fill supply-state-fill-staked" style={{ width: `${s.hero.staked_supply_pct}%` }} />
-                <span className="supply-state-marker" style={{ left: `${s.hero.staked_supply_pct}%` }} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
@@ -1843,7 +1966,7 @@ function Market({ data }) {
         </div>
 
         <div className="trading-chart" aria-label="Guild Saga Heroes floor price, volume and listings history">
-          <Chart option={chartOption} />
+          <Chart option={chartOption} onInit={installMarketYAxisDrag} />
         </div>
 
         <div className="trading-rangebar" aria-label="Chart time range">
@@ -1867,7 +1990,7 @@ function Market({ data }) {
   );
 }
 
-function OwnershipStaking({ data }) {
+function Ownership({ data }) {
   const tiers = data.hero.holder_distribution;
   const totalHolders = tiers.reduce((sum, row) => sum + Number(row.holder_count || 0), 0);
   const small = tiers.find((row) => row.tier === '1-4');
@@ -1877,40 +2000,49 @@ function OwnershipStaking({ data }) {
   const ownershipOption = useMemo(() => makeOwnershipOption(tiers), [tiers]);
 
   const rows = data.hero.quest_activity;
+  const active7 = Number(rows.find((row) => row.bucket === 'Active 0–7d')?.heroes || 0);
   const active30 = rows.slice(0, 2).reduce((sum, row) => sum + Number(row.heroes || 0), 0);
-  const idleYear = rows.find((row) => row.bucket === 'Idle 1+ year')?.heroes || 0;
+  const idleYear = Number(rows.find((row) => row.bucket === 'Idle 1+ year')?.heroes || 0);
+  const neverQuested = Number(rows.find((row) => row.bucket === 'Never quested')?.heroes || 0);
+  const idleYearCombined = idleYear + neverQuested;
   const staked = Number(data.summary.hero.staked_heroes || 0);
   const stakingOption = useMemo(() => makeStakingOption(rows), [rows]);
 
   return (
-    <div className="ownership-staking-grid">
-      <section className="joint-domain-panel" aria-labelledby="ownership-title">
-        <div className="section-heading joint-section-heading"><h2 id="ownership-title">Ownership</h2></div>
-        <section className="snapshot-strip joint-snapshot ownership-snapshot">
-          <SnapshotStat label="Holders" value={formatInt(totalHolders)} />
-          <SnapshotStat label="1–4 Heroes" value={formatInt(small?.holder_count)} sub={`${formatPercent(totalHolders ? Number(small?.holder_count || 0) / totalHolders * 100 : 0)} of holders`} />
-          <SnapshotStat label="50+ Heroes" value={formatInt(largeHolders)} sub={`${formatPercent(largeSupply)} of active supply`} />
-        </section>
-        <div className="joint-chart-head">
-          <strong>Holder distribution</strong>
-          <span>Share of holders vs share of active supply</span>
-        </div>
-        <div className="domain-chart joint-domain-chart"><Chart option={ownershipOption} /></div>
+    <div className="page-stack ownership-page">
+      <section className="section-heading ownership-main-heading">
+        <h2 id="ownership-title">Ownership</h2>
       </section>
 
-      <section className="joint-domain-panel" aria-labelledby="staking-title">
-        <div className="section-heading joint-section-heading"><h2 id="staking-title">Staking</h2></div>
-        <section className="snapshot-strip joint-snapshot staking-snapshot">
-          <SnapshotStat label="Staked" value={formatInt(staked)} sub={formatPercent(data.summary.hero.staked_supply_pct)} />
-          <SnapshotStat label="Active ≤30d" value={formatInt(active30)} sub={`${formatPercent(staked ? active30 / staked * 100 : 0)} of staked`} />
-          <SnapshotStat label="Idle 1+ year" value={formatInt(idleYear)} sub={`${formatPercent(staked ? Number(idleYear) / staked * 100 : 0)} of staked`} />
+      <div className="ownership-staking-grid">
+        <section className="joint-domain-panel" aria-labelledby="holder-distribution-title">
+          <section className="snapshot-strip joint-snapshot ownership-snapshot" aria-label="Ownership statistics">
+            <SnapshotStat label="Active Supply" value={formatInt(data.summary.hero.active_supply)} />
+            <SnapshotStat label="Holders" value={formatInt(totalHolders)} />
+            <SnapshotStat label="1–4 Heroes" value={formatInt(small?.holder_count)} sub={`${formatPercent(totalHolders ? Number(small?.holder_count || 0) / totalHolders * 100 : 0)} of holders`} />
+            <SnapshotStat label="50+ Heroes" value={formatInt(largeHolders)} sub={`${formatPercent(largeSupply)} of active supply`} />
+          </section>
+          <div className="joint-chart-head">
+            <strong id="holder-distribution-title">Holder Distribution</strong>
+            <span>Share of holders vs share of active supply</span>
+          </div>
+          <div className="domain-chart joint-domain-chart"><Chart option={ownershipOption} /></div>
         </section>
-        <div className="joint-chart-head">
-          <strong>Quest activity</strong>
-          <span>Time since the last qualifying quest restart</span>
-        </div>
-        <div className="domain-chart joint-domain-chart"><Chart option={stakingOption} /></div>
-      </section>
+
+        <section className="joint-domain-panel" aria-labelledby="quest-activity-title">
+          <section className="snapshot-strip joint-snapshot staking-snapshot" aria-label="Staking and quest statistics">
+            <SnapshotStat label="Staked" value={formatInt(staked)} sub={`${formatPercent(data.summary.hero.staked_supply_pct)} of active supply`} />
+            <SnapshotStat label="Active ≤7d" value={formatInt(active7)} sub={`${formatPercent(staked ? active7 / staked * 100 : 0)} of staked`} />
+            <SnapshotStat label="Active ≤30d" value={formatInt(active30)} sub={`${formatPercent(staked ? active30 / staked * 100 : 0)} of staked`} />
+            <SnapshotStat label="Idle 1+ Year" value={formatInt(idleYearCombined)} sub={`${formatPercent(staked ? idleYearCombined / staked * 100 : 0)} of staked`} />
+          </section>
+          <div className="joint-chart-head">
+            <strong id="quest-activity-title">Quest Activity</strong>
+            <span>Time since the last qualifying quest restart</span>
+          </div>
+          <div className="domain-chart joint-domain-chart"><Chart option={stakingOption} /></div>
+        </section>
+      </div>
     </div>
   );
 }
@@ -2280,13 +2412,13 @@ export default function App() {
           <>
             <div className="single-page">
               <section id="overview" className="scroll-section scroll-section-overview" data-nav-section>
-                <Overview data={data} onHeroIdentityCandidate={setHeroIdentityCandidate} />
+                <Overview onHeroIdentityCandidate={setHeroIdentityCandidate} />
+              </section>
+              <section id="ownership" className="scroll-section ownership-section" data-nav-section>
+                <Ownership data={data} />
               </section>
               <section id="market" className="scroll-section" data-nav-section>
                 <Market data={data} />
-              </section>
-              <section id="ownership-staking" className="scroll-section ownership-staking-section" data-nav-section>
-                <OwnershipStaking data={data} />
               </section>
               <section id="collection" className="scroll-section" data-nav-section>
                 <Collection data={data} />

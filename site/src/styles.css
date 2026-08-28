@@ -1979,3 +1979,84 @@ html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
   .labyrinths-carousel-track.is-animated { transition: none; }
 }
+
+
+/* UX20 — restore dashboard hierarchy and responsive coherence. */
+.hero-showcase-copy h1,
+.labyrinths-heading-row h2 {
+  font-size: clamp(23px, 1.8vw, 29px);
+  line-height: 1.08;
+  letter-spacing: -.025em;
+  font-weight: 600;
+}
+.hero-showcase-copy h1 { margin-bottom: 16px; }
+
+/* Ownership is the parent domain; staking/quest state lives inside it. */
+.ownership-page { gap: 22px; }
+.ownership-main-heading { margin-bottom: 0; }
+.ownership-staking-grid { align-items: start; }
+.ownership-snapshot,
+.staking-snapshot { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.joint-snapshot .snapshot-stat {
+  min-height: 88px;
+  padding: 13px 10px;
+}
+.joint-snapshot .snapshot-stat:first-child { padding-left: 0; }
+.joint-snapshot .snapshot-stat:last-child { padding-right: 0; }
+.joint-snapshot .snapshot-stat > span { font-size: 12px; }
+.joint-snapshot .snapshot-stat > strong { font-size: clamp(18px, 1.42vw, 24px); }
+.joint-snapshot .snapshot-stat > small { font-size: 12px; }
+.staking-snapshot .snapshot-stat:nth-child(3),
+.staking-snapshot .snapshot-stat:nth-child(4) { border-top: 0; }
+
+.epic-wishlist-link { gap: 8px; }
+.epic-games-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  display: block;
+}
+
+/* Four screenshots at full width, then 3, 2, and finally one complete image
+   with faded neighboring peeks on narrow phones. Item width itself is set by
+   the responsive carousel logic so the infinite-loop transform stays exact. */
+@media (max-width: 1120px) {
+  .labyrinths-carousel-viewport {
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 3.5%, #000 96.5%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 3.5%, #000 96.5%, transparent 100%);
+  }
+}
+
+@media (max-width: 780px) {
+  .brand small {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+  }
+  .hero-showcase-copy h1 { font-size: clamp(23px, 1.8vw, 29px); }
+  .ownership-snapshot,
+  .staking-snapshot { grid-template-columns: 1fr 1fr; }
+  .ownership-snapshot .snapshot-stat,
+  .staking-snapshot .snapshot-stat { border-top: 0; }
+  .ownership-snapshot .snapshot-stat:nth-child(-n+2),
+  .staking-snapshot .snapshot-stat:nth-child(-n+2) { border-bottom: 1px solid #303030; }
+  .ownership-snapshot .snapshot-stat:nth-child(odd),
+  .staking-snapshot .snapshot-stat:nth-child(odd) { border-right: 1px solid #303030; }
+  .ownership-snapshot .snapshot-stat:nth-child(even),
+  .staking-snapshot .snapshot-stat:nth-child(even) { border-right: 0; }
+}
+
+@media (max-width: 640px) {
+  .ownership-snapshot,
+  .staking-snapshot { grid-template-columns: 1fr 1fr; }
+  .staking-snapshot .snapshot-stat { border-top: 0; }
+  .staking-snapshot .snapshot-stat:first-child { border-top: 0; }
+}
+
+@media (max-width: 520px) {
+  .labyrinths-carousel-viewport {
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+  }
+  .labyrinths-carousel-item { padding-left: 4px; padding-right: 4px; }
+}
