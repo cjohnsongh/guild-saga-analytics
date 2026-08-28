@@ -23,7 +23,9 @@ const HERO_SOURCE_HEIGHT = 70;
 const HERO_FACE_CROP = { x: 20, y: 8, width: 26, height: 26 };
 const HERO_BODY_OUTPUT = { width: 650, height: 700 };
 const HERO_FACE_OUTPUT = { width: 780, height: 780 };
-const HERO_IDENTITY_OUTPUT = { width: 78, height: 78 };
+const HERO_IDENTITY_OUTPUT = { width: 52, height: 52 };
+const HERO_FAVICON_OUTPUT = { width: 52, height: 52 };
+const HERO_FAVICON_RADIUS = 9;
 const HERO_IDENTITY_DELAY_MS = 3000;
 const HERO_IDENTITY_FADE_MS = 360;
 const heroSourceImageCache = new Map();
@@ -1168,6 +1170,55 @@ async function makeHeroPfpBlob(sourceImage, backgroundColor, variant, outputOver
 }
 
 
+async function makeRoundedHeroFaviconBlob(sourceImage, backgroundColor) {
+  const compositeCanvas = document.createElement('canvas');
+  compositeCanvas.width = HERO_FACE_CROP.width;
+  compositeCanvas.height = HERO_FACE_CROP.height;
+  const compositeContext = compositeCanvas.getContext('2d', { alpha: false });
+  if (!compositeContext) throw new Error('Browser could not create the favicon canvas.');
+
+  compositeContext.imageSmoothingEnabled = false;
+  compositeContext.fillStyle = backgroundColor;
+  compositeContext.fillRect(0, 0, HERO_FACE_CROP.width, HERO_FACE_CROP.height);
+  compositeContext.drawImage(
+    sourceImage,
+    HERO_FACE_CROP.x,
+    HERO_FACE_CROP.y,
+    HERO_FACE_CROP.width,
+    HERO_FACE_CROP.height,
+    0,
+    0,
+    HERO_FACE_CROP.width,
+    HERO_FACE_CROP.height,
+  );
+
+  const outputCanvas = document.createElement('canvas');
+  outputCanvas.width = HERO_FAVICON_OUTPUT.width;
+  outputCanvas.height = HERO_FAVICON_OUTPUT.height;
+  const outputContext = outputCanvas.getContext('2d');
+  if (!outputContext) throw new Error('Browser could not create the favicon output canvas.');
+
+  outputContext.imageSmoothingEnabled = false;
+  outputContext.beginPath();
+  outputContext.roundRect(
+    0,
+    0,
+    HERO_FAVICON_OUTPUT.width,
+    HERO_FAVICON_OUTPUT.height,
+    HERO_FAVICON_RADIUS,
+  );
+  outputContext.clip();
+  outputContext.drawImage(
+    compositeCanvas,
+    0,
+    0,
+    HERO_FAVICON_OUTPUT.width,
+    HERO_FAVICON_OUTPUT.height,
+  );
+
+  return canvasToPngBlob(outputCanvas);
+}
+
 function setHeroFavicon(href) {
   let link = document.querySelector('link[rel="icon"]');
   if (!link) {
@@ -1186,6 +1237,7 @@ function BrandHeroMark({ candidate }) {
   const candidateVersionRef = useRef(0);
   const currentBlobUrlRef = useRef(null);
   const nextBlobUrlRef = useRef(null);
+  const currentFaviconBlobUrlRef = useRef(null);
   const fadeTimerRef = useRef(null);
 
   useEffect(() => {
@@ -1193,18 +1245,25 @@ function BrandHeroMark({ candidate }) {
     const timer = window.setTimeout(async () => {
       try {
         const sourceImage = await loadHeroSourceImage(candidate.heroId);
-        const blob = await makeHeroPfpBlob(sourceImage, candidate.color, 'face', HERO_IDENTITY_OUTPUT);
+        const [headerBlob, faviconBlob] = await Promise.all([
+          makeHeroPfpBlob(sourceImage, candidate.color, 'face', HERO_IDENTITY_OUTPUT),
+          makeRoundedHeroFaviconBlob(sourceImage, candidate.color),
+        ]);
 
         if (version !== candidateVersionRef.current) return;
 
-        const url = URL.createObjectURL(blob);
+        const url = URL.createObjectURL(headerBlob);
+        const faviconUrl = URL.createObjectURL(faviconBlob);
         nextBlobUrlRef.current = url;
         setNextVisible(false);
         setNextUrl(url);
 
         // The favicon intentionally snaps to the settled Hero. The in-page mark
         // crossfades over the old Hero instead of changing abruptly.
-        setHeroFavicon(url);
+        const previousFaviconBlobUrl = currentFaviconBlobUrlRef.current;
+        currentFaviconBlobUrlRef.current = faviconUrl;
+        setHeroFavicon(faviconUrl);
+        if (previousFaviconBlobUrl) URL.revokeObjectURL(previousFaviconBlobUrl);
 
         window.requestAnimationFrame(() => {
           window.requestAnimationFrame(() => setNextVisible(true));
@@ -1232,6 +1291,7 @@ function BrandHeroMark({ candidate }) {
     if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
     if (currentBlobUrlRef.current) URL.revokeObjectURL(currentBlobUrlRef.current);
     if (nextBlobUrlRef.current) URL.revokeObjectURL(nextBlobUrlRef.current);
+    if (currentFaviconBlobUrlRef.current) URL.revokeObjectURL(currentFaviconBlobUrlRef.current);
   }, []);
 
   return (
