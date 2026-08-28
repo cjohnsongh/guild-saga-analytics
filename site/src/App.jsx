@@ -20,33 +20,31 @@ const HERO_ZERO_FACE_PFP = '/assets/heroes/0-face-pfp.png';
 const HERO_SHOWCASE_ITEMS = [
   {
     id: 'original',
-    label: 'Original NFT',
+    label: 'Original',
     src: HERO_ZERO_ORIGINAL,
     alt: 'Guild Saga Hero #0 original NFT image',
-    actionLabel: 'Open image',
   },
   {
     id: 'body',
     label: 'Body PFP',
     src: HERO_ZERO_BODY_PFP,
     alt: 'Guild Saga Hero #0 body profile picture',
-    actionLabel: 'Open PNG',
   },
   {
     id: 'face',
     label: 'Face PFP',
     src: HERO_ZERO_FACE_PFP,
     alt: 'Guild Saga Hero #0 face profile picture',
-    actionLabel: 'Open PNG',
   },
 ];
 
 const LABYRINTHS_SLIDES = [
-  {
-    id: 'combat',
-    src: 'https://guildsaga.com/avif/lab-screenshot1.avif',
-    alt: 'Guild Saga: Labyrinths tactical combat gameplay',
-  },
+  { id: '01', src: '/assets/labyrinths/01.png', alt: 'Guild Saga: Labyrinths gameplay screenshot 1' },
+  { id: '02', src: '/assets/labyrinths/02.png', alt: 'Guild Saga: Labyrinths gameplay screenshot 2' },
+  { id: '03', src: '/assets/labyrinths/03.png', alt: 'Guild Saga: Labyrinths gameplay screenshot 3' },
+  { id: '04', src: '/assets/labyrinths/04.png', alt: 'Guild Saga: Labyrinths gameplay screenshot 4' },
+  { id: '05', src: '/assets/labyrinths/05.png', alt: 'Guild Saga: Labyrinths gameplay screenshot 5' },
+  { id: '06', src: '/assets/labyrinths/06.png', alt: 'Guild Saga: Labyrinths gameplay screenshot 6' },
 ];
 
 const RANGE_OPTIONS = [
@@ -1057,24 +1055,9 @@ function ShareMeter({ label, value, pct, tone = 'accent' }) {
 
 function HeroImageCard({ item, mobileActive }) {
   return (
-    <article className={`hero-visual-card hero-visual-${item.id} ${mobileActive ? 'is-mobile-active' : ''}`}>
-      <div className="hero-visual-heading">
-        <strong>{item.label}</strong>
-        <span>Hero #0</span>
-      </div>
-      <a
-        className="hero-visual-image-link"
-        href={item.src}
-        target="_blank"
-        rel="noreferrer"
-        aria-label={`Open ${item.label} for Guild Saga Hero #0`}
-      >
-        <img src={item.src} alt={item.alt} />
-      </a>
-      <div className="hero-visual-footer">
-        <a href={item.src} target="_blank" rel="noreferrer">{item.actionLabel} <span aria-hidden="true">↗</span></a>
-      </div>
-    </article>
+    <div className={`hero-art hero-art-${item.id} ${mobileActive ? 'is-mobile-active' : ''}`}>
+      <img src={item.src} alt={item.alt} />
+    </div>
   );
 }
 
@@ -1084,119 +1067,221 @@ function HeroShowcase() {
   return (
     <section className="hero-showcase" aria-labelledby="hero-showcase-title">
       <div className="hero-showcase-copy">
-        <div>
-          <span className="showcase-kicker">Collection</span>
-          <h1 id="hero-showcase-title">Guild Saga Heroes</h1>
-          <p className="intro-lead">
-            A 10,000-piece Solana NFT collection that can be used in <strong>Guild Saga: Labyrinths</strong>, a tactical RPG from Ocelot Technologies.
-          </p>
-          <p className="intro-body">
-            This site tracks the collection's supply, holders, staking activity, burns and secondary-market history using on-chain data.
-          </p>
-        </div>
-
-        <div className="hero-showcase-copy-bottom">
-          <div className="selected-hero" aria-label="Selected Hero number 0">
-            <span>Selected Hero</span>
-            <strong>#0</strong>
-          </div>
-          <div className="intro-actions hero-trade-actions">
-            <a href="https://www.tensor.trade/trade/guild_saga_heroes" target="_blank" rel="noreferrer">Tensor <span aria-hidden="true">↗</span></a>
-            <a href="https://magiceden.io/marketplace/guild_saga_heroes" target="_blank" rel="noreferrer">Magic Eden <span aria-hidden="true">↗</span></a>
-          </div>
+        <h1 id="hero-showcase-title">Guild Saga Heroes</h1>
+        <p className="intro-lead">
+          A 10,000-piece Solana NFT collection that can be used in <strong>Guild Saga: Labyrinths</strong>, a tactical RPG from Ocelot Technologies.
+        </p>
+        <p className="intro-body">
+          This site tracks the collection's supply, holders, staking activity, burns and secondary-market history using on-chain data.
+        </p>
+        <div className="intro-actions hero-trade-actions">
+          <span>Trade:</span>
+          <a href="https://www.tensor.trade/trade/guild_saga_heroes" target="_blank" rel="noreferrer">Tensor</a>
+          <a href="https://magiceden.io/marketplace/guild_saga_heroes" target="_blank" rel="noreferrer">Magic Eden</a>
         </div>
       </div>
 
-      <div className="hero-mobile-tabs" role="tablist" aria-label="Hero image type">
-        {HERO_SHOWCASE_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            role="tab"
-            aria-selected={mobileView === item.id}
-            className={mobileView === item.id ? 'is-active' : ''}
-            onClick={() => setMobileView(item.id)}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
+      <div className="hero-browser">
+        <div className="hero-browser-toolbar" aria-label="Currently showing Guild Saga Hero number 0">
+          <span>Hero</span>
+          <strong>#0</strong>
+        </div>
 
-      {HERO_SHOWCASE_ITEMS.map((item) => (
-        <HeroImageCard key={item.id} item={item} mobileActive={mobileView === item.id} />
-      ))}
+        <div className="hero-mobile-tabs" role="tablist" aria-label="Hero image type">
+          {HERO_SHOWCASE_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={mobileView === item.id}
+              className={mobileView === item.id ? 'is-active' : ''}
+              onClick={() => setMobileView(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="hero-art-grid">
+          {HERO_SHOWCASE_ITEMS.map((item) => (
+            <HeroImageCard key={item.id} item={item} mobileActive={mobileView === item.id} />
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
 
 function LabyrinthsShowcase() {
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const VISIBLE_COUNT = 4;
+  const CLONE_COUNT = Math.min(VISIBLE_COUNT, LABYRINTHS_SLIDES.length);
+  const extendedSlides = useMemo(() => {
+    if (LABYRINTHS_SLIDES.length <= VISIBLE_COUNT) return LABYRINTHS_SLIDES;
+    return [
+      ...LABYRINTHS_SLIDES.slice(-CLONE_COUNT),
+      ...LABYRINTHS_SLIDES,
+      ...LABYRINTHS_SLIDES.slice(0, CLONE_COUNT),
+    ];
+  }, []);
+
+  const viewportRef = useRef(null);
+  const [carouselIndex, setCarouselIndex] = useState(LABYRINTHS_SLIDES.length > VISIBLE_COUNT ? CLONE_COUNT : 0);
+  const [viewportWidth, setViewportWidth] = useState(0);
+  const [animateCarousel, setAnimateCarousel] = useState(true);
+  const [carouselPaused, setCarouselPaused] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    if (paused || LABYRINTHS_SLIDES.length < 2) return undefined;
-    const timer = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % LABYRINTHS_SLIDES.length);
-    }, 7500);
-    return () => window.clearInterval(timer);
-  }, [paused]);
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(media.matches);
+    update();
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
 
-  const current = LABYRINTHS_SLIDES[activeSlide] || LABYRINTHS_SLIDES[0];
-  const hasMultipleSlides = LABYRINTHS_SLIDES.length > 1;
+  useEffect(() => {
+    if (!viewportRef.current) return undefined;
+    const measure = () => setViewportWidth(viewportRef.current?.getBoundingClientRect().width || 0);
+    measure();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    observer?.observe(viewportRef.current);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion || carouselPaused || lightboxIndex !== null || LABYRINTHS_SLIDES.length <= VISIBLE_COUNT) return undefined;
+    const timer = window.setInterval(() => {
+      setAnimateCarousel(true);
+      setCarouselIndex((current) => current + 1);
+    }, 9000);
+    return () => window.clearInterval(timer);
+  }, [carouselPaused, lightboxIndex, reducedMotion]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setLightboxIndex(null);
+      if (event.key === 'ArrowLeft') {
+        setLightboxIndex((current) => (current - 1 + LABYRINTHS_SLIDES.length) % LABYRINTHS_SLIDES.length);
+      }
+      if (event.key === 'ArrowRight') {
+        setLightboxIndex((current) => (current + 1) % LABYRINTHS_SLIDES.length);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [lightboxIndex]);
+
+  const gap = 12;
+  const itemWidth = viewportWidth > 0 ? (viewportWidth - gap * (VISIBLE_COUNT - 1)) / VISIBLE_COUNT : 0;
+  const step = itemWidth + gap;
+  const offset = carouselIndex * step;
+
+  const logicalIndexForExtended = (index) => {
+    if (LABYRINTHS_SLIDES.length <= VISIBLE_COUNT) return index;
+    return (index - CLONE_COUNT + LABYRINTHS_SLIDES.length) % LABYRINTHS_SLIDES.length;
+  };
+
+  const moveCarousel = (direction) => {
+    if (LABYRINTHS_SLIDES.length <= VISIBLE_COUNT) return;
+    setAnimateCarousel(true);
+    setCarouselIndex((current) => current + direction);
+  };
+
+  const handleTrackTransitionEnd = () => {
+    if (LABYRINTHS_SLIDES.length <= VISIBLE_COUNT) return;
+    const firstReal = CLONE_COUNT;
+    const afterLastReal = CLONE_COUNT + LABYRINTHS_SLIDES.length;
+    if (carouselIndex >= afterLastReal) {
+      setAnimateCarousel(false);
+      setCarouselIndex(firstReal);
+      requestAnimationFrame(() => requestAnimationFrame(() => setAnimateCarousel(true)));
+    } else if (carouselIndex < firstReal) {
+      setAnimateCarousel(false);
+      setCarouselIndex(afterLastReal - 1);
+      requestAnimationFrame(() => requestAnimationFrame(() => setAnimateCarousel(true)));
+    }
+  };
 
   return (
     <section className="labyrinths-showcase" aria-labelledby="labyrinths-showcase-title">
       <div className="labyrinths-heading-row">
         <div>
-          <span className="showcase-kicker">Game</span>
           <h2 id="labyrinths-showcase-title">Guild Saga: Labyrinths</h2>
-          <p>A tactical RPG from Ocelot Technologies where standard adventurers or Guild Saga Heroes can descend into procedurally generated chambers.</p>
+          <p>A tactical RPG from Ocelot Technologies where Guild Saga Heroes can be used alongside standard adventurers.</p>
         </div>
         <a className="epic-wishlist-link" href="https://store.epicgames.com/p/guild-saga-labyrinths-ca0f96?lang=en-US" target="_blank" rel="noreferrer">
-          Wishlist on Epic Games Store <span aria-hidden="true">↗</span>
+          Wishlist on Epic Games Store
         </a>
       </div>
 
       <div
-        className="labyrinths-stage"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
+        className="labyrinths-carousel"
+        onMouseEnter={() => setCarouselPaused(true)}
+        onMouseLeave={() => setCarouselPaused(false)}
       >
-        <img key={current.id} src={current.src} alt={current.alt} />
-        {hasMultipleSlides && (
+        <div ref={viewportRef} className="labyrinths-carousel-viewport">
+          <div
+            className={`labyrinths-carousel-track ${animateCarousel ? 'is-animated' : ''}`}
+            style={{ transform: `translate3d(${-offset}px, 0, 0)` }}
+            onTransitionEnd={handleTrackTransitionEnd}
+          >
+            {extendedSlides.map((slide, index) => {
+              const logicalIndex = logicalIndexForExtended(index);
+              return (
+                <button
+                  type="button"
+                  className="labyrinths-carousel-item"
+                  key={`${slide.id}-${index}`}
+                  style={itemWidth ? { width: `${itemWidth}px` } : undefined}
+                  onClick={() => setLightboxIndex(logicalIndex)}
+                  aria-label={`Open Guild Saga: Labyrinths screenshot ${logicalIndex + 1}`}
+                >
+                  <img src={slide.src} alt={slide.alt} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {LABYRINTHS_SLIDES.length > VISIBLE_COUNT && (
           <>
-            <button
-              type="button"
-              className="labyrinths-arrow labyrinths-arrow-prev"
-              aria-label="Previous Labyrinths screenshot"
-              onClick={() => setActiveSlide((activeSlide - 1 + LABYRINTHS_SLIDES.length) % LABYRINTHS_SLIDES.length)}
-            >
-              ‹
-            </button>
-            <button
-              type="button"
-              className="labyrinths-arrow labyrinths-arrow-next"
-              aria-label="Next Labyrinths screenshot"
-              onClick={() => setActiveSlide((activeSlide + 1) % LABYRINTHS_SLIDES.length)}
-            >
-              ›
-            </button>
+            <button type="button" className="labyrinths-arrow labyrinths-arrow-prev" aria-label="Previous screenshots" onClick={() => moveCarousel(-1)}>‹</button>
+            <button type="button" className="labyrinths-arrow labyrinths-arrow-next" aria-label="Next screenshots" onClick={() => moveCarousel(1)}>›</button>
           </>
         )}
       </div>
 
-      {hasMultipleSlides && (
-        <div className="labyrinths-dots" aria-label="Labyrinths screenshots">
-          {LABYRINTHS_SLIDES.map((slide, index) => (
-            <button
-              type="button"
-              key={slide.id}
-              className={index === activeSlide ? 'is-active' : ''}
-              aria-label={`Show Labyrinths screenshot ${index + 1}`}
-              aria-pressed={index === activeSlide}
-              onClick={() => setActiveSlide(index)}
-            />
-          ))}
+      {lightboxIndex !== null && (
+        <div className="image-lightbox" role="dialog" aria-modal="true" aria-label="Guild Saga: Labyrinths screenshot viewer" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setLightboxIndex(null);
+        }}>
+          <button type="button" className="image-lightbox-close" aria-label="Close screenshot viewer" onClick={() => setLightboxIndex(null)}>×</button>
+          <button
+            type="button"
+            className="image-lightbox-arrow image-lightbox-prev"
+            aria-label="Previous screenshot"
+            onClick={() => setLightboxIndex((lightboxIndex - 1 + LABYRINTHS_SLIDES.length) % LABYRINTHS_SLIDES.length)}
+          >‹</button>
+          <div className="image-lightbox-image-wrap">
+            <img src={LABYRINTHS_SLIDES[lightboxIndex].src} alt={LABYRINTHS_SLIDES[lightboxIndex].alt} />
+          </div>
+          <button
+            type="button"
+            className="image-lightbox-arrow image-lightbox-next"
+            aria-label="Next screenshot"
+            onClick={() => setLightboxIndex((lightboxIndex + 1) % LABYRINTHS_SLIDES.length)}
+          >›</button>
         </div>
       )}
     </section>
