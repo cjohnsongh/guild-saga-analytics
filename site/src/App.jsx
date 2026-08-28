@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { HexColorInput, HexColorPicker } from 'react-colorful';
 import Chart from './components/Chart.jsx';
 
 const DATA_PATHS = [
@@ -1120,29 +1121,75 @@ function HeroImageCard({ item, mobileActive, onOpen }) {
   );
 }
 
+function PfpColorPopover({ color, onChange, defaultColor }) {
+  const [open, setOpen] = useState(false);
+  const popoverRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handlePointerDown = (event) => {
+      if (!popoverRef.current?.contains(event.target)) setOpen(false);
+    };
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <div className="pfp-color-popover" ref={popoverRef}>
+      <button
+        type="button"
+        className="pfp-color-trigger"
+        aria-label="Choose PFP background color"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span className="pfp-color-trigger-swatch" style={{ background: color }} aria-hidden="true" />
+        <span className="pfp-color-trigger-chevron" aria-hidden="true">⌄</span>
+      </button>
+
+      {open && (
+        <div className="pfp-color-panel" role="dialog" aria-label="PFP background color picker">
+          <div className="pfp-color-panel-title">PFP Background</div>
+          <HexColorPicker color={color} onChange={onChange} />
+          <div className="pfp-color-panel-row">
+            <span>Hex</span>
+            <HexColorInput
+              className="pfp-color-hex"
+              color={color}
+              onChange={onChange}
+              prefixed
+              spellCheck="false"
+              aria-label="PFP background hex color"
+            />
+          </div>
+          <button
+            type="button"
+            className="pfp-color-default"
+            onClick={() => onChange(defaultColor)}
+          >
+            Default
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HeroShowcase() {
   const PFP_DEFAULT_COLOR = '#F5DDF5';
   const [mobileView, setMobileView] = useState('original');
   const [heroLightboxIndex, setHeroLightboxIndex] = useState(null);
   const [pfpColor, setPfpColor] = useState(PFP_DEFAULT_COLOR);
-  const [pfpHexDraft, setPfpHexDraft] = useState(PFP_DEFAULT_COLOR);
-
-  const commitHexColor = () => {
-    const raw = String(pfpHexDraft || '').trim();
-    const normalized = raw.startsWith('#') ? raw : `#${raw}`;
-    if (/^#[0-9a-fA-F]{6}$/.test(normalized)) {
-      const upper = normalized.toUpperCase();
-      setPfpColor(upper);
-      setPfpHexDraft(upper);
-    } else {
-      setPfpHexDraft(pfpColor);
-    }
-  };
-
-  const resetPfpColor = () => {
-    setPfpColor(PFP_DEFAULT_COLOR);
-    setPfpHexDraft(PFP_DEFAULT_COLOR);
-  };
 
   return (
     <section className="hero-showcase" aria-labelledby="hero-showcase-title">
@@ -1206,31 +1253,11 @@ function HeroShowcase() {
 
           <div className="hero-control-group pfp-background-control">
             <span className="hero-control-label">PFP Background</span>
-            <input
-              className="pfp-native-color"
-              type="color"
-              value={pfpColor}
-              aria-label="Choose PFP background color"
-              onChange={(event) => {
-                const value = event.target.value.toUpperCase();
-                setPfpColor(value);
-                setPfpHexDraft(value);
-              }}
+            <PfpColorPopover
+              color={pfpColor}
+              onChange={(value) => setPfpColor(String(value).toUpperCase())}
+              defaultColor={PFP_DEFAULT_COLOR}
             />
-            <input
-              className="pfp-hex-input"
-              type="text"
-              value={pfpHexDraft}
-              aria-label="PFP background hex color"
-              spellCheck="false"
-              maxLength={7}
-              onChange={(event) => setPfpHexDraft(event.target.value)}
-              onBlur={commitHexColor}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') event.currentTarget.blur();
-              }}
-            />
-            <button type="button" className="pfp-default-button" onClick={resetPfpColor}>Default</button>
           </div>
         </div>
       </div>

@@ -12,6 +12,7 @@
     "@vitejs/plugin-react": "latest",
     "echarts": "latest",
     "react": "latest",
+    "react-colorful": "^5.8.0",
     "react-dom": "latest",
     "vite": "latest"
   },
