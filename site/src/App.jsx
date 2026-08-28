@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { HexColorInput, HexColorPicker } from 'react-colorful';
 import Chart from './components/Chart.jsx';
+import { getHeroDefaultColor, getHeroOriginalUrl, getHeroSourceUrl } from './lib/heroPfp.js';
 
 const DATA_PATHS = [
   '/data/summary.json',
@@ -14,30 +15,15 @@ const DATA_PATHS = [
 
 const GOLD_MASTER_UPDATED_AT = '2026-08-26T14:30:00Z';
 
-const HERO_ZERO_ORIGINAL = 'https://gldhero-production.s3.amazonaws.com/0.png';
 const HERO_ZERO_BODY_PFP = '/assets/heroes/0-body-pfp.png';
 const HERO_ZERO_FACE_PFP = '/assets/heroes/0-face-pfp.png';
 
-const HERO_SHOWCASE_ITEMS = [
-  {
-    id: 'original',
-    label: 'Original',
-    src: HERO_ZERO_ORIGINAL,
-    alt: 'Guild Saga Hero #0 original NFT image',
-  },
-  {
-    id: 'body',
-    label: 'Body PFP',
-    src: HERO_ZERO_BODY_PFP,
-    alt: 'Guild Saga Hero #0 body profile picture',
-  },
-  {
-    id: 'face',
-    label: 'Face PFP',
-    src: HERO_ZERO_FACE_PFP,
-    alt: 'Guild Saga Hero #0 face profile picture',
-  },
-];
+const HERO_SOURCE_WIDTH = 65;
+const HERO_SOURCE_HEIGHT = 70;
+const HERO_FACE_CROP = { x: 20, y: 8, width: 26, height: 26 };
+const HERO_BODY_OUTPUT = { width: 650, height: 700 };
+const HERO_FACE_OUTPUT = { width: 780, height: 780 };
+const heroSourceImageCache = new Map();
 
 const LABYRINTHS_SLIDES = [
   { id: '01', src: '/assets/labyrinths/01.png', alt: 'Guild Saga: Labyrinths gameplay screenshot 1' },
@@ -1108,6 +1094,76 @@ function ImageLightbox({ items, index, onClose, onChange, label }) {
   );
 }
 
+function loadHeroSourceImage(heroId) {
+  if (heroSourceImageCache.has(heroId)) return heroSourceImageCache.get(heroId);
+
+  const request = new Promise((resolve, reject) => {
+    const image = new Image();
+    image.decoding = 'async';
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Could not load Hero #${heroId} PFP source.`));
+    image.src = getHeroSourceUrl(heroId);
+  });
+
+  heroSourceImageCache.set(heroId, request);
+  request.catch(() => heroSourceImageCache.delete(heroId));
+  return request;
+}
+
+function canvasToPngBlob(canvas) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error('Browser could not encode the PFP PNG.'));
+    }, 'image/png');
+  });
+}
+
+async function makeHeroPfpBlob(sourceImage, backgroundColor, variant) {
+  const isFace = variant === 'face';
+  const sourceWidth = isFace ? HERO_FACE_CROP.width : HERO_SOURCE_WIDTH;
+  const sourceHeight = isFace ? HERO_FACE_CROP.height : HERO_SOURCE_HEIGHT;
+  const output = isFace ? HERO_FACE_OUTPUT : HERO_BODY_OUTPUT;
+
+  // Composite at the original tiny pixel resolution first. The second canvas
+  // then performs only an exact integer nearest-neighbor enlargement.
+  const compositeCanvas = document.createElement('canvas');
+  compositeCanvas.width = sourceWidth;
+  compositeCanvas.height = sourceHeight;
+  const compositeContext = compositeCanvas.getContext('2d', { alpha: false });
+  if (!compositeContext) throw new Error('Browser could not create the PFP canvas.');
+
+  compositeContext.imageSmoothingEnabled = false;
+  compositeContext.fillStyle = backgroundColor;
+  compositeContext.fillRect(0, 0, sourceWidth, sourceHeight);
+
+  if (isFace) {
+    compositeContext.drawImage(
+      sourceImage,
+      HERO_FACE_CROP.x,
+      HERO_FACE_CROP.y,
+      HERO_FACE_CROP.width,
+      HERO_FACE_CROP.height,
+      0,
+      0,
+      sourceWidth,
+      sourceHeight,
+    );
+  } else {
+    compositeContext.drawImage(sourceImage, 0, 0);
+  }
+
+  const outputCanvas = document.createElement('canvas');
+  outputCanvas.width = output.width;
+  outputCanvas.height = output.height;
+  const outputContext = outputCanvas.getContext('2d', { alpha: false });
+  if (!outputContext) throw new Error('Browser could not create the PFP output canvas.');
+
+  outputContext.imageSmoothingEnabled = false;
+  outputContext.drawImage(compositeCanvas, 0, 0, output.width, output.height);
+  return canvasToPngBlob(outputCanvas);
+}
+
 function HeroImageCard({ item, mobileActive, onOpen }) {
   return (
     <button
@@ -1186,10 +1242,96 @@ function PfpColorPopover({ color, onChange, defaultColor }) {
 }
 
 function HeroShowcase() {
-  const PFP_DEFAULT_COLOR = '#F5DDF5';
   const [mobileView, setMobileView] = useState('original');
   const [heroLightboxIndex, setHeroLightboxIndex] = useState(null);
-  const [pfpColor, setPfpColor] = useState(PFP_DEFAULT_COLOR);
+  const [heroInput, setHeroInput] = useState('0');
+  const [heroId, setHeroId] = useState(0);
+  const [pfpColor, setPfpColor] = useState(() => getHeroDefaultColor(0));
+  const [pfpImages, setPfpImages] = useState({
+    body: HERO_ZERO_BODY_PFP,
+    face: HERO_ZERO_FACE_PFP,
+  });
+  const generationIdRef = useRef(0);
+  const activeBlobUrlsRef = useRef([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const generationId = ++generationIdRef.current;
+
+    const generate = async () => {
+      try {
+        const sourceImage = await loadHeroSourceImage(heroId);
+        const [bodyBlob, faceBlob] = await Promise.all([
+          makeHeroPfpBlob(sourceImage, pfpColor, 'body'),
+          makeHeroPfpBlob(sourceImage, pfpColor, 'face'),
+        ]);
+
+        const nextUrls = [URL.createObjectURL(bodyBlob), URL.createObjectURL(faceBlob)];
+        if (cancelled || generationId !== generationIdRef.current) {
+          nextUrls.forEach((url) => URL.revokeObjectURL(url));
+          return;
+        }
+
+        const previousUrls = activeBlobUrlsRef.current;
+        activeBlobUrlsRef.current = nextUrls;
+        setPfpImages({ body: nextUrls[0], face: nextUrls[1] });
+        previousUrls.forEach((url) => URL.revokeObjectURL(url));
+      } catch (error) {
+        if (!cancelled && generationId === generationIdRef.current) {
+          console.error(error);
+        }
+      }
+    };
+
+    generate();
+    return () => {
+      cancelled = true;
+    };
+  }, [heroId, pfpColor]);
+
+  useEffect(() => () => {
+    activeBlobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+  }, []);
+
+  const heroShowcaseItems = useMemo(() => [
+    {
+      id: 'original',
+      label: 'Original',
+      src: getHeroOriginalUrl(heroId),
+      alt: `Guild Saga Hero #${heroId} original NFT image`,
+    },
+    {
+      id: 'body',
+      label: 'Body PFP',
+      src: pfpImages.body,
+      alt: `Guild Saga Hero #${heroId} body profile picture`,
+    },
+    {
+      id: 'face',
+      label: 'Face PFP',
+      src: pfpImages.face,
+      alt: `Guild Saga Hero #${heroId} face profile picture`,
+    },
+  ], [heroId, pfpImages]);
+
+  const handleHeroInput = (event) => {
+    const raw = String(event.target.value || '');
+    const digits = raw.replace(/^\s*#/, '').replace(/\D/g, '');
+
+    if (digits === '') {
+      setHeroInput('');
+      return;
+    }
+
+    const nextHeroId = Number(digits);
+    if (!Number.isInteger(nextHeroId) || nextHeroId < 0 || nextHeroId > 9999) return;
+
+    setHeroInput(digits);
+    if (nextHeroId !== heroId) {
+      setHeroId(nextHeroId);
+      setPfpColor(getHeroDefaultColor(nextHeroId));
+    }
+  };
 
   return (
     <section className="hero-showcase" aria-labelledby="hero-showcase-title">
@@ -1210,7 +1352,7 @@ function HeroShowcase() {
 
       <div className="hero-browser">
         <div className="hero-mobile-tabs" role="tablist" aria-label="Hero image type">
-          {HERO_SHOWCASE_ITEMS.map((item) => (
+          {heroShowcaseItems.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -1225,7 +1367,7 @@ function HeroShowcase() {
         </div>
 
         <div className="hero-art-grid">
-          {HERO_SHOWCASE_ITEMS.map((item, index) => (
+          {heroShowcaseItems.map((item, index) => (
             <HeroImageCard
               key={item.id}
               item={item}
@@ -1244,9 +1386,10 @@ function HeroShowcase() {
                 id="hero-number-preview"
                 type="text"
                 inputMode="numeric"
-                value="0"
-                readOnly
-                aria-label="Hero number. Hero selection will be enabled when the full PFP library is connected."
+                autoComplete="off"
+                value={heroInput}
+                onChange={handleHeroInput}
+                aria-label="Hero number from 0 to 9999"
               />
             </span>
           </label>
@@ -1256,7 +1399,7 @@ function HeroShowcase() {
             <PfpColorPopover
               color={pfpColor}
               onChange={(value) => setPfpColor(String(value).toUpperCase())}
-              defaultColor={PFP_DEFAULT_COLOR}
+              defaultColor={getHeroDefaultColor(heroId)}
             />
           </div>
         </div>
@@ -1264,11 +1407,11 @@ function HeroShowcase() {
 
       {heroLightboxIndex !== null && (
         <ImageLightbox
-          items={HERO_SHOWCASE_ITEMS}
+          items={heroShowcaseItems}
           index={heroLightboxIndex}
           onClose={() => setHeroLightboxIndex(null)}
           onChange={setHeroLightboxIndex}
-          label="Guild Saga Hero image viewer"
+          label={`Guild Saga Hero #${heroId} image viewer`}
         />
       )}
     </section>
