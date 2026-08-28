@@ -23,6 +23,9 @@ const HERO_SOURCE_HEIGHT = 70;
 const HERO_FACE_CROP = { x: 20, y: 8, width: 26, height: 26 };
 const HERO_BODY_OUTPUT = { width: 650, height: 700 };
 const HERO_FACE_OUTPUT = { width: 780, height: 780 };
+const HERO_IDENTITY_OUTPUT = { width: 78, height: 78 };
+const HERO_IDENTITY_DELAY_MS = 3000;
+const HERO_IDENTITY_FADE_MS = 360;
 const heroSourceImageCache = new Map();
 
 const LABYRINTHS_SLIDES = [
@@ -1119,11 +1122,11 @@ function canvasToPngBlob(canvas) {
   });
 }
 
-async function makeHeroPfpBlob(sourceImage, backgroundColor, variant) {
+async function makeHeroPfpBlob(sourceImage, backgroundColor, variant, outputOverride = null) {
   const isFace = variant === 'face';
   const sourceWidth = isFace ? HERO_FACE_CROP.width : HERO_SOURCE_WIDTH;
   const sourceHeight = isFace ? HERO_FACE_CROP.height : HERO_SOURCE_HEIGHT;
-  const output = isFace ? HERO_FACE_OUTPUT : HERO_BODY_OUTPUT;
+  const output = outputOverride || (isFace ? HERO_FACE_OUTPUT : HERO_BODY_OUTPUT);
 
   // Composite at the original tiny pixel resolution first. The second canvas
   // then performs only an exact integer nearest-neighbor enlargement.
@@ -1162,6 +1165,87 @@ async function makeHeroPfpBlob(sourceImage, backgroundColor, variant) {
   outputContext.imageSmoothingEnabled = false;
   outputContext.drawImage(compositeCanvas, 0, 0, output.width, output.height);
   return canvasToPngBlob(outputCanvas);
+}
+
+
+function setHeroFavicon(href) {
+  let link = document.querySelector('link[rel="icon"]');
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/png';
+    document.head.appendChild(link);
+  }
+  link.href = href;
+}
+
+function BrandHeroMark({ candidate }) {
+  const [currentUrl, setCurrentUrl] = useState(HERO_ZERO_FACE_PFP);
+  const [nextUrl, setNextUrl] = useState(null);
+  const [nextVisible, setNextVisible] = useState(false);
+  const candidateVersionRef = useRef(0);
+  const currentBlobUrlRef = useRef(null);
+  const nextBlobUrlRef = useRef(null);
+  const fadeTimerRef = useRef(null);
+
+  useEffect(() => {
+    const version = ++candidateVersionRef.current;
+    const timer = window.setTimeout(async () => {
+      try {
+        const sourceImage = await loadHeroSourceImage(candidate.heroId);
+        const blob = await makeHeroPfpBlob(sourceImage, candidate.color, 'face', HERO_IDENTITY_OUTPUT);
+
+        if (version !== candidateVersionRef.current) return;
+
+        const url = URL.createObjectURL(blob);
+        nextBlobUrlRef.current = url;
+        setNextVisible(false);
+        setNextUrl(url);
+
+        // The favicon intentionally snaps to the settled Hero. The in-page mark
+        // crossfades over the old Hero instead of changing abruptly.
+        setHeroFavicon(url);
+
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => setNextVisible(true));
+        });
+
+        if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
+        fadeTimerRef.current = window.setTimeout(() => {
+          const previousBlobUrl = currentBlobUrlRef.current;
+          currentBlobUrlRef.current = url;
+          nextBlobUrlRef.current = null;
+          setCurrentUrl(url);
+          setNextUrl(null);
+          setNextVisible(false);
+          if (previousBlobUrl) URL.revokeObjectURL(previousBlobUrl);
+        }, HERO_IDENTITY_FADE_MS);
+      } catch (error) {
+        if (version === candidateVersionRef.current) console.error(error);
+      }
+    }, HERO_IDENTITY_DELAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [candidate.heroId, candidate.color]);
+
+  useEffect(() => () => {
+    if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
+    if (currentBlobUrlRef.current) URL.revokeObjectURL(currentBlobUrlRef.current);
+    if (nextBlobUrlRef.current) URL.revokeObjectURL(nextBlobUrlRef.current);
+  }, []);
+
+  return (
+    <span className="brand-mark" aria-hidden="true">
+      <img className="brand-mark-image" src={currentUrl} alt="" />
+      {nextUrl && (
+        <img
+          className={`brand-mark-image brand-mark-image-next ${nextVisible ? 'is-visible' : ''}`}
+          src={nextUrl}
+          alt=""
+        />
+      )}
+    </span>
+  );
 }
 
 function HeroImageCard({ item, mobileActive, onOpen }) {
@@ -1241,7 +1325,7 @@ function PfpColorPopover({ color, onChange, defaultColor }) {
   );
 }
 
-function HeroShowcase() {
+function HeroShowcase({ onIdentityCandidate }) {
   const [mobileView, setMobileView] = useState('original');
   const [heroLightboxIndex, setHeroLightboxIndex] = useState(null);
   const [heroInput, setHeroInput] = useState('0');
@@ -1253,6 +1337,10 @@ function HeroShowcase() {
   });
   const generationIdRef = useRef(0);
   const activeBlobUrlsRef = useRef([]);
+
+  useEffect(() => {
+    onIdentityCandidate?.({ heroId, color: pfpColor });
+  }, [heroId, pfpColor, onIdentityCandidate]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1563,12 +1651,12 @@ function LabyrinthsShowcase() {
   );
 }
 
-function Overview({ data }) {
+function Overview({ data, onHeroIdentityCandidate }) {
   const { summary: s } = data;
 
   return (
     <div className="page-stack overview-page">
-      <HeroShowcase />
+      <HeroShowcase onIdentityCandidate={onHeroIdentityCandidate} />
       <LabyrinthsShowcase />
 
       <section className="snapshot-strip snapshot-strip-four" aria-label="Current collection statistics">
@@ -2030,6 +2118,10 @@ export default function App() {
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState('overview');
   const [showDataPage, setShowDataPage] = useState(() => window.location.hash === '#data');
+  const [heroIdentityCandidate, setHeroIdentityCandidate] = useState(() => ({
+    heroId: 0,
+    color: getHeroDefaultColor(0),
+  }));
 
   useEffect(() => {
     Promise.all(DATA_PATHS.map(fetchJson))
@@ -2101,7 +2193,7 @@ export default function App() {
       <header className="site-header">
         <div className="header-inner">
           <button className="brand" type="button" onClick={() => scrollToSection('overview')}>
-            <span className="brand-mark" aria-hidden="true">GS</span>
+            <BrandHeroMark candidate={heroIdentityCandidate} />
             <span><strong>Guild Saga Heroes</strong><small>Analytics</small></span>
           </button>
         </div>
@@ -2128,7 +2220,7 @@ export default function App() {
           <>
             <div className="single-page">
               <section id="overview" className="scroll-section scroll-section-overview" data-nav-section>
-                <Overview data={data} />
+                <Overview data={data} onHeroIdentityCandidate={setHeroIdentityCandidate} />
               </section>
               <section id="market" className="scroll-section" data-nav-section>
                 <Market data={data} />

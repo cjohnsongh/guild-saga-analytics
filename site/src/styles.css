@@ -66,11 +66,29 @@ strong { font-weight: 650; }
 .brand-mark {
   width: 34px;
   height: 34px;
-  display: grid;
-  place-items: center;
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  overflow: hidden;
   border: 1px solid #4a4a4a;
-  font-size: 11px;
-  letter-spacing: .08em;
+  background: #111114;
+}
+.brand-mark-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+.brand-mark-image-next {
+  opacity: 0;
+  transition: opacity 360ms ease;
+}
+.brand-mark-image-next.is-visible { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark-image-next { transition: none; }
 }
 .brand strong { display: block; font-size: 16px; line-height: 1.05; }
 .brand small { display: block; margin-top: 4px; color: #8b8b8b; font-size: 12px; }
