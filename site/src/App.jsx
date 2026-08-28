@@ -1121,8 +1121,28 @@ function HeroImageCard({ item, mobileActive, onOpen }) {
 }
 
 function HeroShowcase() {
+  const PFP_DEFAULT_COLOR = '#F5DDF5';
   const [mobileView, setMobileView] = useState('original');
   const [heroLightboxIndex, setHeroLightboxIndex] = useState(null);
+  const [pfpColor, setPfpColor] = useState(PFP_DEFAULT_COLOR);
+  const [pfpHexDraft, setPfpHexDraft] = useState(PFP_DEFAULT_COLOR);
+
+  const commitHexColor = () => {
+    const raw = String(pfpHexDraft || '').trim();
+    const normalized = raw.startsWith('#') ? raw : `#${raw}`;
+    if (/^#[0-9a-fA-F]{6}$/.test(normalized)) {
+      const upper = normalized.toUpperCase();
+      setPfpColor(upper);
+      setPfpHexDraft(upper);
+    } else {
+      setPfpHexDraft(pfpColor);
+    }
+  };
+
+  const resetPfpColor = () => {
+    setPfpColor(PFP_DEFAULT_COLOR);
+    setPfpHexDraft(PFP_DEFAULT_COLOR);
+  };
 
   return (
     <section className="hero-showcase" aria-labelledby="hero-showcase-title">
@@ -1142,23 +1162,6 @@ function HeroShowcase() {
       </div>
 
       <div className="hero-browser">
-        <div className="hero-browser-toolbar">
-          <label className="hero-selector" htmlFor="hero-number-preview">
-            <span>Select Hero</span>
-            <span className="hero-number-input-wrap">
-              <span aria-hidden="true">#</span>
-              <input
-                id="hero-number-preview"
-                type="text"
-                inputMode="numeric"
-                value="0"
-                readOnly
-                aria-label="Hero number. Hero selection will be enabled when the full PFP library is connected."
-              />
-            </span>
-          </label>
-        </div>
-
         <div className="hero-mobile-tabs" role="tablist" aria-label="Hero image type">
           {HERO_SHOWCASE_ITEMS.map((item) => (
             <button
@@ -1184,6 +1187,52 @@ function HeroShowcase() {
             />
           ))}
         </div>
+
+        <div className="hero-browser-controls" aria-label="Hero and PFP controls">
+          <label className="hero-control-group hero-selector" htmlFor="hero-number-preview">
+            <span className="hero-control-label">Select Hero</span>
+            <span className="hero-number-input-wrap">
+              <span aria-hidden="true">#</span>
+              <input
+                id="hero-number-preview"
+                type="text"
+                inputMode="numeric"
+                value="0"
+                readOnly
+                aria-label="Hero number. Hero selection will be enabled when the full PFP library is connected."
+              />
+            </span>
+          </label>
+
+          <div className="hero-control-group pfp-background-control">
+            <span className="hero-control-label">PFP Background</span>
+            <input
+              className="pfp-native-color"
+              type="color"
+              value={pfpColor}
+              aria-label="Choose PFP background color"
+              onChange={(event) => {
+                const value = event.target.value.toUpperCase();
+                setPfpColor(value);
+                setPfpHexDraft(value);
+              }}
+            />
+            <input
+              className="pfp-hex-input"
+              type="text"
+              value={pfpHexDraft}
+              aria-label="PFP background hex color"
+              spellCheck="false"
+              maxLength={7}
+              onChange={(event) => setPfpHexDraft(event.target.value)}
+              onBlur={commitHexColor}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') event.currentTarget.blur();
+              }}
+            />
+            <button type="button" className="pfp-default-button" onClick={resetPfpColor}>Default</button>
+          </div>
+        </div>
       </div>
 
       {heroLightboxIndex !== null && (
@@ -1201,12 +1250,24 @@ function HeroShowcase() {
 
 function LabyrinthsShowcase() {
   const VISIBLE_COUNT = 4;
-  const MAX_START = Math.max(0, LABYRINTHS_SLIDES.length - VISIBLE_COUNT);
-  const [carouselStart, setCarouselStart] = useState(0);
+  const REAL_COUNT = LABYRINTHS_SLIDES.length;
+  const LOOP_PAD = Math.min(VISIBLE_COUNT, REAL_COUNT);
+  const START_INDEX = LOOP_PAD;
+  const loopSlides = useMemo(() => {
+    if (!REAL_COUNT) return [];
+    return [
+      ...LABYRINTHS_SLIDES.slice(-LOOP_PAD).map((slide, index) => ({ ...slide, loopKey: `pre-${index}-${slide.id}` })),
+      ...LABYRINTHS_SLIDES.map((slide, index) => ({ ...slide, loopKey: `main-${index}-${slide.id}` })),
+      ...LABYRINTHS_SLIDES.slice(0, LOOP_PAD).map((slide, index) => ({ ...slide, loopKey: `post-${index}-${slide.id}` })),
+    ];
+  }, [LOOP_PAD, REAL_COUNT]);
+
+  const [carouselIndex, setCarouselIndex] = useState(START_INDEX);
   const [carouselPaused, setCarouselPaused] = useState(false);
+  const [carouselTransition, setCarouselTransition] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const autoDirection = useRef(1);
+  const carouselLocked = useRef(false);
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -1217,26 +1278,48 @@ function LabyrinthsShowcase() {
   }, []);
 
   useEffect(() => {
-    if (reducedMotion || carouselPaused || lightboxIndex !== null || MAX_START === 0) return undefined;
+    if (reducedMotion || carouselPaused || lightboxIndex !== null || REAL_COUNT <= 1) return undefined;
     const timer = window.setInterval(() => {
-      setCarouselStart((current) => {
-        let next = current + autoDirection.current;
-        if (next >= MAX_START) {
-          next = MAX_START;
-          autoDirection.current = -1;
-        } else if (next <= 0) {
-          next = 0;
-          autoDirection.current = 1;
-        }
-        return next;
-      });
+      if (carouselLocked.current) return;
+      carouselLocked.current = true;
+      setCarouselIndex((current) => current + 1);
     }, 9000);
     return () => window.clearInterval(timer);
-  }, [carouselPaused, lightboxIndex, reducedMotion, MAX_START]);
+  }, [carouselPaused, lightboxIndex, reducedMotion, REAL_COUNT]);
+
+  const normalizeIndex = (index) => {
+    if (index >= START_INDEX + REAL_COUNT) return index - REAL_COUNT;
+    if (index < START_INDEX) return index + REAL_COUNT;
+    return index;
+  };
 
   const moveCarousel = (direction) => {
-    autoDirection.current = direction;
-    setCarouselStart((current) => Math.max(0, Math.min(MAX_START, current + direction)));
+    if (REAL_COUNT <= 1) return;
+
+    if (reducedMotion) {
+      setCarouselIndex((current) => normalizeIndex(current + direction));
+      return;
+    }
+
+    if (carouselLocked.current) return;
+    carouselLocked.current = true;
+    setCarouselIndex((current) => current + direction);
+  };
+
+  const finishCarouselMove = () => {
+    const normalized = normalizeIndex(carouselIndex);
+    if (normalized !== carouselIndex) {
+      setCarouselTransition(false);
+      setCarouselIndex(normalized);
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          setCarouselTransition(true);
+          carouselLocked.current = false;
+        });
+      });
+      return;
+    }
+    carouselLocked.current = false;
   };
 
   return (
@@ -1258,39 +1341,41 @@ function LabyrinthsShowcase() {
       >
         <div className="labyrinths-carousel-viewport">
           <div
-            className="labyrinths-carousel-track"
-            style={{ transform: `translateX(-${carouselStart * 25}%)` }}
+            className={`labyrinths-carousel-track ${carouselTransition && !reducedMotion ? 'is-animated' : ''}`}
+            style={{ transform: `translateX(-${carouselIndex * 25}%)` }}
+            onTransitionEnd={finishCarouselMove}
           >
-            {LABYRINTHS_SLIDES.map((slide, index) => (
-              <button
-                type="button"
-                className="labyrinths-carousel-item"
-                key={slide.id}
-                onClick={() => setLightboxIndex(index)}
-                aria-label={`Open Guild Saga: Labyrinths screenshot ${index + 1}`}
-              >
-                <img src={slide.src} alt={slide.alt} />
-              </button>
-            ))}
+            {loopSlides.map((slide) => {
+              const actualIndex = LABYRINTHS_SLIDES.findIndex((item) => item.id === slide.id);
+              return (
+                <button
+                  type="button"
+                  className="labyrinths-carousel-item"
+                  key={slide.loopKey}
+                  onClick={() => setLightboxIndex(actualIndex)}
+                  aria-label={`Open Guild Saga: Labyrinths screenshot ${actualIndex + 1}`}
+                >
+                  <img src={slide.src} alt={slide.alt} />
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {MAX_START > 0 && (
+        {REAL_COUNT > 1 && (
           <>
             <button
               type="button"
-              className={`labyrinths-arrow labyrinths-arrow-prev ${carouselStart === 0 ? 'is-disabled' : ''}`}
+              className="labyrinths-arrow labyrinths-arrow-prev"
               aria-label="Previous screenshots"
-              disabled={carouselStart === 0}
               onClick={() => moveCarousel(-1)}
-            >‹</button>
+            ><span aria-hidden="true">‹</span></button>
             <button
               type="button"
-              className={`labyrinths-arrow labyrinths-arrow-next ${carouselStart === MAX_START ? 'is-disabled' : ''}`}
+              className="labyrinths-arrow labyrinths-arrow-next"
               aria-label="Next screenshots"
-              disabled={carouselStart === MAX_START}
               onClick={() => moveCarousel(1)}
-            >›</button>
+            ><span aria-hidden="true">›</span></button>
           </>
         )}
       </div>
