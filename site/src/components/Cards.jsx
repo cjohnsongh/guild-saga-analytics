@@ -1,7 +1,7 @@
 import React from 'react';
 import Chart from './Chart.jsx';
 
-export function Card({ title, subtitle, span = 2, className = '', children, footer = false }) {
+export function Card({ title, subtitle, span = 2, className = '', children, footer = true }) {
   return (
     <section className={`card span-${span} ${className}`}>
       {(title || subtitle) && (
@@ -11,7 +11,7 @@ export function Card({ title, subtitle, span = 2, className = '', children, foot
         </header>
       )}
       <div className="card-body">{children}</div>
-      {footer && <div className="card-footer" />}
+      {footer && <div className="card-footer"><span>Guild Saga Analytics</span><span>Aug 26, 2026</span></div>}
     </section>
   );
 }
@@ -35,9 +35,9 @@ export function ChartCard({ title, subtitle, span = 4, option, className = '' })
   );
 }
 
-export function SectionBanner({ title, children, className = '' }) {
+export function SectionBanner({ title, children }) {
   return (
-    <section className={`section-banner span-12 ${className}`}>
+    <section className="section-banner span-12">
       <div className="section-banner-title">{title}</div>
       {children && <div className="section-banner-copy">{children}</div>}
     </section>
