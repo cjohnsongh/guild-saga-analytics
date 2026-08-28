@@ -1053,16 +1053,76 @@ function ShareMeter({ label, value, pct, tone = 'accent' }) {
   );
 }
 
-function HeroImageCard({ item, mobileActive }) {
+function ImageLightbox({ items, index, onClose, onChange, label }) {
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') onClose();
+      if (event.key === 'ArrowLeft') onChange((index - 1 + items.length) % items.length);
+      if (event.key === 'ArrowRight') onChange((index + 1) % items.length);
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [index, items.length, onChange, onClose]);
+
+  const item = items[index];
+
   return (
-    <div className={`hero-art hero-art-${item.id} ${mobileActive ? 'is-mobile-active' : ''}`}>
-      <img src={item.src} alt={item.alt} />
+    <div
+      className="image-lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label={label}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <button type="button" className="image-lightbox-close" aria-label="Close image viewer" onClick={onClose}>×</button>
+      {items.length > 1 && (
+        <button
+          type="button"
+          className="image-lightbox-arrow image-lightbox-prev"
+          aria-label="Previous image"
+          onClick={() => onChange((index - 1 + items.length) % items.length)}
+        >‹</button>
+      )}
+      <div className="image-lightbox-image-wrap">
+        <img src={item.src} alt={item.alt} />
+      </div>
+      {items.length > 1 && (
+        <button
+          type="button"
+          className="image-lightbox-arrow image-lightbox-next"
+          aria-label="Next image"
+          onClick={() => onChange((index + 1) % items.length)}
+        >›</button>
+      )}
     </div>
+  );
+}
+
+function HeroImageCard({ item, mobileActive, onOpen }) {
+  return (
+    <button
+      type="button"
+      className={`hero-art hero-art-${item.id} ${mobileActive ? 'is-mobile-active' : ''}`}
+      onClick={onOpen}
+      aria-label={`Open ${item.alt}`}
+    >
+      <img src={item.src} alt={item.alt} />
+    </button>
   );
 }
 
 function HeroShowcase() {
   const [mobileView, setMobileView] = useState('original');
+  const [heroLightboxIndex, setHeroLightboxIndex] = useState(null);
 
   return (
     <section className="hero-showcase" aria-labelledby="hero-showcase-title">
@@ -1082,9 +1142,21 @@ function HeroShowcase() {
       </div>
 
       <div className="hero-browser">
-        <div className="hero-browser-toolbar" aria-label="Currently showing Guild Saga Hero number 0">
-          <span>Hero</span>
-          <strong>#0</strong>
+        <div className="hero-browser-toolbar">
+          <label className="hero-selector" htmlFor="hero-number-preview">
+            <span>Select Hero</span>
+            <span className="hero-number-input-wrap">
+              <span aria-hidden="true">#</span>
+              <input
+                id="hero-number-preview"
+                type="text"
+                inputMode="numeric"
+                value="0"
+                readOnly
+                aria-label="Hero number. Hero selection will be enabled when the full PFP library is connected."
+              />
+            </span>
+          </label>
         </div>
 
         <div className="hero-mobile-tabs" role="tablist" aria-label="Hero image type">
@@ -1097,27 +1169,44 @@ function HeroShowcase() {
               className={mobileView === item.id ? 'is-active' : ''}
               onClick={() => setMobileView(item.id)}
             >
-              {item.label}
+              {item.id === 'original' ? 'NFT' : item.id === 'body' ? 'Body' : 'Face'}
             </button>
           ))}
         </div>
 
         <div className="hero-art-grid">
-          {HERO_SHOWCASE_ITEMS.map((item) => (
-            <HeroImageCard key={item.id} item={item} mobileActive={mobileView === item.id} />
+          {HERO_SHOWCASE_ITEMS.map((item, index) => (
+            <HeroImageCard
+              key={item.id}
+              item={item}
+              mobileActive={mobileView === item.id}
+              onOpen={() => setHeroLightboxIndex(index)}
+            />
           ))}
         </div>
       </div>
+
+      {heroLightboxIndex !== null && (
+        <ImageLightbox
+          items={HERO_SHOWCASE_ITEMS}
+          index={heroLightboxIndex}
+          onClose={() => setHeroLightboxIndex(null)}
+          onChange={setHeroLightboxIndex}
+          label="Guild Saga Hero image viewer"
+        />
+      )}
     </section>
   );
 }
 
 function LabyrinthsShowcase() {
   const VISIBLE_COUNT = 4;
+  const MAX_START = Math.max(0, LABYRINTHS_SLIDES.length - VISIBLE_COUNT);
   const [carouselStart, setCarouselStart] = useState(0);
   const [carouselPaused, setCarouselPaused] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const autoDirection = useRef(1);
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -1128,46 +1217,27 @@ function LabyrinthsShowcase() {
   }, []);
 
   useEffect(() => {
-    if (reducedMotion || carouselPaused || lightboxIndex !== null || LABYRINTHS_SLIDES.length <= VISIBLE_COUNT) return undefined;
+    if (reducedMotion || carouselPaused || lightboxIndex !== null || MAX_START === 0) return undefined;
     const timer = window.setInterval(() => {
-      setCarouselStart((current) => (current + 1) % LABYRINTHS_SLIDES.length);
+      setCarouselStart((current) => {
+        let next = current + autoDirection.current;
+        if (next >= MAX_START) {
+          next = MAX_START;
+          autoDirection.current = -1;
+        } else if (next <= 0) {
+          next = 0;
+          autoDirection.current = 1;
+        }
+        return next;
+      });
     }, 9000);
     return () => window.clearInterval(timer);
-  }, [carouselPaused, lightboxIndex, reducedMotion]);
-
-  useEffect(() => {
-    if (lightboxIndex === null) return undefined;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') setLightboxIndex(null);
-      if (event.key === 'ArrowLeft') {
-        setLightboxIndex((current) => (current - 1 + LABYRINTHS_SLIDES.length) % LABYRINTHS_SLIDES.length);
-      }
-      if (event.key === 'ArrowRight') {
-        setLightboxIndex((current) => (current + 1) % LABYRINTHS_SLIDES.length);
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [lightboxIndex]);
+  }, [carouselPaused, lightboxIndex, reducedMotion, MAX_START]);
 
   const moveCarousel = (direction) => {
-    setCarouselStart((current) => (
-      current + direction + LABYRINTHS_SLIDES.length
-    ) % LABYRINTHS_SLIDES.length);
+    autoDirection.current = direction;
+    setCarouselStart((current) => Math.max(0, Math.min(MAX_START, current + direction)));
   };
-
-  const visibleSlides = Array.from(
-    { length: Math.min(VISIBLE_COUNT, LABYRINTHS_SLIDES.length) },
-    (_, offset) => {
-      const index = (carouselStart + offset) % LABYRINTHS_SLIDES.length;
-      return { slide: LABYRINTHS_SLIDES[index], index };
-    },
-  );
 
   return (
     <section className="labyrinths-showcase" aria-labelledby="labyrinths-showcase-title">
@@ -1186,49 +1256,53 @@ function LabyrinthsShowcase() {
         onMouseEnter={() => setCarouselPaused(true)}
         onMouseLeave={() => setCarouselPaused(false)}
       >
-        <div className="labyrinths-carousel-grid" key={carouselStart}>
-          {visibleSlides.map(({ slide, index }) => (
-            <button
-              type="button"
-              className="labyrinths-carousel-item"
-              key={slide.id}
-              onClick={() => setLightboxIndex(index)}
-              aria-label={`Open Guild Saga: Labyrinths screenshot ${index + 1}`}
-            >
-              <img src={slide.src} alt={slide.alt} />
-            </button>
-          ))}
+        <div className="labyrinths-carousel-viewport">
+          <div
+            className="labyrinths-carousel-track"
+            style={{ transform: `translateX(-${carouselStart * 25}%)` }}
+          >
+            {LABYRINTHS_SLIDES.map((slide, index) => (
+              <button
+                type="button"
+                className="labyrinths-carousel-item"
+                key={slide.id}
+                onClick={() => setLightboxIndex(index)}
+                aria-label={`Open Guild Saga: Labyrinths screenshot ${index + 1}`}
+              >
+                <img src={slide.src} alt={slide.alt} />
+              </button>
+            ))}
+          </div>
         </div>
 
-        {LABYRINTHS_SLIDES.length > VISIBLE_COUNT && (
+        {MAX_START > 0 && (
           <>
-            <button type="button" className="labyrinths-arrow labyrinths-arrow-prev" aria-label="Previous screenshots" onClick={() => moveCarousel(-1)}>‹</button>
-            <button type="button" className="labyrinths-arrow labyrinths-arrow-next" aria-label="Next screenshots" onClick={() => moveCarousel(1)}>›</button>
+            <button
+              type="button"
+              className={`labyrinths-arrow labyrinths-arrow-prev ${carouselStart === 0 ? 'is-disabled' : ''}`}
+              aria-label="Previous screenshots"
+              disabled={carouselStart === 0}
+              onClick={() => moveCarousel(-1)}
+            >‹</button>
+            <button
+              type="button"
+              className={`labyrinths-arrow labyrinths-arrow-next ${carouselStart === MAX_START ? 'is-disabled' : ''}`}
+              aria-label="Next screenshots"
+              disabled={carouselStart === MAX_START}
+              onClick={() => moveCarousel(1)}
+            >›</button>
           </>
         )}
       </div>
 
       {lightboxIndex !== null && (
-        <div className="image-lightbox" role="dialog" aria-modal="true" aria-label="Guild Saga: Labyrinths screenshot viewer" onMouseDown={(event) => {
-          if (event.target === event.currentTarget) setLightboxIndex(null);
-        }}>
-          <button type="button" className="image-lightbox-close" aria-label="Close screenshot viewer" onClick={() => setLightboxIndex(null)}>×</button>
-          <button
-            type="button"
-            className="image-lightbox-arrow image-lightbox-prev"
-            aria-label="Previous screenshot"
-            onClick={() => setLightboxIndex((lightboxIndex - 1 + LABYRINTHS_SLIDES.length) % LABYRINTHS_SLIDES.length)}
-          >‹</button>
-          <div className="image-lightbox-image-wrap">
-            <img src={LABYRINTHS_SLIDES[lightboxIndex].src} alt={LABYRINTHS_SLIDES[lightboxIndex].alt} />
-          </div>
-          <button
-            type="button"
-            className="image-lightbox-arrow image-lightbox-next"
-            aria-label="Next screenshot"
-            onClick={() => setLightboxIndex((lightboxIndex + 1) % LABYRINTHS_SLIDES.length)}
-          >›</button>
-        </div>
+        <ImageLightbox
+          items={LABYRINTHS_SLIDES}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onChange={setLightboxIndex}
+          label="Guild Saga: Labyrinths screenshot viewer"
+        />
       )}
     </section>
   );
