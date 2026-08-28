@@ -109,6 +109,17 @@ strong { font-weight: 650; }
 .primary-nav button:hover:not(:disabled) { color: #ddd; }
 .primary-nav button.is-active { color: #f1f1f5; border-bottom-color: var(--accent-soft); }
 .primary-nav button.is-disabled { color: #515151; cursor: default; }
+.primary-nav button.nav-home-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav-home-icon {
+  width: .75em;
+  height: .75em;
+  display: block;
+  flex: 0 0 auto;
+}
 
 .content-shell { padding: 28px 0 0; }
 .page-stack { display: grid; gap: 28px; }
