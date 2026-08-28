@@ -13,8 +13,6 @@ const DATA_PATHS = [
   '/data/market-daily.json',
 ];
 
-const GOLD_MASTER_UPDATED_AT = '2026-08-26T14:30:00Z';
-
 const HERO_ZERO_BODY_PFP = '/assets/heroes/0-body-pfp.png';
 const HERO_ZERO_FACE_PFP = '/assets/heroes/0-face-pfp.png';
 
@@ -166,6 +164,36 @@ function formatUpdatedUtc(value) {
     hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC',
   });
   return `${datePart} · ${timePart} UTC`;
+}
+
+function formatDataThrough(value) {
+  if (!value) return 'Unavailable';
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(String(value))
+    ? `${value}T00:00:00Z`
+    : value;
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
+  });
+}
+
+function getDataThrough(data) {
+  return data?.summary?.cutover_date
+    || data?.hero?.as_of
+    || data?.market?.as_of
+    || data?.floor?.as_of
+    || data?.dailyMarket?.as_of
+    || null;
+}
+
+function FreshnessChip({ data }) {
+  return (
+    <div className="freshness-chip">
+      <i aria-hidden="true" />
+      <span>Data through {formatDataThrough(getDataThrough(data))}</span>
+    </div>
+  );
 }
 
 function rangeStartDate(rangeId, endValue, earliestValue) {
@@ -2267,16 +2295,16 @@ function Economy({ data }) {
   );
 }
 
-function SiteFooter() {
+function SiteFooter({ data }) {
   return (
     <footer className="site-footer">
-      <a className="data-page-link" href="#data">Data & methodology</a>
-      <div className="freshness-chip"><i aria-hidden="true" /><span>Updated {formatUpdatedUtc(GOLD_MASTER_UPDATED_AT)}</span></div>
+      <a className="data-page-link" href="#data">Data & Methodology</a>
+      <FreshnessChip data={data} />
     </footer>
   );
 }
 
-function DataPage({ onBack }) {
+function DataPage({ onBack, data }) {
   const files = [
     ['summary.json', 'Current headline collection and market metrics.'],
     ['hero-state.json', 'Holder tiers, staking and quest state, burn history, and burned rarity.'],
@@ -2292,7 +2320,7 @@ function DataPage({ onBack }) {
       <section className="data-page-heading">
         <div>
           <span className="eyebrow">Data</span>
-          <h1>Data & methodology</h1>
+          <h1>Data & Methodology</h1>
           <p>Files used by this site, what they contain, and how to interpret the main metrics.</p>
         </div>
         <button className="secondary-button" type="button" onClick={onBack}>Back to analytics</button>
@@ -2308,26 +2336,9 @@ function DataPage({ onBack }) {
         ))}
       </section>
 
-      <section className="methodology-grid">
-        <div>
-          <h2>Current supply</h2>
-          <p>Active supply is original supply minus confirmed burns. Staked and listed percentages use active supply as their denominator.</p>
-        </div>
-        <div>
-          <h2>Holders</h2>
-          <p>Holder counts and tier percentages use the site's current holder methodology. Exact tier counts are exposed in the collection-state file.</p>
-        </div>
-        <div>
-          <h2>Market</h2>
-          <p>Floor and listings use the recorded marketplace snapshots in the history file. Secondary sales are separated from ordinary transfers.</p>
-        </div>
-        <div>
-          <h2>Economy</h2>
-          <p>Wallet attribution and exchange hops are described with the level of certainty supported by the on-chain evidence; inferred associations are not presented as proof of identity.</p>
-        </div>
-      </section>
 
-      <div className="freshness-chip"><i aria-hidden="true" /><span>Updated {formatUpdatedUtc(GOLD_MASTER_UPDATED_AT)}</span></div>
+
+      <FreshnessChip data={data} />
     </div>
   );
 }
@@ -2436,7 +2447,7 @@ export default function App() {
 
       <div className="content-shell">
         {showDataPage ? (
-          <DataPage onBack={backToAnalytics} />
+          <DataPage onBack={backToAnalytics} data={data} />
         ) : (
           <>
             <div className="single-page">
@@ -2456,7 +2467,7 @@ export default function App() {
                 <Economy data={data} />
               </section>
             </div>
-            <SiteFooter />
+            <SiteFooter data={data} />
           </>
         )}
       </div>

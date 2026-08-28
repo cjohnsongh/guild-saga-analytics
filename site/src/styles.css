@@ -446,6 +446,8 @@ h1 {
 .freshness-chip {
   flex: 0 0 auto;
   display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
   align-items: center;
   gap: 8px;
   min-height: 34px;
@@ -960,6 +962,10 @@ html { scroll-behavior: smooth; }
   padding-bottom: 52px;
 }
 
+.data-page > .freshness-chip {
+  justify-self: start;
+}
+
 .data-page-heading {
   min-height: 150px;
   display: flex;
@@ -1028,28 +1034,6 @@ html { scroll-behavior: smooth; }
   font-weight: 500;
 }
 
-.methodology-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px 42px;
-  padding: 24px 0;
-  border-top: 1px solid #303038;
-  border-bottom: 1px solid #303038;
-}
-
-.methodology-grid h2 {
-  margin: 0;
-  color: #efedf6;
-  font-size: 17px;
-  font-weight: 650;
-}
-
-.methodology-grid p {
-  margin: 8px 0 0;
-  color: #aaa9b4;
-  font-size: 14px;
-  line-height: 1.55;
-}
 
 /* A little more breathing room now that domains share one document. */
 .scroll-section .domain-page,
@@ -1131,11 +1115,6 @@ html { scroll-behavior: smooth; }
   .data-file-row b {
     grid-column: 2;
     grid-row: 1 / span 2;
-  }
-
-  .methodology-grid {
-    grid-template-columns: 1fr;
-    gap: 22px;
   }
 }
 
