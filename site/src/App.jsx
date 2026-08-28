@@ -1114,20 +1114,7 @@ function HeroShowcase() {
 
 function LabyrinthsShowcase() {
   const VISIBLE_COUNT = 4;
-  const CLONE_COUNT = Math.min(VISIBLE_COUNT, LABYRINTHS_SLIDES.length);
-  const extendedSlides = useMemo(() => {
-    if (LABYRINTHS_SLIDES.length <= VISIBLE_COUNT) return LABYRINTHS_SLIDES;
-    return [
-      ...LABYRINTHS_SLIDES.slice(-CLONE_COUNT),
-      ...LABYRINTHS_SLIDES,
-      ...LABYRINTHS_SLIDES.slice(0, CLONE_COUNT),
-    ];
-  }, []);
-
-  const viewportRef = useRef(null);
-  const [carouselIndex, setCarouselIndex] = useState(LABYRINTHS_SLIDES.length > VISIBLE_COUNT ? CLONE_COUNT : 0);
-  const [viewportWidth, setViewportWidth] = useState(0);
-  const [animateCarousel, setAnimateCarousel] = useState(true);
+  const [carouselStart, setCarouselStart] = useState(0);
   const [carouselPaused, setCarouselPaused] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -1141,23 +1128,9 @@ function LabyrinthsShowcase() {
   }, []);
 
   useEffect(() => {
-    if (!viewportRef.current) return undefined;
-    const measure = () => setViewportWidth(viewportRef.current?.getBoundingClientRect().width || 0);
-    measure();
-    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
-    observer?.observe(viewportRef.current);
-    window.addEventListener('resize', measure);
-    return () => {
-      observer?.disconnect();
-      window.removeEventListener('resize', measure);
-    };
-  }, []);
-
-  useEffect(() => {
     if (reducedMotion || carouselPaused || lightboxIndex !== null || LABYRINTHS_SLIDES.length <= VISIBLE_COUNT) return undefined;
     const timer = window.setInterval(() => {
-      setAnimateCarousel(true);
-      setCarouselIndex((current) => current + 1);
+      setCarouselStart((current) => (current + 1) % LABYRINTHS_SLIDES.length);
     }, 9000);
     return () => window.clearInterval(timer);
   }, [carouselPaused, lightboxIndex, reducedMotion]);
@@ -1182,36 +1155,19 @@ function LabyrinthsShowcase() {
     };
   }, [lightboxIndex]);
 
-  const gap = 12;
-  const itemWidth = viewportWidth > 0 ? (viewportWidth - gap * (VISIBLE_COUNT - 1)) / VISIBLE_COUNT : 0;
-  const step = itemWidth + gap;
-  const offset = carouselIndex * step;
-
-  const logicalIndexForExtended = (index) => {
-    if (LABYRINTHS_SLIDES.length <= VISIBLE_COUNT) return index;
-    return (index - CLONE_COUNT + LABYRINTHS_SLIDES.length) % LABYRINTHS_SLIDES.length;
-  };
-
   const moveCarousel = (direction) => {
-    if (LABYRINTHS_SLIDES.length <= VISIBLE_COUNT) return;
-    setAnimateCarousel(true);
-    setCarouselIndex((current) => current + direction);
+    setCarouselStart((current) => (
+      current + direction + LABYRINTHS_SLIDES.length
+    ) % LABYRINTHS_SLIDES.length);
   };
 
-  const handleTrackTransitionEnd = () => {
-    if (LABYRINTHS_SLIDES.length <= VISIBLE_COUNT) return;
-    const firstReal = CLONE_COUNT;
-    const afterLastReal = CLONE_COUNT + LABYRINTHS_SLIDES.length;
-    if (carouselIndex >= afterLastReal) {
-      setAnimateCarousel(false);
-      setCarouselIndex(firstReal);
-      requestAnimationFrame(() => requestAnimationFrame(() => setAnimateCarousel(true)));
-    } else if (carouselIndex < firstReal) {
-      setAnimateCarousel(false);
-      setCarouselIndex(afterLastReal - 1);
-      requestAnimationFrame(() => requestAnimationFrame(() => setAnimateCarousel(true)));
-    }
-  };
+  const visibleSlides = Array.from(
+    { length: Math.min(VISIBLE_COUNT, LABYRINTHS_SLIDES.length) },
+    (_, offset) => {
+      const index = (carouselStart + offset) % LABYRINTHS_SLIDES.length;
+      return { slide: LABYRINTHS_SLIDES[index], index };
+    },
+  );
 
   return (
     <section className="labyrinths-showcase" aria-labelledby="labyrinths-showcase-title">
@@ -1230,28 +1186,18 @@ function LabyrinthsShowcase() {
         onMouseEnter={() => setCarouselPaused(true)}
         onMouseLeave={() => setCarouselPaused(false)}
       >
-        <div ref={viewportRef} className="labyrinths-carousel-viewport">
-          <div
-            className={`labyrinths-carousel-track ${animateCarousel ? 'is-animated' : ''}`}
-            style={{ transform: `translate3d(${-offset}px, 0, 0)` }}
-            onTransitionEnd={handleTrackTransitionEnd}
-          >
-            {extendedSlides.map((slide, index) => {
-              const logicalIndex = logicalIndexForExtended(index);
-              return (
-                <button
-                  type="button"
-                  className="labyrinths-carousel-item"
-                  key={`${slide.id}-${index}`}
-                  style={itemWidth ? { width: `${itemWidth}px` } : undefined}
-                  onClick={() => setLightboxIndex(logicalIndex)}
-                  aria-label={`Open Guild Saga: Labyrinths screenshot ${logicalIndex + 1}`}
-                >
-                  <img src={slide.src} alt={slide.alt} />
-                </button>
-              );
-            })}
-          </div>
+        <div className="labyrinths-carousel-grid" key={carouselStart}>
+          {visibleSlides.map(({ slide, index }) => (
+            <button
+              type="button"
+              className="labyrinths-carousel-item"
+              key={slide.id}
+              onClick={() => setLightboxIndex(index)}
+              aria-label={`Open Guild Saga: Labyrinths screenshot ${index + 1}`}
+            >
+              <img src={slide.src} alt={slide.alt} />
+            </button>
+          ))}
         </div>
 
         {LABYRINTHS_SLIDES.length > VISIBLE_COUNT && (
