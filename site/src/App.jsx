@@ -24,7 +24,7 @@ const HERO_FACE_OUTPUT = { width: 780, height: 780 };
 const HERO_IDENTITY_OUTPUT = { width: 52, height: 52 };
 const HERO_FAVICON_OUTPUT = { width: 52, height: 52 };
 const HERO_FAVICON_RADIUS = 9;
-const HERO_IDENTITY_DELAY_MS = 3000;
+const HERO_IDENTITY_DELAY_MS = 1500;
 const HERO_IDENTITY_FADE_MS = 360;
 const heroSourceImageCache = new Map();
 
@@ -1285,6 +1285,22 @@ function loadHeroSourceImage(heroId) {
   return request;
 }
 
+function preloadImageUrl(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.decoding = 'async';
+    image.onload = () => {
+      if (typeof image.decode !== 'function') {
+        resolve();
+        return;
+      }
+      image.decode().then(resolve, resolve);
+    };
+    image.onerror = () => reject(new Error(`Could not preload image: ${src}`));
+    image.src = src;
+  });
+}
+
 function canvasToPngBlob(canvas) {
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
@@ -1561,10 +1577,12 @@ function HeroShowcase({ onIdentityCandidate }) {
   const [heroInput, setHeroInput] = useState('0');
   const [heroId, setHeroId] = useState(0);
   const [pfpColor, setPfpColor] = useState(() => getHeroDefaultColor(0));
-  const [pfpImages, setPfpImages] = useState({
+  const [visibleHeroSet, setVisibleHeroSet] = useState(() => ({
+    heroId: 0,
+    original: getHeroOriginalUrl(0),
     body: HERO_ZERO_BODY_PFP,
     face: HERO_ZERO_FACE_PFP,
-  });
+  }));
   const generationIdRef = useRef(0);
   const activeBlobUrlsRef = useRef([]);
 
@@ -1577,6 +1595,7 @@ function HeroShowcase({ onIdentityCandidate }) {
     const generationId = ++generationIdRef.current;
 
     const generate = async () => {
+      let nextUrls = [];
       try {
         const sourceImage = await loadHeroSourceImage(heroId);
         const [bodyBlob, faceBlob] = await Promise.all([
@@ -1584,7 +1603,22 @@ function HeroShowcase({ onIdentityCandidate }) {
           makeHeroPfpBlob(sourceImage, pfpColor, 'face'),
         ]);
 
-        const nextUrls = [URL.createObjectURL(bodyBlob), URL.createObjectURL(faceBlob)];
+        nextUrls = [URL.createObjectURL(bodyBlob), URL.createObjectURL(faceBlob)];
+        const nextHeroSet = {
+          heroId,
+          original: getHeroOriginalUrl(heroId),
+          body: nextUrls[0],
+          face: nextUrls[1],
+        };
+
+        // Keep the current trio visible until every replacement is loaded and
+        // decoded. One state update then reveals all three in the same render.
+        await Promise.all([
+          preloadImageUrl(nextHeroSet.original),
+          preloadImageUrl(nextHeroSet.body),
+          preloadImageUrl(nextHeroSet.face),
+        ]);
+
         if (cancelled || generationId !== generationIdRef.current) {
           nextUrls.forEach((url) => URL.revokeObjectURL(url));
           return;
@@ -1592,9 +1626,13 @@ function HeroShowcase({ onIdentityCandidate }) {
 
         const previousUrls = activeBlobUrlsRef.current;
         activeBlobUrlsRef.current = nextUrls;
-        setPfpImages({ body: nextUrls[0], face: nextUrls[1] });
-        previousUrls.forEach((url) => URL.revokeObjectURL(url));
+        setVisibleHeroSet(nextHeroSet);
+        nextUrls = [];
+        window.requestAnimationFrame(() => {
+          previousUrls.forEach((url) => URL.revokeObjectURL(url));
+        });
       } catch (error) {
+        nextUrls.forEach((url) => URL.revokeObjectURL(url));
         if (!cancelled && generationId === generationIdRef.current) {
           console.error(error);
         }
@@ -1615,22 +1653,22 @@ function HeroShowcase({ onIdentityCandidate }) {
     {
       id: 'original',
       label: 'Original',
-      src: getHeroOriginalUrl(heroId),
-      alt: `Guild Saga Hero #${heroId} original NFT image`,
+      src: visibleHeroSet.original,
+      alt: `Guild Saga Hero #${visibleHeroSet.heroId} original NFT image`,
     },
     {
       id: 'body',
       label: 'Body PFP',
-      src: pfpImages.body,
-      alt: `Guild Saga Hero #${heroId} body profile picture`,
+      src: visibleHeroSet.body,
+      alt: `Guild Saga Hero #${visibleHeroSet.heroId} body profile picture`,
     },
     {
       id: 'face',
       label: 'Face PFP',
-      src: pfpImages.face,
-      alt: `Guild Saga Hero #${heroId} face profile picture`,
+      src: visibleHeroSet.face,
+      alt: `Guild Saga Hero #${visibleHeroSet.heroId} face profile picture`,
     },
-  ], [heroId, pfpImages]);
+  ], [visibleHeroSet]);
 
   const handleHeroInput = (event) => {
     const raw = String(event.target.value || '');
@@ -1729,7 +1767,7 @@ function HeroShowcase({ onIdentityCandidate }) {
           index={heroLightboxIndex}
           onClose={() => setHeroLightboxIndex(null)}
           onChange={setHeroLightboxIndex}
-          label={`Guild Saga Hero #${heroId} image viewer`}
+          label={`Guild Saga Hero #${visibleHeroSet.heroId} image viewer`}
         />
       )}
     </section>
@@ -1838,7 +1876,7 @@ function LabyrinthsShowcase() {
       <div className="labyrinths-heading-row">
         <div>
           <h2 id="labyrinths-showcase-title">Guild Saga: Labyrinths</h2>
-          <p>A tactical RPG from Ocelot Technologies where Guild Saga Heroes can be used alongside standard adventurers.</p>
+          <p>Free to play, it takes you through ever-changing dungeon archives filled with strategic battles, risk-reward mechanics, and precious loot. Guild Saga Heroes can be used for deeper progression.</p>
         </div>
         <a className="epic-wishlist-link" href="https://store.epicgames.com/p/guild-saga-labyrinths-ca0f96?lang=en-US" target="_blank" rel="noreferrer">
           <EpicGamesIcon />

@@ -93,7 +93,7 @@ strong { font-weight: 650; }
 .brand strong { display: block; font-size: 18px; line-height: 1.05; }
 .brand small { display: block; margin-top: 5px; color: #8b8b8b; font-size: 13px; }
 .primary-nav { border-top: 1px solid #202020; }
-.nav-inner { display: flex; gap: 28px; overflow-x: auto; scrollbar-width: none; }
+.nav-inner { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 .nav-inner::-webkit-scrollbar { display: none; }
 .primary-nav button {
   height: 46px;
@@ -101,7 +101,7 @@ strong { font-weight: 650; }
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
-  padding: 0;
+  padding: 0 12px;
   color: #969696;
   cursor: pointer;
   font-size: 14px;
@@ -110,6 +110,7 @@ strong { font-weight: 650; }
 .primary-nav button.is-active { color: #f1f1f5; border-bottom-color: var(--accent-soft); }
 .primary-nav button.is-disabled { color: #515151; cursor: default; }
 .primary-nav button.nav-home-button {
+  min-width: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -484,7 +485,7 @@ h1 {
   .content-shell { width: calc(100vw - 28px); }
   .header-inner { height: 68px; }
   .brand small { display: none; }
-  .nav-inner { gap: 22px; }
+  .nav-inner { gap: 0; }
   .primary-nav button { min-height: 44px; font-size: 14px; }
   .content-shell { padding-top: 26px; }
   .page-stack { gap: 24px; }
