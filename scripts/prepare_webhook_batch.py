@@ -78,7 +78,7 @@ HERO_CURSORS = ROOT / "data" / "state" / "hero_event_cursors.csv"
 EVENT_LEDGER = ROOT / "data" / "state" / "webhook_processed_events.csv"
 PUBLIC_DATA = ROOT / "site" / "public" / "data"
 RECON = ROOT / ".guild_saga_recon"
-ACTIVATION = RECON / "helius_webhook_setup.json"
+ACTIVATION = ROOT / "data" / "state" / "webhook_production.json"
 PREPARED = RECON / "webhook_batch_prepared.json"
 
 UA = (
@@ -224,7 +224,8 @@ def http_json(url: str, token: str) -> dict[str, Any]:
 
 
 def fetch_pending_snapshot(token: str) -> tuple[str, list[dict[str, Any]]]:
-    snapshot = None
+    forced_snapshot = os.environ.get("GUILD_SAGA_SNAPSHOT_RECEIVED_AT", "").strip()
+    snapshot = forced_snapshot or None
     after_received = None
     after_sig = None
     events: list[dict[str, Any]] = []
@@ -516,7 +517,10 @@ def main() -> int:
             )
 
     token = pipeline_token()
-    activation = parse_utc(load_json(ACTIVATION).get("activation_boundary_utc"))
+    activation_config = load_json(ACTIVATION)
+    if activation_config.get("active") is not True or activation_config.get("webhook_type") != "raw":
+        raise RuntimeError("Tracked production webhook configuration is not active RAW.")
+    activation = parse_utc(activation_config.get("activation_boundary_utc"))
 
     print("[1/8] Freezing durable D1 pending snapshot")
     snapshot, pending = fetch_pending_snapshot(token)

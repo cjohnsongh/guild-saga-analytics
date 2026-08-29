@@ -2,6 +2,7 @@ import importlib.util
 import pathlib
 import unittest
 from datetime import datetime, timezone
+from unittest import mock
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PATH = ROOT / "scripts" / "prepare_webhook_batch.py"
@@ -10,6 +11,30 @@ mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mod)
 
 class LiveBatchHelperTests(unittest.TestCase):
+    def test_forced_snapshot_is_sent_on_first_page(self):
+        seen = []
+
+        def fake_http(url, _token):
+            seen.append(url)
+            return {
+                "ok": True,
+                "snapshot_received_at": "2026-08-29T12:00:00.000Z",
+                "events": [],
+                "next_cursor": None,
+            }
+
+        with (
+            mock.patch.dict(
+                mod.os.environ,
+                {"GUILD_SAGA_SNAPSHOT_RECEIVED_AT": "2026-08-29T12:00:00.000Z"},
+            ),
+            mock.patch.object(mod, "http_json", side_effect=fake_http),
+        ):
+            snapshot, events = mod.fetch_pending_snapshot("not-logged")
+        self.assertEqual(snapshot, "2026-08-29T12:00:00.000Z")
+        self.assertEqual(events, [])
+        self.assertIn("snapshot_received_at=2026-08-29T12%3A00%3A00.000Z", seen[0])
+
     def test_first_post_activation_movement_applies(self):
         activation = datetime(2026, 8, 29, 1, 58, 29, tzinfo=timezone.utc)
         event = datetime(2026, 8, 29, 2, 0, 0, tzinfo=timezone.utc)

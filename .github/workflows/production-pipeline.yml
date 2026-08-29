@@ -1,0 +1,39 @@
+name: Production data pipeline (review dry run)
+
+on:
+  workflow_dispatch:
+
+# This workflow intentionally has no schedule and no production-mode input.
+# During review, every possible manual dispatch is non-mutating.
+concurrency:
+  group: guild-saga-production-pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  checks: read
+  statuses: read
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile production Python
+        run: python -m compileall -q collector scripts tests
+
+      - name: Execute non-mutating production dry run
+        env:
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
+          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+          PIPELINE_TOKEN: ${{ secrets.PIPELINE_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/production_pipeline.py --mode dry-run

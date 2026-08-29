@@ -56,7 +56,7 @@ ASSETS = ROOT / "data" / "baseline" / "assets.csv"
 DELTAS = ROOT / "data" / "state" / "hero_deltas.csv"
 FRONTIER = ROOT / "data" / "state" / "webhook_token_accounts.csv"
 RECON_DB = ROOT / ".guild_saga_recon" / "cutover_free_backfill.sqlite"
-RECEIPT = ROOT / ".guild_saga_recon" / "helius_webhook_setup.json"
+RECEIPT = ROOT / "data" / "state" / "webhook_production.json"
 WORKER_SECRETS = ROOT / "cloudflare" / "webhook-inbox" / ".env.worker-secrets.local"
 OUT = ROOT / ".guild_saga_recon" / "webhook_frontier_refresh.json"
 
@@ -121,12 +121,14 @@ def parse_env_file(path: Path) -> dict[str, str]:
     return out
 
 
-def load_worker_secrets() -> tuple[str, str]:
+def load_worker_secrets(*, require_webhook_auth: bool = True) -> tuple[str | None, str]:
     values = parse_env_file(WORKER_SECRETS)
     helius_auth = os.environ.get("HELIUS_WEBHOOK_AUTH") or values.get("HELIUS_WEBHOOK_AUTH")
     pipeline = os.environ.get("PIPELINE_TOKEN") or values.get("PIPELINE_TOKEN")
-    if not helius_auth or not pipeline:
-        raise RuntimeError("Missing HELIUS_WEBHOOK_AUTH / PIPELINE_TOKEN.")
+    if not pipeline:
+        raise RuntimeError("Missing PIPELINE_TOKEN.")
+    if require_webhook_auth and not helius_auth:
+        raise RuntimeError("Missing HELIUS_WEBHOOK_AUTH.")
     return helius_auth, pipeline
 
 
@@ -256,7 +258,8 @@ def bootstrap_frontier(active_mints: set[str], activation_utc: str) -> list[dict
 
 def fetch_pending_snapshot(pipeline_token: str) -> tuple[str, list[dict[str, Any]]]:
     events: list[dict[str, Any]] = []
-    snapshot = None
+    forced_snapshot = os.environ.get("GUILD_SAGA_SNAPSHOT_RECEIVED_AT", "").strip()
+    snapshot = forced_snapshot or None
     after_received = None
     after_sig = None
 
@@ -550,6 +553,9 @@ def sha_watch(addresses: list[str]) -> str:
 
 
 def main() -> int:
+    dry_run = os.environ.get("GUILD_SAGA_DRY_RUN", "").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
     print("=" * 78)
     print("Guild Saga — Phase 2I Persistent Webhook Token-Account Frontier")
     print("=" * 78)
@@ -561,12 +567,14 @@ def main() -> int:
     receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
     if receipt.get("active") is not True:
         raise RuntimeError("Helius activation receipt is not active.")
+    if receipt.get("webhook_type") != "raw":
+        raise RuntimeError("Production webhook configuration is not RAW.")
     webhook_id = str(receipt.get("webhook_id") or "")
     expected_url = str(receipt.get("webhook_url") or "")
     activation = str(receipt.get("activation_boundary_utc") or "")
     if not webhook_id or not expected_url or not activation:
         raise RuntimeError("Activation receipt is incomplete.")
-    helius_auth, pipeline_token = load_worker_secrets()
+    helius_auth, pipeline_token = load_worker_secrets(require_webhook_auth=not dry_run)
     api_key = load_helius_key()
     all_mints, active_mints = effective_mints()
     print(f"    collection mints:        {len(all_mints):,}")
@@ -620,13 +628,16 @@ def main() -> int:
         )
 
     edit_started = utc_now()
-    if missing_remote:
+    if missing_remote and not dry_run:
+        assert helius_auth is not None
         update_webhook(api_key, helius_auth, webhook_id, target, expected_url)
         remote_after = get_webhook(api_key, webhook_id)
         returned = set(map(str, remote_after.get("accountAddresses") or []))
         if returned != set(target) or remote_after.get("active") is not True:
             raise RuntimeError("Post-edit Helius watch-set verification failed.")
         print(f"    addresses added remotely:{len(missing_remote):>6,}")
+    elif missing_remote:
+        print(f"    addresses to add (dry run):{len(missing_remote):>5,}")
     else:
         print("    remote watch set:        already exact")
     print(f"    target watch addresses:  {len(target):,}")
@@ -654,12 +665,14 @@ def main() -> int:
         missing = [sig for sig in newer if sig not in pending_sigs]
         if missing:
             txs = [fetch_tx(api_key, sig) for sig in missing]
-            inject_raw(helius_auth, txs)
+            if not dry_run:
+                assert helius_auth is not None
+                inject_raw(helius_auth, txs)
             backfilled.extend(missing)
     print(f"    newly watched accounts checked: {checked:,}")
     print(f"    gap transactions replayed:      {len(backfilled):,}")
 
-    if backfilled:
+    if backfilled and not dry_run:
         _snapshot2, events2 = fetch_pending_snapshot(pipeline_token)
         now_pending = {str(r.get("signature") or "") for r in events2}
         absent = sorted(set(backfilled) - now_pending)
@@ -677,15 +690,18 @@ def main() -> int:
         json.dumps(
             {
                 "status": "PASS",
+                "dry_run": dry_run,
                 "refreshed_at_utc": utc_now(),
                 "pending_snapshot_received_at": snapshot,
                 "webhook_id": webhook_id,
                 "remote_addresses_before": len(remote_set),
                 "target_addresses": len(target),
                 "newly_observed_token_accounts": additions,
-                "remote_addresses_added": missing_remote,
+                "remote_addresses_added": [] if dry_run else missing_remote,
+                "remote_addresses_to_add": missing_remote,
                 "gap_accounts_checked": gap_accounts,
-                "gap_signatures_replayed": backfilled,
+                "gap_signatures_replayed": [] if dry_run else backfilled,
+                "gap_signatures_to_replay": backfilled,
                 "watch_set_sha256": sha_watch(target),
                 "canonical_hero_market_modified": False,
                 "d1_events_acknowledged": 0,

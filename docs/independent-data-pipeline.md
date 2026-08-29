@@ -63,6 +63,74 @@ Launch/mint history, rarity map, old treasury branches, and historical conversio
 
 No checkpoint advances until collection, parsing, build, and validation all succeed. If anything fails, the current deployed static site remains untouched.
 
+## Durable webhook production cycle
+
+The production ingestion path is:
+
+`Helius RAW webhook -> authenticated Cloudflare Worker -> D1 durable inbox -> Python reducer -> canonical data -> static JSON -> Git commit -> Cloudflare Pages -> exact D1 ACK`
+
+The Worker authenticates, deduplicates by signature with `INSERT OR IGNORE`, and stores raw payloads. It deliberately does not parse transactions. `/internal/pending` freezes a `snapshot_received_at` watermark on the first page and carries it across every cursor page. Events received after that watermark are outside the selected batch and remain pending for a later run.
+
+The non-secret webhook identity, RAW type, receiver URL, and immutable activation boundary are tracked in `data/state/webhook_production.json`. Ephemeral runners never depend on the ignored one-off setup receipt.
+
+Before reduction, `scripts/refresh_webhook_watch_frontier.py` overlays token accounts found in the stable raw batch onto `data/state/webhook_token_accounts.csv`. Old token accounts are retained permanently. Missing destination accounts are added to the Helius address set, and the established gap/overlap audit fetches and durably replays transactions that could have landed while the watch set changed. `GUILD_SAGA_DRY_RUN=1` computes and reports both deltas without changing Helius or D1.
+
+The reducer persists per-Hero slot/signature cursors and the append-only webhook event and market ledgers. Duplicate delivery is harmless; stale slots cannot regress state; a same-slot/different-signature ownership conflict fails closed. Custody-aware beneficial ownership, explicit burns, World Mode transitions, quest restart semantics, and market discriminators remain in the tested collector modules.
+
+### Commit-backed recovery
+
+Every data release writes `data/state/production_batch_manifest.json`. The manifest contains the exact stable snapshot, exact signatures, canonical hashes, and the three deployed dynamic JSON hashes. It intentionally does not contain its own Git SHA. A fresh runner discovers the release with `git log` on the manifest path.
+
+D1 is authoritative for ACK state. At the start of every production run, `scripts/production_pipeline.py` checks for a committed manifest, locates its introducing commit, re-discovers and semantically verifies the Cloudflare Pages deployment for that commit, and submits the exact manifest signature set to the idempotent ACK endpoint. Only after all signatures are proven processed and absent from pending can a new snapshot be prepared.
+
+This covers runner termination:
+
+- Before commit: no manifest was pushed and D1 remains pending, so reduction safely retries.
+- After push but before deploy verification: the next runner finds the manifest commit, verifies its deployment, then ACKs.
+- After deployment but before ACK: the same recovery path re-verifies and ACKs.
+- Immediately after ACK: the idempotent ACK response proves all manifest signatures processed again.
+- During later arrivals: only manifest signatures are ACKed; post-snapshot arrivals remain pending.
+
+There is no ignored local receipt in the correctness boundary and no D1 schema migration.
+
+### GitHub Actions
+
+`.github/workflows/production-pipeline.yml` owns the concurrency group `guild-saga-production-pipeline` with `cancel-in-progress: false`. During review it is intentionally `workflow_dispatch` only, read-only, and hard-coded to `--mode dry-run`; there is no schedule or manual production input. An accidental dispatch cannot commit, push, edit the Helius watch set, deploy, or ACK D1.
+
+The dry run authenticates to the Worker, freezes pending state, checks Helius and Alchemy RPC health, exercises GitHub deployment discovery, computes the watch frontier in a disposable Git clone, reduces any selected batch there, builds candidate JSON, and runs the complete unit/cutover/live validation suite. It verifies the source checkout is unchanged afterward.
+
+Required review/dry-run repository secrets are:
+
+- `HELIUS_API_KEY`
+- `ALCHEMY_API_KEY`
+- `PIPELINE_TOKEN`
+
+Production frontier mutation and gap replay additionally require `HELIUS_WEBHOOK_AUTH`. This is the existing Worker webhook authorization value; it must be configured as a GitHub secret before changing the workflow to production mode. No secret value belongs in Git, logs, command arguments, or documentation.
+
+### Commit, deploy, ACK gates
+
+Production mode runs the existing complete offline tests plus `validate_cutover.py` and `validate_live.py`, the existing secret-containment audit, `git diff --check`, and explicit-path staging. It fetches immediately before commit/push and refuses a moved `origin/main`; force-push is never used. Deployment verification queries GitHub commit status/check-run metadata using `GITHUB_TOKEN`, discovers the exact Pages origin, and compares deployed JSON semantically with the release commit. A timeout or mismatch leaves D1 pending.
+
+The invariant is absolute: **no successful commit plus verified exact deployment means no D1 ACK**.
+
+### Operations and recovery
+
+To inspect without mutation, run:
+
+```text
+python scripts/audit_webhook_pending.py
+python scripts/validate_cutover.py
+python scripts/validate_live.py
+```
+
+The audit reports the stable pending count and decoded candidate effects without ACKing. Worker `/internal/stats` may also be queried with `PIPELINE_TOKEN` supplied through an environment variable; never place its value directly in a logged command.
+
+To disable processing safely, disable the GitHub workflow or remove its schedule after activation. Do not disable the Worker or Helius webhook: ingestion continues accumulating deduplicated pending rows in D1, and the next successful run catches up.
+
+For a stuck committed-but-unACKed batch, do not re-run the reducer and do not edit the manifest. Re-run `python scripts/production_pipeline.py --mode production` from a clean, current `main` checkout with all production secrets. Recovery runs before new preparation, re-verifies the manifest's introducing release, and ACKs only its exact signatures. If verification still fails, leave the rows pending and investigate the Pages check/deployment.
+
+After review, activation is a separate audited change: add the `7,37 * * * *` UTC cron, change the job command to `--mode production`, pass `HELIUS_WEBHOOK_AUTH`, and grant `contents: write`. Do not change the concurrency group or enable cancellation.
+
 ## Validation split
 
 - `scripts/validate_cutover.py`: permanent Aug. 26 regression fixture.
