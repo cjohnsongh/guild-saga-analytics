@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -21,6 +22,25 @@ class MigrationArchiveContracts(unittest.TestCase):
             path = ROOT / info["archived_path"]
             self.assertTrue(path.exists(), name)
             self.assertEqual(sha256(path), info["sha256"], name)
+
+            relative = path.relative_to(ROOT).as_posix()
+            blob = subprocess.run(
+                ["git", "show", f":{relative}"],
+                cwd=ROOT,
+                check=True,
+                stdout=subprocess.PIPE,
+            ).stdout
+            self.assertEqual(hashlib.sha256(blob).hexdigest(), info["sha256"], name)
+
+            attrs = subprocess.run(
+                ["git", "check-attr", "text", "diff", "--", relative],
+                cwd=ROOT,
+                check=True,
+                text=True,
+                stdout=subprocess.PIPE,
+            ).stdout.splitlines()
+            self.assertTrue(attrs[0].endswith(": text: unset"), attrs)
+            self.assertTrue(attrs[1].endswith(": diff: unset"), attrs)
 
     def test_immutable_canonical_baselines_match_supplied_sources(self):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))

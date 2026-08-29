@@ -1,4 +1,6 @@
-# Byte-stable Guild Saga migration fixtures (manifest SHA-256 values are LF-based).
+# Byte-stable Guild Saga migration fixtures.
 data/baseline/*.csv text eol=lf
-docs/migration/2026-08-26/dune-final-queries/*.txt text eol=lf
+# These supplied query exports are CRLF byte artifacts. Disable text filtering
+# only for this immutable archive so Git stores/checks out the manifest bytes.
+docs/migration/2026-08-26/dune-final-queries/*.txt -text -diff
 docs/migration/2026-08-26/source-data/*.csv text eol=lf
