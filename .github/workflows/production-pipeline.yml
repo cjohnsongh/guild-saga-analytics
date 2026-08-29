@@ -25,14 +25,11 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Compile production Python
         run: python -m compileall -q collector scripts tests
-
       - name: Execute non-mutating production dry run
         env:
           HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
@@ -54,14 +51,15 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-
+      - name: Configure release commit identity
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Compile production Python
         run: python -m compileall -q collector scripts tests
-
       - name: Execute scheduled production release
         env:
           HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
