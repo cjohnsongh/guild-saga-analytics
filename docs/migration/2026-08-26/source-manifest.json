@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "cutover_date": "2026-08-26",
+  "purpose": "Exact source archive used to migrate the independent production collector away from Dune.",
+  "dune_queries": {
+    "Guild Saga - 3xQ to Fgk8 Asset Handoff.txt": {
+      "sha256": "9b3a407d5a013def512d7dd90155606e0ee8882b2a77ed7d931e1f3d5cd19fe3",
+      "archived_path": "docs/migration/2026-08-26/dune-final-queries/Guild Saga - 3xQ to Fgk8 Asset Handoff.txt"
+    },
+    "Guild Saga - Core Wallet USDC Distribution.txt": {
+      "sha256": "0b9172bf5561eba5e90a75279ee77ff78eecda40ca8392b5ab4dbd282fabdcc4",
+      "archived_path": "docs/migration/2026-08-26/dune-final-queries/Guild Saga - Core Wallet USDC Distribution.txt"
+    },
+    "Guild Saga - Daily Floor & Listings.txt": {
+      "sha256": "34f5513d8e49fa2615f0ac31e1fb0b909b993460665c54f192afbea40fdd6d2e",
+      "archived_path": "docs/migration/2026-08-26/dune-final-queries/Guild Saga - Daily Floor & Listings.txt"
+    },
+    "Guild Saga - Initial Mint Treasury Split.txt": {
+      "sha256": "1f9b67fb42d51b2ebf96667996ba825ef255e57d148c2e12da06c7ba134c8b07",
+      "archived_path": "docs/migration/2026-08-26/dune-final-queries/Guild Saga - Initial Mint Treasury Split.txt"
+    },
+    "Guild Saga - Launch KPIs.txt": {
+      "sha256": "acc764480b4ce9dd86c821774396ab9684f96067c0c30db6ff00179c177442d4",
+      "archived_path": "docs/migration/2026-08-26/dune-final-queries/Guild Saga - Launch KPIs.txt"
+    },
+    "Guild Saga - Live Hero State.txt": {
+      "sha256": "6eb37f0ab37105e5b9b91653c2489c1839ff10db0671034993810f580f223210",
+      "archived_path": "docs/migration/2026-08-26/dune-final-queries/Guild Saga - Live Hero State.txt"
+    },
+    "Guild Saga - Live Market History.txt": {
+      "sha256": "5bcd76cfb31cd4ba5ee132ba6f0228b9f14a74108cb8e005c61fce403edefa8c",
+      "archived_path": "docs/migration/2026-08-26/dune-final-queries/Guild Saga - Live Market History.txt"
+    },
+    "Guild Saga - Mint Phases.txt": {
+      "sha256": "2da186760aa256fd65ddc83c6701f0bfbf8259279ce1fe2f8e974f35e30e5d61",
+      "archived_path": "docs/migration/2026-08-26/dune-final-queries/Guild Saga - Mint Phases.txt"
+    },
+    "Guild Saga - Public Mint Distribution.txt": {
+      "sha256": "ea572e80e5294cc9d4963ef3e38102aafd30652ed663702d1e7a6731242bb1d2",
+      "archived_path": "docs/migration/2026-08-26/dune-final-queries/Guild Saga - Public Mint Distribution.txt"
+    },
+    "SOL Converted to USDC Over Time.txt": {
+      "sha256": "cccc6b6043624ad063f001620c40b683a21f21ac27f354b8597c6f8f58e9ebee",
+      "archived_path": "docs/migration/2026-08-26/dune-final-queries/SOL Converted to USDC Over Time.txt"
+    }
+  },
+  "uploaded_datasets": {
+    "guild_saga_assets_v2.csv": {
+      "sha256": "d75a84fc60f33d4516d80d59d2cf1598c0bfd038cb130235516bb6bb86181f84",
+      "rows": 10000
+    },
+    "guild_saga_first_resale_timing.csv": {
+      "sha256": "940505c3a426eb219245e15b9defdce5a9e991c9a83a49f1eaf5e078dd375ba2",
+      "rows": 9900
+    },
+    "guild_saga_hero_rarity_v1.csv": {
+      "sha256": "bfef5a84e3f5bb965da2ade36f03dbd4336e776c1500f009cc1c68548a099a9d",
+      "rows": 10000
+    },
+    "guild_saga_market_sales_FINAL.csv": {
+      "sha256": "4d07cefebd7931178aff4b8aaac54ff568c3ea62f3d285ef1db9997eee0fc5e3",
+      "rows": 19780
+    },
+    "guild_saga_tensor_history_dune.csv": {
+      "sha256": "5226c18463ec5c665da27746980cbbd6024a3f015f94b7e2fa36f04b2824284f",
+      "rows": 1612
+    }
+  },
+  "canonical_dataset_mapping": {
+    "guild_saga_assets_v2.csv": "data/baseline/assets.csv",
+    "guild_saga_first_resale_timing.csv": "data/baseline/first_resale_timing.csv",
+    "guild_saga_hero_rarity_v1.csv": "data/baseline/rarity.csv",
+    "guild_saga_market_sales_FINAL.csv": "data/baseline/market_sales.csv",
+    "guild_saga_tensor_history_dune.csv": "historical source for data/history/floor_listings.csv through 2026-08-18; later rows are independent Magic Eden snapshots"
+  }
+}

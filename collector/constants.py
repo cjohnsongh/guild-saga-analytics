@@ -1,0 +1,31 @@
+"""Validated Guild Saga program/address constants.
+
+Values were frozen from the final production analytics logic on 2026-08-26.
+Do not change a discriminator/account mapping without a transaction fixture
+that proves the new behavior.
+"""
+
+WORLD_MODE_PROGRAM = "6AzuBKDsR88vinh399HV5v7fgB1eZyoYwQ3PmdYqFRZG"
+WORLD_STAKE_DISCRIMINATOR = bytes.fromhex("5de284a68d093065")
+WORLD_UNSTAKE_DISCRIMINATOR = bytes.fromhex("8eb5bf9552afd864")
+WORLD_QUEST_RESTART_DISCRIMINATOR = bytes.fromhex("042211a8aa29e88801")
+
+MAGIC_EDEN_V2_PROGRAM = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"
+TENSOR_MARKETPLACE_PROGRAM = "TCMPhJdwDryooaGtiocG1u3xcYbRpiJzb283XfCZsDp"
+TENSOR_AMM_PROGRAM = "TAMM6ub33ij1mbetoMyVBLeKY5iP41i4UPUJQGkhfsg"
+SYSTEM_PROGRAM = "11111111111111111111111111111111"
+TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+TOKEN_2022_PROGRAM = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+
+ME_EXECUTE_SALE_V2 = bytes.fromhex("5bdc31dfcc8135c1")
+TENSOR_MARKETPLACE_BUY_LEGACY = bytes.fromhex("447f2b08d41ff972")
+TENSOR_MARKETPLACE_TAKE_EVENT = bytes.fromhex("6aa20ae28444df15")
+TENSOR_AMM_BUY_NFT = bytes.fromhex("60001cbe316b53de")
+TENSOR_AMM_BUY_SELL_EVENT = bytes.fromhex("1fa2e49e99a0c6b6")
+
+ROYALTY_90_ADDRESS = "8VAHrpJ9nsqRLaujbzpuCxhAhjsE8wA4ZvUHwx2VZw3y"
+ROYALTY_10_ADDRESS = "RRUMF9KYPcvNSmnicNMAFKx5wDYix3wjNa6bA7R6xqA"
+
+LAMPORTS_PER_SOL = 1_000_000_000
+ORIGINAL_SUPPLY = 10_000
+CUTOVER_DATE = "2026-08-26"

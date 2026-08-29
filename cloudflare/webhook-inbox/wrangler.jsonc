@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "guild-saga-webhook-inbox",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-28",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "guild-saga-webhook-inbox-db",
+      "database_id": "98959383-1cde-4435-91ff-6edb3e13ef60"
+    }
+  ]
+}

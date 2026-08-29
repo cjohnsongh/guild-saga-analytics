@@ -1,29 +1,43 @@
 {
-  "hero": {
-    "active_supply": 9832,
-    "beneficial_holders": 1962,
-    "staked_heroes": 5851,
-    "staked_supply_pct": 59.5,
-    "quest_active_30d": 1122,
-    "quest_limbo_1y": 3490,
-    "burned": 168
+  "schema_version": 2,
+  "cutover_date": "2026-08-26",
+  "summary": {
+    "hero": {
+      "active_supply": 9832,
+      "beneficial_holders": 1962,
+      "staked_heroes": 5851,
+      "staked_supply_pct": 59.5,
+      "quest_active_30d": 1122,
+      "quest_limbo_1y": 3490,
+      "burned": 168
+    },
+    "launch": {
+      "public_mint_supply": 9900,
+      "unique_public_minters": 4888,
+      "mint_price_sol": 1.5,
+      "public_mint_proceeds_sol": 14850.0
+    },
+    "market": {
+      "secondary_sales": 19797,
+      "secondary_volume_sol": 35725.707237474,
+      "unique_buyers": 5472,
+      "heroes_ever_sold": 8405,
+      "guild_saga_royalties_sol": 1742.09,
+      "mint_plus_royalties_sol": 16592.09
+    },
+    "floor": {
+      "floor_sol": 0.07,
+      "listed_count": 433
+    }
   },
-  "market": {
-    "secondary_sales": 19797,
-    "secondary_volume_sol": 35725.707237474,
-    "unique_buyers": 5472,
-    "heroes_ever_sold": 8405,
-    "guild_saga_royalties_sol": 1742.09,
-    "mint_plus_royalties_sol": 16592.09
-  },
-  "floor": {
-    "floor_sol": 0.07,
-    "listed_count": 433
-  },
-  "launch": {
-    "public_mint_supply": 9900,
-    "unique_public_minters": 4888,
-    "mint_price_sol": 1.5,
-    "public_mint_proceeds_sol": 14850.0
+  "file_sha256": {
+    "floor-listings.json": "0450f03108cf727896e658fcdd6cac4fba045b62f41e6cd28746cd6b4f6ebec9",
+    "hero-pfp-defaults.json": "dc78b3a35f39213ebcb323abaafa8d7050e129da32a2e810844fef2571b1fe26",
+    "hero-state.json": "6ddc7a25be6adebf8cbc209d4c685a94140a0f8b47e52509d2f08a43820baef1",
+    "launch.json": "970e91dbe9313d8bcede3a0640124cee577c8c7ec871a2c7285cf293aea22196",
+    "market-daily.json": "73ae6a1ffecf731164d8ef56383035b99deab6e9de319623fd7617c38a242d46",
+    "market-history.json": "e09b3ce0714a95797d8091022c0d74e71e2af794aa1e6abb095f68a3e7f599eb",
+    "summary.json": "7b9fde9abf8191ddfae0bb72fd5b01d694caacfa9feaeb271c0b79e140a1563e",
+    "treasury.json": "077e0f65c04ad99533ac41615aaf790b9a5cef1f9b6ec1276febf690344412f5"
   }
 }

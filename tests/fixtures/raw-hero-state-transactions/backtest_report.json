@@ -1,0 +1,31 @@
+{
+  "passed_checks": 19,
+  "failed_checks": 0,
+  "validated_unstake_cases": 3,
+  "unstake_candidates_fetched": 3,
+  "providers": {
+    "Helius": 19
+  },
+  "passes": [
+    "STAKE Guild Hero #211",
+    "STAKE Guild Hero #3823",
+    "STAKE Guild Hero #3425",
+    "STAKE Guild Hero #3349",
+    "QUEST_RESTART Guild Hero #2089",
+    "QUEST_RESTART Guild Hero #7629",
+    "QUEST_RESTART Guild Hero #5480",
+    "QUEST_RESTART Guild Hero #5907",
+    "BURN Guild Hero #4318",
+    "BURN Guild Hero #7186",
+    "BURN Guild Hero #7973",
+    "BURN Guild Hero #6290",
+    "TRANSFER Guild Hero #9623",
+    "TRANSFER Guild Hero #8505",
+    "TRANSFER Guild Hero #3429",
+    "TRANSFER Guild Hero #2412",
+    "UNSTAKE Guild Hero #6503",
+    "UNSTAKE Guild Hero #8173",
+    "UNSTAKE Guild Hero #9342"
+  ],
+  "failures": []
+}

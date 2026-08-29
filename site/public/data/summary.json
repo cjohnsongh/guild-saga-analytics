@@ -2,11 +2,11 @@
   "cutover_date": "2026-08-26",
   "hero": {
     "active_supply": 9832,
-    "beneficial_holders": 1962,
+    "beneficial_holders": 1961,
     "staked_heroes": 5851,
     "staked_supply_pct": 59.5,
-    "quest_active_30d": 1122,
-    "quest_limbo_1y": 3490,
+    "quest_active_30d": 1127,
+    "quest_limbo_1y": 3491,
     "burned": 168
   },
   "launch": {

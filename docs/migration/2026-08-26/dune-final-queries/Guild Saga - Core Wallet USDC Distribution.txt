@@ -1,0 +1,11 @@
+SELECT *
+FROM (
+    VALUES
+        (1, '3xQ project-connected wallet', 120361.0),
+        (2, 'FS9b project-connected wallet', 120361.0)
+) AS t(
+    wallet_order,
+    destination,
+    usdc
+)
+ORDER BY wallet_order

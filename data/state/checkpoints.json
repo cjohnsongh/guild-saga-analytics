@@ -1,7 +1,9 @@
 {
   "cutover_date": "2026-08-26",
-  "hero_state_checkpoint": "2026-08-26 07:49:15.352 UTC",
-  "market_checkpoint_date": "2026-08-26",
+  "hero_state_checkpoint": "2026-08-29T11:30:21.979Z",
+  "market_checkpoint_date": "2026-08-29",
   "floor_checkpoint_date": "2026-08-26",
-  "notes": "Canonical production seed created from final Dune state exports. Dune query files are intentionally not part of this repository."
+  "notes": "Independent production state. Hero and market domains are reduced from the durable Helius raw-webhook D1 inbox. hero_state_checkpoint and webhook_inbox_checkpoint are received-through watermarks; late chain events remain eligible for later idempotent processing. Floor/listings retains its independent checkpoint.",
+  "market_checkpoint_utc": "2026-08-29T11:30:21.979Z",
+  "webhook_inbox_checkpoint": "2026-08-29T11:30:21.979Z"
 }

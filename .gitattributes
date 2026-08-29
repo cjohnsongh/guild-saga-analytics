@@ -1,0 +1,4 @@
+# Byte-stable Guild Saga migration fixtures (manifest SHA-256 values are LF-based).
+data/baseline/*.csv text eol=lf
+docs/migration/2026-08-26/dune-final-queries/*.txt text eol=lf
+docs/migration/2026-08-26/source-data/*.csv text eol=lf

@@ -1,0 +1,20 @@
+# Local/API secrets — never commit.
+key.txt
+alchemy_key.txt
+keys.txt
+.env
+.env.*
+!*.example
+
+# Python runtime artifacts.
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Frontend build/install artifacts.
+site/node_modules/
+site/dist/
+
+# Local resumable reconciliation caches.
+.guild_saga_recon/
