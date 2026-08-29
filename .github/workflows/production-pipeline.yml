@@ -1,26 +1,29 @@
-name: Production data pipeline (review dry run)
+name: Production data pipeline
 
 on:
+  schedule:
+    - cron: "7,37 * * * *"
   workflow_dispatch:
 
-# This workflow intentionally has no schedule and no production-mode input.
-# During review, every possible manual dispatch is non-mutating.
+# Scheduled runs mutate production only through the fail-closed release pipeline.
+# Manual dispatch has no mode input, a read-only token, and is always a dry run.
 concurrency:
   group: guild-saga-production-pipeline
   cancel-in-progress: false
 
-permissions:
-  contents: read
-  checks: read
-  statuses: read
-
 jobs:
-  dry-run:
+  manual-dry-run:
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      checks: read
+      statuses: read
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
@@ -37,3 +40,33 @@ jobs:
           PIPELINE_TOKEN: ${{ secrets.PIPELINE_TOKEN }}
           GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/production_pipeline.py --mode dry-run
+
+  scheduled-production:
+    if: github.event_name == 'schedule'
+    permissions:
+      contents: write
+      checks: read
+      statuses: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile production Python
+        run: python -m compileall -q collector scripts tests
+
+      - name: Execute scheduled production release
+        env:
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
+          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+          PIPELINE_TOKEN: ${{ secrets.PIPELINE_TOKEN }}
+          HELIUS_WEBHOOK_AUTH: ${{ secrets.HELIUS_WEBHOOK_AUTH }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/production_pipeline.py --mode production

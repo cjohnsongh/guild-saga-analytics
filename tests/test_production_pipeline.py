@@ -31,16 +31,41 @@ class FakeWorker:
 
 
 class ProductionPipelineTests(unittest.TestCase):
-    def test_review_workflow_cannot_reach_production(self):
+    def test_workflow_routes_only_schedule_to_production(self):
         text = (ROOT / ".github" / "workflows" / "production-pipeline.yml").read_text(
             encoding="utf-8"
         )
         self.assertIn("workflow_dispatch:", text)
-        self.assertNotIn("schedule:", text)
-        self.assertIn("--mode dry-run", text)
-        self.assertNotIn("--mode production", text)
+        self.assertNotIn("inputs:", text)
+        self.assertIn("schedule:", text)
+        self.assertIn('cron: "7,37 * * * *"', text)
+        self.assertIn("if: github.event_name == 'schedule'", text)
+        self.assertIn("if: github.event_name == 'workflow_dispatch'", text)
+        self.assertEqual(text.count("--mode production"), 1)
+        self.assertEqual(text.count("--mode dry-run"), 1)
+        self.assertIn("manual-dry-run:", text)
+        self.assertIn("scheduled-production:", text)
+        self.assertIn("contents: write", text)
         self.assertIn("contents: read", text)
         self.assertIn("cancel-in-progress: false", text)
+        self.assertEqual(text.count("fetch-depth: 0"), 2)
+        self.assertEqual(text.count("ref: main"), 2)
+        manual = text.split("manual-dry-run:", 1)[1].split("scheduled-production:", 1)[0]
+        scheduled = text.split("scheduled-production:", 1)[1]
+        self.assertIn("contents: read", manual)
+        self.assertIn("--mode dry-run", manual)
+        self.assertNotIn("--mode production", manual)
+        self.assertNotIn("HELIUS_WEBHOOK_AUTH", manual)
+        self.assertIn("contents: write", scheduled)
+        self.assertIn("--mode production", scheduled)
+        self.assertIn("HELIUS_WEBHOOK_AUTH", scheduled)
+        for secret in (
+            "HELIUS_API_KEY",
+            "ALCHEMY_API_KEY",
+            "PIPELINE_TOKEN",
+            "HELIUS_WEBHOOK_AUTH",
+        ):
+            self.assertIn(f"secrets.{secret}", text)
 
     def test_tracked_webhook_config_is_raw_and_immutable_boundary(self):
         config = json.loads(
