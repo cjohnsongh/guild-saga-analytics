@@ -1035,6 +1035,208 @@ html { scroll-behavior: smooth; }
   font-weight: 500;
 }
 
+.data-method-section {
+  margin-top: 22px;
+  padding-top: 34px;
+  border-top: 1px solid #34343b;
+}
+
+.data-method-heading {
+  max-width: 860px;
+}
+
+.data-method-heading .eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: #8f8e9b;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.data-method-heading h2 {
+  margin: 0;
+  font-size: clamp(24px, 2.3vw, 32px);
+}
+
+.data-method-heading p {
+  margin: 12px 0 0;
+  color: #aaa9b5;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.pfp-method-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr);
+  gap: 44px;
+  margin-top: 28px;
+}
+
+.pfp-method-copy {
+  max-width: 760px;
+  color: #c2c1cb;
+  font-size: 14px;
+  line-height: 1.68;
+}
+
+.pfp-method-copy p {
+  margin: 0;
+}
+
+.pfp-method-copy p + p {
+  margin-top: 14px;
+}
+
+.pfp-method-specs {
+  border-top: 1px solid #303038;
+}
+
+.pfp-method-specs > div {
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #292930;
+}
+
+.pfp-method-specs span {
+  color: #85848f;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .045em;
+}
+
+.pfp-method-specs strong {
+  color: #d7d6df;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.hero-source-access {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: 38px;
+  padding-top: 28px;
+  border-top: 1px solid #292930;
+}
+
+.hero-source-access h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.hero-source-access p {
+  max-width: 760px;
+  margin: 9px 0 0;
+  color: #9f9eaa;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.data-source-link {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  padding: 0 14px;
+  border: 1px solid #3b3b43;
+  background: #151519;
+  color: #ceccd8;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.data-source-link:hover {
+  border-color: #5a5963;
+  color: #f1f0f6;
+}
+
+.hero-source-preview {
+  margin-top: 22px;
+  border: 1px solid #292930;
+  background: #111114;
+}
+
+.hero-source-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: #45444c transparent;
+}
+
+.hero-source-sprite {
+  position: relative;
+  width: 65px;
+  height: 70px;
+  flex: 0 0 65px;
+  display: block;
+  overflow: hidden;
+  background-color: #18181d;
+  background-image:
+    linear-gradient(45deg, #222229 25%, transparent 25%),
+    linear-gradient(-45deg, #222229 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #222229 75%),
+    linear-gradient(-45deg, transparent 75%, #222229 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+}
+
+.hero-source-sprite:hover {
+  z-index: 1;
+  outline: 1px solid #7471bc;
+  outline-offset: 0;
+}
+
+.hero-source-sprite img {
+  width: 65px;
+  height: 70px;
+  max-width: none;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.hero-source-preview-caption {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 9px 14px;
+  border-top: 1px solid #292930;
+  color: #83828d;
+  font-size: 12px;
+}
+
+.hero-source-preview-caption span:first-child {
+  color: #b8b7c2;
+  font-weight: 600;
+}
+
+.hero-source-path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 16px;
+  margin: 14px 0 0;
+  color: #777682;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.hero-source-path code {
+  color: #aeadb8;
+}
+
 
 /* A little more breathing room now that domains share one document. */
 .scroll-section .domain-page,
@@ -1094,6 +1296,27 @@ html { scroll-behavior: smooth; }
 
   .economy-two-charts {
     gap: 18px;
+  }
+
+  .pfp-method-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .hero-source-access {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .data-source-link {
+    min-height: 44px;
+  }
+
+  .hero-source-preview-caption {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
   }
 
   .data-page-heading {

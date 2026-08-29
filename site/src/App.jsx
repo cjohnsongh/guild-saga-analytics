@@ -26,6 +26,8 @@ const HERO_FAVICON_OUTPUT = { width: 52, height: 52 };
 const HERO_FAVICON_RADIUS = 9;
 const HERO_IDENTITY_DELAY_MS = 1500;
 const HERO_IDENTITY_FADE_MS = 360;
+const HERO_SOURCE_GITHUB_URL = 'https://github.com/cjohnsongh/guild-saga-analytics/tree/main/site/public/assets/heroes/source';
+const HERO_SOURCE_PREVIEW_IDS = Array.from({ length: 20 }, (_, index) => index);
 const heroSourceImageCache = new Map();
 
 const LABYRINTHS_SLIDES = [
@@ -2374,7 +2376,90 @@ function DataPage({ onBack, data }) {
         ))}
       </section>
 
+      <section className="data-method-section pfp-method-section">
+        <div className="data-method-heading">
+          <span className="eyebrow">Site tool</span>
+          <h2>Hero PFP Creator</h2>
+          <p>
+            The PFP creator is built directly from the collection&apos;s native transparent Hero sprites.
+            The site keeps all 10,000 source PNGs at their original 65 × 70 pixel resolution, then does
+            the compositing and enlargement locally in your browser.
+          </p>
+        </div>
 
+        <div className="pfp-method-grid">
+          <div className="pfp-method-copy">
+            <p>
+              For a body PFP, the full 65 × 70 sprite is drawn over the selected background color at
+              native resolution and enlarged to 650 × 700. For a face PFP, the creator takes a 26 × 26
+              crop from the original sprite and enlarges it to 780 × 780.
+            </p>
+            <p>
+              Both paths disable image smoothing and use nearest-neighbor scaling, so the enlarged PNGs
+              preserve the hard pixel edges of the original art instead of blurring them. Each Hero starts
+              with a mapped default background color, and the color picker can override it before download.
+            </p>
+          </div>
+
+          <div className="pfp-method-specs" aria-label="PFP creator technical details">
+            <div><span>Source sprite</span><strong>65 × 70 px · transparent RGBA PNG</strong></div>
+            <div><span>Body output</span><strong>650 × 700 px · 10× nearest-neighbor</strong></div>
+            <div><span>Face crop</span><strong>26 × 26 px · x20 / y8</strong></div>
+            <div><span>Face output</span><strong>780 × 780 px · 30× nearest-neighbor</strong></div>
+          </div>
+        </div>
+
+        <div className="hero-source-access">
+          <div>
+            <h3>10,000 transparent source PNGs</h3>
+            <p>
+              Every Hero from #0 through #9999 is published in the repository at native resolution.
+              The files are grouped into folders of 1,000 so the full set remains straightforward to browse
+              or download directly from GitHub.
+            </p>
+          </div>
+          <a
+            className="data-source-link"
+            href={HERO_SOURCE_GITHUB_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Browse all 10,000 PNGs on GitHub <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+
+        <div className="hero-source-preview">
+          <div className="hero-source-strip" aria-label="Heroes 0 through 19 at native resolution">
+            {HERO_SOURCE_PREVIEW_IDS.map((heroId) => (
+              <a
+                key={heroId}
+                className="hero-source-sprite"
+                href={getHeroSourceUrl(heroId)}
+                download={`${heroId}.png`}
+                title={`Download Guild Hero #${heroId} source PNG`}
+                aria-label={`Download Guild Hero #${heroId} source PNG`}
+              >
+                <img
+                  src={getHeroSourceUrl(heroId)}
+                  alt=""
+                  width="65"
+                  height="70"
+                  decoding="async"
+                />
+              </a>
+            ))}
+          </div>
+          <div className="hero-source-preview-caption">
+            <span>Heroes #0–#19</span>
+            <span>Native size · 65 × 70 px · click any Hero to download its source PNG</span>
+          </div>
+        </div>
+
+        <p className="hero-source-path">
+          Direct asset pattern: <code>/assets/heroes/source/&lt;thousands&gt;/&lt;hero-id&gt;.png</code>
+          <span>Example: Hero #1531 → <code>/assets/heroes/source/1/1531.png</code></span>
+        </p>
+      </section>
 
       <FreshnessChip data={data} />
     </div>
