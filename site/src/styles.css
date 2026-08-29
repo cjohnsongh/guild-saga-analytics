@@ -1066,15 +1066,9 @@ html { scroll-behavior: smooth; }
   line-height: 1.6;
 }
 
-.pfp-method-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr);
-  gap: 44px;
-  margin-top: 28px;
-}
-
 .pfp-method-copy {
-  max-width: 760px;
+  max-width: 900px;
+  margin-top: 24px;
   color: #c2c1cb;
   font-size: 14px;
   line-height: 1.68;
@@ -1088,40 +1082,13 @@ html { scroll-behavior: smooth; }
   margin-top: 14px;
 }
 
-.pfp-method-specs {
-  border-top: 1px solid #303038;
-}
-
-.pfp-method-specs > div {
-  min-height: 54px;
-  display: grid;
-  grid-template-columns: 104px minmax(0, 1fr);
-  align-items: center;
-  gap: 16px;
-  border-bottom: 1px solid #292930;
-}
-
-.pfp-method-specs span {
-  color: #85848f;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: .045em;
-}
-
-.pfp-method-specs strong {
-  color: #d7d6df;
-  font-size: 13px;
-  font-weight: 600;
-}
-
 .hero-source-access {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 32px;
-  margin-top: 38px;
-  padding-top: 28px;
-  border-top: 1px solid #292930;
+  margin-top: 36px;
+  padding-top: 0;
 }
 
 .hero-source-access h3 {
@@ -1167,12 +1134,10 @@ html { scroll-behavior: smooth; }
 .hero-source-strip {
   display: flex;
   align-items: flex-start;
-  gap: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
+  justify-content: center;
+  gap: 3px;
+  overflow: hidden;
   padding: 16px;
-  scrollbar-width: thin;
-  scrollbar-color: #45444c transparent;
 }
 
 .hero-source-sprite {
@@ -1296,11 +1261,6 @@ html { scroll-behavior: smooth; }
 
   .economy-two-charts {
     gap: 18px;
-  }
-
-  .pfp-method-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
   }
 
   .hero-source-access {

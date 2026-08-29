@@ -1,9 +1,9 @@
-# Guild Saga Hero transparent source sprites
+# Guild Saga Hero transparent source PNGs
 
 This directory contains the 10,000 transparent source PNGs used by the Guild Saga Analytics Hero PFP creator.
 
 - Heroes: `#0` through `#9999`
-- Native dimensions: `65 × 70` pixels
+- Dimensions: `65 × 70` pixels at a 1:1 art-pixel scale
 - Format: transparent RGBA PNG
 - Naming: `<hero-id>.png`
 - Folders: grouped by thousands (`0/` through `9/`)
@@ -15,4 +15,4 @@ Examples:
 - Hero #1531: `1/1531.png`
 - Hero #9999: `9/9999.png`
 
-The site composites these sprites over a chosen background color at native resolution, then uses nearest-neighbor scaling for downloadable body and face PFP outputs.
+The site composites these transparent source images over a chosen background color at a 1:1 art-pixel scale, then uses nearest-neighbor scaling for downloadable body and face PFP outputs. In the NFT artwork, each art pixel is displayed as a 5 × 5 block.

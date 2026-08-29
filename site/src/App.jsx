@@ -27,7 +27,8 @@ const HERO_FAVICON_RADIUS = 9;
 const HERO_IDENTITY_DELAY_MS = 1500;
 const HERO_IDENTITY_FADE_MS = 360;
 const HERO_SOURCE_GITHUB_URL = 'https://github.com/cjohnsongh/guild-saga-analytics/tree/main/site/public/assets/heroes/source';
-const HERO_SOURCE_PREVIEW_IDS = Array.from({ length: 20 }, (_, index) => index);
+const HERO_SOURCE_PREVIEW_IDS = Array.from({ length: 21 }, (_, index) => index);
+const HERO_SOURCE_PREVIEW_GAP = 3;
 const heroSourceImageCache = new Map();
 
 const LABYRINTHS_SLIDES = [
@@ -2345,6 +2346,34 @@ function SiteFooter({ data }) {
 }
 
 function DataPage({ onBack, data }) {
+  const heroSourceStripRef = useRef(null);
+  const [heroSourcePreviewCount, setHeroSourcePreviewCount] = useState(HERO_SOURCE_PREVIEW_IDS.length);
+
+  useEffect(() => {
+    const strip = heroSourceStripRef.current;
+    if (!strip) return undefined;
+
+    const updatePreviewCount = () => {
+      const styles = window.getComputedStyle(strip);
+      const paddingLeft = Number.parseFloat(styles.paddingLeft) || 0;
+      const paddingRight = Number.parseFloat(styles.paddingRight) || 0;
+      const availableWidth = Math.max(0, strip.clientWidth - paddingLeft - paddingRight);
+      const fit = Math.max(1, Math.floor((availableWidth + HERO_SOURCE_PREVIEW_GAP) / (HERO_SOURCE_WIDTH + HERO_SOURCE_PREVIEW_GAP)));
+      setHeroSourcePreviewCount(Math.min(HERO_SOURCE_PREVIEW_IDS.length, fit));
+    };
+
+    updatePreviewCount();
+
+    if (typeof ResizeObserver === 'function') {
+      const observer = new ResizeObserver(updatePreviewCount);
+      observer.observe(strip);
+      return () => observer.disconnect();
+    }
+
+    window.addEventListener('resize', updatePreviewCount);
+    return () => window.removeEventListener('resize', updatePreviewCount);
+  }, []);
+
   const files = [
     ['summary.json', 'Current headline collection and market metrics.'],
     ['hero-state.json', 'Holder tiers, staking and quest state, burn history, and burned rarity.'],
@@ -2381,41 +2410,33 @@ function DataPage({ onBack, data }) {
           <span className="eyebrow">Site tool</span>
           <h2>Hero PFP Creator</h2>
           <p>
-            The PFP creator is built directly from the collection&apos;s native transparent Hero sprites.
-            The site keeps all 10,000 source PNGs at their original 65 × 70 pixel resolution, then does
-            the compositing and enlargement locally in your browser.
+            For this site, each of the 10,000 Heroes has a transparent 65 × 70 pixel source image. These files
+            preserve the Hero art at a 1:1 pixel scale, and the compositing and enlargement happen
+            locally in your browser. In the NFT artwork, each art pixel is displayed as a 5 × 5 block, so the
+            65 × 70 files are the underlying pixel-art representation rather than the NFT&apos;s display resolution.
           </p>
         </div>
 
-        <div className="pfp-method-grid">
-          <div className="pfp-method-copy">
-            <p>
-              For a body PFP, the full 65 × 70 sprite is drawn over the selected background color at
-              native resolution and enlarged to 650 × 700. For a face PFP, the creator takes a 26 × 26
-              crop from the original sprite and enlarges it to 780 × 780.
-            </p>
-            <p>
-              Both paths disable image smoothing and use nearest-neighbor scaling, so the enlarged PNGs
-              preserve the hard pixel edges of the original art instead of blurring them. Each Hero starts
-              with a mapped default background color, and the color picker can override it before download.
-            </p>
-          </div>
-
-          <div className="pfp-method-specs" aria-label="PFP creator technical details">
-            <div><span>Source sprite</span><strong>65 × 70 px · transparent RGBA PNG</strong></div>
-            <div><span>Body output</span><strong>650 × 700 px · 10× nearest-neighbor</strong></div>
-            <div><span>Face crop</span><strong>26 × 26 px · x20 / y8</strong></div>
-            <div><span>Face output</span><strong>780 × 780 px · 30× nearest-neighbor</strong></div>
-          </div>
+        <div className="pfp-method-copy">
+          <p>
+            For a body PFP, the full 65 × 70 transparent image is drawn over the selected background color at
+            1:1 pixel scale, then enlarged 10× to 650 × 700. For a face PFP, the creator takes a 26 × 26 crop
+            starting at x20 / y8 and enlarges it 30× to 780 × 780.
+          </p>
+          <p>
+            Both paths disable image smoothing and use nearest-neighbor scaling, preserving the hard pixel edges
+            instead of blurring them. Each Hero starts with a mapped default background color based on that NFT&apos;s
+            Background trait, and the color picker can override it before download.
+          </p>
         </div>
 
         <div className="hero-source-access">
           <div>
             <h3>10,000 transparent source PNGs</h3>
             <p>
-              Every Hero from #0 through #9999 is published in the repository at native resolution.
-              The files are grouped into folders of 1,000 so the full set remains straightforward to browse
-              or download directly from GitHub.
+              Every Hero from #0 through #9999 is published in the repository as a transparent 65 × 70 PNG
+              with the art preserved at a 1:1 pixel scale. The files are grouped into folders of 1,000 so the
+              full set remains straightforward to browse or download directly from GitHub.
             </p>
           </div>
           <a
@@ -2429,8 +2450,12 @@ function DataPage({ onBack, data }) {
         </div>
 
         <div className="hero-source-preview">
-          <div className="hero-source-strip" aria-label="Heroes 0 through 19 at native resolution">
-            {HERO_SOURCE_PREVIEW_IDS.map((heroId) => (
+          <div
+            ref={heroSourceStripRef}
+            className="hero-source-strip"
+            aria-label={`Heroes 0 through ${Math.max(0, heroSourcePreviewCount - 1)} at 1:1 pixel scale`}
+          >
+            {HERO_SOURCE_PREVIEW_IDS.slice(0, heroSourcePreviewCount).map((heroId) => (
               <a
                 key={heroId}
                 className="hero-source-sprite"
@@ -2450,8 +2475,8 @@ function DataPage({ onBack, data }) {
             ))}
           </div>
           <div className="hero-source-preview-caption">
-            <span>Heroes #0–#19</span>
-            <span>Native size · 65 × 70 px · click any Hero to download its source PNG</span>
+            <span>Heroes #0–#{Math.max(0, heroSourcePreviewCount - 1)}</span>
+            <span>1:1 pixel scale · 65 × 70 px · click any Hero to download its source PNG</span>
           </div>
         </div>
 
