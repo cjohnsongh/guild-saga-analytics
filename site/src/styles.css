@@ -1969,9 +1969,9 @@ html { scroll-behavior: smooth; }
 
 .labyrinths-copy {
   min-width: 0;
-  min-height: 100%;
+  min-height: 0;
   padding: 0 12px 0 0;
-  align-self: stretch;
+  align-self: start;
   display: flex;
   flex-direction: column;
 }
@@ -1986,17 +1986,18 @@ html { scroll-behavior: smooth; }
 }
 
 .labyrinths-copy p {
-  margin: 0;
-  color: #9f9ea9;
-  font-size: 13px;
-  line-height: 1.4;
+  margin: 13px 0 0;
+  color: #aaa;
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: normal;
 }
 
 .epic-wishlist-link {
   width: 100%;
   max-width: 420px;
   min-height: 56px;
-  margin-top: auto;
+  margin-top: 8px;
   padding: 10px 12px;
   border: 1px solid #23293a;
   border-radius: 14px;
@@ -2084,6 +2085,17 @@ html { scroll-behavior: smooth; }
   display: block;
   object-fit: contain;
   background: #09090b;
+}
+
+@media (min-width: 1121px) {
+  .labyrinths-carousel-track,
+  .labyrinths-carousel-item,
+  .labyrinths-carousel-item img { height: 100%; }
+
+  .labyrinths-carousel-item img {
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
 }
 
 .labyrinths-carousel-item:hover img { filter: brightness(1.055); }
@@ -2234,7 +2246,7 @@ html { scroll-behavior: smooth; }
 
   .epic-wishlist-link {
     width: min(100%, 420px);
-    margin-top: 14px;
+    margin-top: 8px;
   }
 }
 
@@ -2309,7 +2321,7 @@ html { scroll-behavior: smooth; }
     flex-wrap: wrap;
   }
 
-  .labyrinths-copy p { font-size: 13px; }
+  .labyrinths-copy p { font-size: 14px; }
 
   .image-lightbox { padding: 62px 44px; }
   .image-lightbox-image-wrap {

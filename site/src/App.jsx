@@ -1983,10 +1983,37 @@ function EpicGamesIcon() {
   );
 }
 
-function getLabyrinthsCarouselLayout() {
+function getLabyrinthsCarouselLayout(viewportWidth = 0, copyHeight = 0) {
   const width = window.innerWidth;
-  const step = width <= 520 ? 84 : width <= 780 ? 50 : width <= 1120 ? (100 / 3) : 25;
-  return { step, offset: (100 - step) / 2 };
+
+  if (width <= 520) {
+    const step = 84;
+    return { step, offset: (100 - step) / 2, height: null };
+  }
+
+  if (width <= 780) {
+    const step = 50;
+    return { step, offset: (100 - step) / 2, height: null };
+  }
+
+  if (width <= 1120) {
+    const step = 100 / 3;
+    return { step, offset: (100 - step) / 2, height: null };
+  }
+
+  // Desktop derives the slide width from the finished left-column height.
+  // Each screenshot remains 16:9; the 10px term accounts for the item's
+  // 5px horizontal padding on each side. This makes the carousel bottom
+  // land exactly on the Epic button bottom instead of relying on a guessed
+  // fixed percentage.
+  if (viewportWidth > 0 && copyHeight > 0) {
+    const itemOuterWidth = (copyHeight * 16 / 9) + 10;
+    const step = (itemOuterWidth / viewportWidth) * 100;
+    return { step, offset: (100 - step) / 2, height: copyHeight };
+  }
+
+  const step = 25;
+  return { step, offset: (100 - step) / 2, height: null };
 }
 
 function LabyrinthsShowcase() {
@@ -2009,6 +2036,8 @@ function LabyrinthsShowcase() {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [carouselLayout, setCarouselLayout] = useState(() => getLabyrinthsCarouselLayout());
   const carouselLocked = useRef(false);
+  const labyrinthsCopyRef = useRef(null);
+  const labyrinthsViewportRef = useRef(null);
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -2019,10 +2048,27 @@ function LabyrinthsShowcase() {
   }, []);
 
   useEffect(() => {
-    const update = () => setCarouselLayout(getLabyrinthsCarouselLayout());
+    const update = () => {
+      const viewportWidth = labyrinthsViewportRef.current?.clientWidth || 0;
+      const copyHeight = labyrinthsCopyRef.current?.getBoundingClientRect().height || 0;
+      const next = getLabyrinthsCarouselLayout(viewportWidth, copyHeight);
+      setCarouselLayout((current) => (
+        Math.abs(current.step - next.step) < 0.001
+        && Math.abs((current.height || 0) - (next.height || 0)) < 0.5
+          ? current
+          : next
+      ));
+    };
+
     update();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    if (labyrinthsCopyRef.current) observer?.observe(labyrinthsCopyRef.current);
+    if (labyrinthsViewportRef.current) observer?.observe(labyrinthsViewportRef.current);
     window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', update);
+    };
   }, []);
 
   useEffect(() => {
@@ -2072,7 +2118,7 @@ function LabyrinthsShowcase() {
 
   return (
     <section className="labyrinths-showcase" aria-labelledby="labyrinths-showcase-title">
-      <div className="labyrinths-copy">
+      <div className="labyrinths-copy" ref={labyrinthsCopyRef}>
         <h2 id="labyrinths-showcase-title">Guild Saga: Labyrinths</h2>
         <p>Free to play, it takes you through ever-changing dungeon archives filled with strategic battles, risk-reward mechanics, and precious loot. Guild Saga Heroes can be used for deeper progression.</p>
         <a className="epic-wishlist-link" href="https://store.epicgames.com/p/guild-saga-labyrinths-ca0f96?lang=en-US" target="_blank" rel="noreferrer">
@@ -2086,7 +2132,11 @@ function LabyrinthsShowcase() {
         onMouseEnter={() => setCarouselPaused(true)}
         onMouseLeave={() => setCarouselPaused(false)}
       >
-        <div className="labyrinths-carousel-viewport">
+        <div
+          className="labyrinths-carousel-viewport"
+          ref={labyrinthsViewportRef}
+          style={carouselLayout.height ? { height: `${carouselLayout.height}px` } : undefined}
+        >
           <div
             className={`labyrinths-carousel-track ${carouselTransition && !reducedMotion ? 'is-animated' : ''}`}
             style={{ transform: `translateX(${carouselLayout.offset - carouselIndex * carouselLayout.step}%)` }}
