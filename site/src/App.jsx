@@ -59,6 +59,7 @@ function saveHeroPreference(heroId, color) {
 }
 
 const LABYRINTHS_SLIDES = [
+  { id: '00', src: '/assets/labyrinths/00.jpg', alt: 'Guild Saga: Labyrinths key art' },
   { id: '01', src: '/assets/labyrinths/01.png', alt: 'Guild Saga: Labyrinths gameplay screenshot 1' },
   { id: '02', src: '/assets/labyrinths/02.png', alt: 'Guild Saga: Labyrinths gameplay screenshot 2' },
   { id: '03', src: '/assets/labyrinths/03.png', alt: 'Guild Saga: Labyrinths gameplay screenshot 3' },
@@ -628,9 +629,36 @@ function makeTradingMarketOption(displayRows, marketRows, startDate, endDate, ra
       commonTimeAxis(1, startDate, endDate, true),
     ],
     yAxis: [
-      valueAxis(0, floorScale, formatAxisDecimal, { position: 'right' }),
-      valueAxis(0, volumeScale, () => '', { position: 'left', split: false, show: false }),
-      valueAxis(1, listingScale, (value) => formatInt(value), { position: 'right' }),
+      {
+        ...valueAxis(0, floorScale, formatAxisDecimal, { position: 'right' }),
+        axisPointer: {
+          show: true,
+          snap: false,
+          triggerTooltip: false,
+          lineStyle: { color: '#747480', type: 'dashed', width: 1 },
+          label: { show: true, formatter: ({ value }) => formatDecimal(value, 2) },
+        },
+      },
+      {
+        ...valueAxis(0, volumeScale, () => '', { position: 'left', split: false, show: false }),
+        axisPointer: {
+          show: true,
+          snap: false,
+          triggerTooltip: false,
+          lineStyle: { color: '#747480', type: 'dashed', width: 1 },
+          label: { show: true, formatter: ({ value }) => formatDecimal(value, 2) },
+        },
+      },
+      {
+        ...valueAxis(1, listingScale, (value) => formatInt(value), { position: 'right' }),
+        axisPointer: {
+          show: true,
+          snap: false,
+          triggerTooltip: false,
+          lineStyle: { color: '#747480', type: 'dashed', width: 1 },
+          label: { show: true, formatter: ({ value }) => formatInt(value) },
+        },
+      },
     ],
     series: [
       {
@@ -700,6 +728,134 @@ function makeTradingMarketOption(displayRows, marketRows, startDate, endDate, ra
       },
     ],
   };
+}
+
+
+function axisPointerValue(axisDim, converted) {
+  if (!Array.isArray(converted)) return converted;
+  if (axisDim === 'x') return converted[0];
+  return converted.length > 1 ? converted[1] : converted[0];
+}
+
+function nearestSeriesValueAtX(chart, spec, point, xValue) {
+  const option = chart.getOption();
+  const series = option.series?.[spec.seriesIndex];
+  const data = Array.isArray(series?.data) ? series.data : [];
+  if (!data.length) return null;
+
+  const first = data[0];
+  if (Array.isArray(first) || Array.isArray(first?.value)) {
+    const target = Number(xValue);
+    if (!Number.isFinite(target)) return null;
+    let bestIndex = 0;
+    let bestDistance = Infinity;
+    data.forEach((entry, index) => {
+      const raw = Array.isArray(entry) ? entry : entry?.value;
+      const rawX = raw?.[0];
+      const numericX = typeof rawX === 'number' ? rawX : new Date(rawX).getTime();
+      if (!Number.isFinite(numericX)) return;
+      const distance = Math.abs(numericX - target);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestIndex = index;
+      }
+    });
+    const raw = Array.isArray(data[bestIndex]) ? data[bestIndex] : data[bestIndex]?.value;
+    const value = Number(raw?.[1]);
+    return Number.isFinite(value) ? { dataIndex: bestIndex, value } : null;
+  }
+
+  const xAxis = option.xAxis?.[spec.xAxisIndex] || {};
+  const categories = Array.isArray(xAxis.data) ? xAxis.data : [];
+  let index = -1;
+  if (typeof xValue === 'string') index = categories.indexOf(xValue);
+  if (index < 0 && Number.isFinite(Number(xValue))) index = Math.round(Number(xValue));
+  index = Math.max(0, Math.min(data.length - 1, index));
+  const raw = data[index]?.value ?? data[index];
+  const value = Number(Array.isArray(raw) ? raw[1] : raw);
+  return Number.isFinite(value) ? { dataIndex: index, value } : null;
+}
+
+function installSnappedLineCrosshair(chart, specs) {
+  const zr = chart.getZr();
+
+  const pointOf = (event) => ({
+    x: Number(event.offsetX ?? event.event?.offsetX ?? 0),
+    y: Number(event.offsetY ?? event.event?.offsetY ?? 0),
+  });
+
+  const gridRect = (gridIndex) => chart.getModel().getComponent('grid', gridIndex)?.coordinateSystem?.getRect?.() || null;
+
+  const onMouseMove = (event) => {
+    const point = pointOf(event);
+    const spec = specs.find((candidate) => {
+      const rect = gridRect(candidate.gridIndex);
+      return rect
+        && point.x >= rect.x && point.x <= rect.x + rect.width
+        && point.y >= rect.y && point.y <= rect.y + rect.height;
+    });
+    if (!spec) return;
+
+    const converted = chart.convertFromPixel({ xAxisIndex: spec.xAxisIndex }, [point.x, point.y]);
+    const xValue = axisPointerValue('x', converted);
+    const nearest = nearestSeriesValueAtX(chart, spec, point, xValue);
+    if (!nearest) return;
+
+    const axesInfo = (spec.linkedXAxisIndices || [spec.xAxisIndex]).map((axisIndex) => ({
+      axisDim: 'x',
+      axisIndex,
+      value: xValue,
+    }));
+    axesInfo.push({ axisDim: 'y', axisIndex: spec.yAxisIndex, value: nearest.value });
+
+    if (Array.isArray(spec.mirroredYAxisIndices) && spec.mirroredYAxisIndices.length) {
+      const yPixel = chart.convertToPixel({ yAxisIndex: spec.yAxisIndex }, nearest.value);
+      spec.mirroredYAxisIndices.forEach((axisIndex) => {
+        const mirrorConverted = chart.convertFromPixel({ yAxisIndex: axisIndex }, [point.x, yPixel]);
+        const mirrorValue = Number(axisPointerValue('y', mirrorConverted));
+        if (Number.isFinite(mirrorValue)) axesInfo.push({ axisDim: 'y', axisIndex, value: mirrorValue });
+      });
+    }
+
+    chart.dispatchAction({
+      type: 'updateAxisPointer',
+      currTrigger: 'mousemove',
+      axesInfo,
+    });
+  };
+
+  zr.on('mousemove', onMouseMove);
+  return () => zr.off('mousemove', onMouseMove);
+}
+
+function installMarketChartInteractions(chart) {
+  const cleanupDrag = installMarketYAxisDrag(chart);
+  const cleanupCrosshair = installSnappedLineCrosshair(chart, [
+    { gridIndex: 0, xAxisIndex: 0, linkedXAxisIndices: [0, 1], yAxisIndex: 0, mirroredYAxisIndices: [1], seriesIndex: 0 },
+    { gridIndex: 1, xAxisIndex: 1, linkedXAxisIndices: [0, 1], yAxisIndex: 2, seriesIndex: 2 },
+  ]);
+  return () => {
+    cleanupCrosshair?.();
+    cleanupDrag?.();
+  };
+}
+
+function installBurnLineCrosshair(chart) {
+  return installSnappedLineCrosshair(chart, [
+    { gridIndex: 0, xAxisIndex: 0, yAxisIndex: 0, seriesIndex: 1 },
+  ]);
+}
+
+function installRoyaltiesLineCrosshair(chart) {
+  return installSnappedLineCrosshair(chart, [
+    { gridIndex: 0, xAxisIndex: 0, yAxisIndex: 0, seriesIndex: 0 },
+  ]);
+}
+
+function installConversionLineCrosshair(chart) {
+  return installSnappedLineCrosshair(chart, [
+    { gridIndex: 0, xAxisIndex: 0, yAxisIndex: 0, seriesIndex: 0 },
+  ]);
 }
 
 
@@ -1077,7 +1233,16 @@ function makeBurnHistoryOption(rows) {
         }),
       },
     },
-    yAxis: valueAxis(0, scale, (value) => formatInt(value), { position: 'left' }),
+    yAxis: {
+      ...valueAxis(0, scale, (value) => formatInt(value), { position: 'left' }),
+      axisPointer: {
+        show: true,
+        snap: false,
+        triggerTooltip: false,
+        lineStyle: { color: '#747480', type: 'dashed', width: 1 },
+        label: { show: true, formatter: ({ value }) => formatInt(value) },
+      },
+    },
     series: [
       {
         name: 'Monthly burns',
@@ -1187,7 +1352,16 @@ function makeSolConversionOption(rows) {
       textStyle: { color: '#efeff3', fontSize: 13 },
     },
     xAxis: monthAxis(rows),
-    yAxis: valueAxis(0, scale, (value) => formatInt(value), { position: 'left' }),
+    yAxis: {
+      ...valueAxis(0, scale, (value) => formatInt(value), { position: 'left' }),
+      axisPointer: {
+        show: true,
+        snap: false,
+        triggerTooltip: false,
+        lineStyle: { color: '#747480', type: 'dashed', width: 1 },
+        label: { show: true, formatter: ({ value }) => formatDecimal(value, 2) },
+      },
+    },
     series: [
       {
         name: 'Total SOL Sold',
@@ -1233,7 +1407,16 @@ function makeUsdcConversionOption(rows) {
       textStyle: { color: '#efeff3', fontSize: 13 },
     },
     xAxis: monthAxis(rows),
-    yAxis: valueAxis(0, scale, (value) => `$${formatInt(value)}`, { position: 'left' }),
+    yAxis: {
+      ...valueAxis(0, scale, (value) => `$${formatInt(value)}`, { position: 'left' }),
+      axisPointer: {
+        show: true,
+        snap: false,
+        triggerTooltip: false,
+        lineStyle: { color: '#747480', type: 'dashed', width: 1 },
+        label: { show: true, formatter: ({ value }) => `$${formatDecimal(value, 2)}` },
+      },
+    },
     series: [
       {
         name: 'Total USDC Purchased',
@@ -1274,7 +1457,16 @@ function makeRoyaltiesOption(rows) {
       },
     },
     xAxis: monthAxis(rows),
-    yAxis: valueAxis(0, scale, (value) => formatAxisDecimal(value), { position: 'left' }),
+    yAxis: {
+      ...valueAxis(0, scale, (value) => formatAxisDecimal(value), { position: 'left' }),
+      axisPointer: {
+        show: true,
+        snap: false,
+        triggerTooltip: false,
+        lineStyle: { color: '#747480', type: 'dashed', width: 1 },
+        label: { show: true, formatter: ({ value }) => formatDecimal(value, 2) },
+      },
+    },
     series: [{
       name: 'Guild Saga royalties',
       type: 'line',
@@ -2120,7 +2312,7 @@ function LabyrinthsShowcase() {
     <section className="labyrinths-showcase" aria-labelledby="labyrinths-showcase-title">
       <div className="labyrinths-copy" ref={labyrinthsCopyRef}>
         <h2 id="labyrinths-showcase-title">Guild Saga: Labyrinths</h2>
-        <p>Free to play, it takes you through ever-changing dungeon archives filled with strategic battles, risk-reward mechanics, and precious loot. Guild Saga Heroes can be used for deeper progression.</p>
+        <p>A free-to-play tactical RPG of ever-changing dungeon archives, strategic battles and risky choices—playable with Guild Saga Heroes.</p>
         <a className="epic-wishlist-link" href="https://store.epicgames.com/p/guild-saga-labyrinths-ca0f96?lang=en-US" target="_blank" rel="noreferrer">
           <span className="epic-wishlist-icon" aria-hidden="true"><EpicGamesIcon /></span>
           <span>Wishlist on Epic Games Store</span>
@@ -2296,7 +2488,7 @@ function Market({ data }) {
         </div>
 
         <div className="trading-chart" aria-label="Guild Saga Heroes floor price, volume and listings history">
-          <Chart option={chartOption} onInit={installMarketYAxisDrag} />
+          <Chart option={chartOption} onInit={installMarketChartInteractions} />
         </div>
 
         <div className="trading-rangebar" aria-label="Chart time range">
@@ -2444,7 +2636,7 @@ function Collection({ data }) {
         <div className="collection-burn-grid">
           <div className="domain-chart-block compact-chart-block burn-chart-block">
             <div className="section-bar"><span className="section-title">Burn history</span></div>
-            <div className="domain-chart"><Chart option={burnOption} /></div>
+            <div className="domain-chart"><Chart option={burnOption} onInit={installBurnLineCrosshair} /></div>
           </div>
           <div className="domain-chart-block compact-chart-block burn-chart-block">
             <div className="section-bar"><span className="section-title">Burned by rarity</span></div>
@@ -2485,7 +2677,7 @@ function Economy({ data }) {
           <span className="section-title">Royalties over time</span>
         </div>
         <div className="section-note">Monthly royalties received from secondary-market sales</div>
-        <div className="domain-chart economy-royalties-chart"><Chart option={royaltiesOption} /></div>
+        <div className="domain-chart economy-royalties-chart"><Chart option={royaltiesOption} onInit={installRoyaltiesLineCrosshair} /></div>
       </section>
 
       <section className="economy-section">
@@ -2520,14 +2712,14 @@ function Economy({ data }) {
               <strong>SOL Converted to USDC</strong>
               <span>Monthly SOL sold and cumulative SOL sold</span>
             </div>
-            <div className="domain-chart economy-conversion-chart"><Chart option={solOption} /></div>
+            <div className="domain-chart economy-conversion-chart"><Chart option={solOption} onInit={installConversionLineCrosshair} /></div>
           </div>
           <div className="economy-chart-card">
             <div className="economy-chart-head">
               <strong>USDC Purchased</strong>
               <span>Monthly USDC received and cumulative USDC purchased</span>
             </div>
-            <div className="domain-chart economy-conversion-chart"><Chart option={usdcOption} /></div>
+            <div className="domain-chart economy-conversion-chart"><Chart option={usdcOption} onInit={installConversionLineCrosshair} /></div>
           </div>
         </div>
       </section>
