@@ -1218,6 +1218,23 @@ function ShareMeter({ label, value, pct, tone = 'accent' }) {
   );
 }
 
+function LightboxIcon({ type }) {
+  if (type === 'close') {
+    return (
+      <svg className="image-lightbox-control-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M6 6 18 18M18 6 6 18" />
+      </svg>
+    );
+  }
+
+  const points = type === 'prev' ? '15 5 8 12 15 19' : '9 5 16 12 9 19';
+  return (
+    <svg className="image-lightbox-control-icon image-lightbox-arrow-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <polyline points={points} />
+    </svg>
+  );
+}
+
 function ImageLightbox({ items, index, onClose, onChange, label }) {
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -1248,14 +1265,14 @@ function ImageLightbox({ items, index, onClose, onChange, label }) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <button type="button" className="image-lightbox-close" aria-label="Close image viewer" onClick={onClose}><span aria-hidden="true">×</span></button>
+      <button type="button" className="image-lightbox-close" aria-label="Close image viewer" onClick={onClose}><LightboxIcon type="close" /></button>
       {items.length > 1 && (
         <button
           type="button"
           className="image-lightbox-arrow image-lightbox-prev"
           aria-label="Previous image"
           onClick={() => onChange((index - 1 + items.length) % items.length)}
-        >‹</button>
+        ><LightboxIcon type="prev" /></button>
       )}
       <div className="image-lightbox-image-wrap">
         <img src={item.src} alt={item.alt} />
@@ -1266,7 +1283,7 @@ function ImageLightbox({ items, index, onClose, onChange, label }) {
           className="image-lightbox-arrow image-lightbox-next"
           aria-label="Next image"
           onClick={() => onChange((index + 1) % items.length)}
-        >›</button>
+        ><LightboxIcon type="next" /></button>
       )}
     </div>
   );
@@ -2456,34 +2473,18 @@ function DataPage({ onBack, data }) {
             aria-label={`Heroes 0 through ${Math.max(0, heroSourcePreviewCount - 1)} at 1:1 pixel scale`}
           >
             {HERO_SOURCE_PREVIEW_IDS.slice(0, heroSourcePreviewCount).map((heroId) => (
-              <a
-                key={heroId}
-                className="hero-source-sprite"
-                href={getHeroSourceUrl(heroId)}
-                download={`${heroId}.png`}
-                title={`Download Guild Hero #${heroId} source PNG`}
-                aria-label={`Download Guild Hero #${heroId} source PNG`}
-              >
+              <div key={heroId} className="hero-source-sprite">
                 <img
                   src={getHeroSourceUrl(heroId)}
-                  alt=""
+                  alt={`Guild Hero #${heroId} transparent source preview`}
                   width="65"
                   height="70"
                   decoding="async"
                 />
-              </a>
+              </div>
             ))}
           </div>
-          <div className="hero-source-preview-caption">
-            <span>Heroes #0–#{Math.max(0, heroSourcePreviewCount - 1)}</span>
-            <span>1:1 pixel scale · 65 × 70 px · click any Hero to download its source PNG</span>
-          </div>
         </div>
-
-        <p className="hero-source-path">
-          Direct asset pattern: <code>/assets/heroes/source/&lt;thousands&gt;/&lt;hero-id&gt;.png</code>
-          <span>Example: Hero #1531 → <code>/assets/heroes/source/1/1531.png</code></span>
-        </p>
       </section>
 
       <FreshnessChip data={data} />
@@ -2572,7 +2573,7 @@ export default function App() {
         <div className="header-inner">
           <button className="brand" type="button" onClick={() => scrollToSection('overview')}>
             <BrandHeroMark candidate={heroIdentityCandidate} />
-            <span><strong>Guild Saga Heroes</strong><small>Analytics</small></span>
+            <span className="brand-copy"><strong>Guild Saga Heroes</strong><small>Analytics</small></span>
           </button>
         </div>
         <nav className="primary-nav" aria-label="Primary">
