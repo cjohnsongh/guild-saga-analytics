@@ -2072,13 +2072,11 @@ function LabyrinthsShowcase() {
 
   return (
     <section className="labyrinths-showcase" aria-labelledby="labyrinths-showcase-title">
-      <div className="labyrinths-heading-row">
-        <div>
-          <h2 id="labyrinths-showcase-title">Guild Saga: Labyrinths</h2>
-          <p>Free to play, it takes you through ever-changing dungeon archives filled with strategic battles, risk-reward mechanics, and precious loot. Guild Saga Heroes can be used for deeper progression.</p>
-        </div>
+      <div className="labyrinths-copy">
+        <h2 id="labyrinths-showcase-title">Guild Saga: Labyrinths</h2>
+        <p>Free to play, it takes you through ever-changing dungeon archives filled with strategic battles, risk-reward mechanics, and precious loot. Guild Saga Heroes can be used for deeper progression.</p>
         <a className="epic-wishlist-link" href="https://store.epicgames.com/p/guild-saga-labyrinths-ca0f96?lang=en-US" target="_blank" rel="noreferrer">
-          <EpicGamesIcon />
+          <span className="epic-wishlist-icon" aria-hidden="true"><EpicGamesIcon /></span>
           <span>Wishlist on Epic Games Store</span>
         </a>
       </div>

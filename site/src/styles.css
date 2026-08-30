@@ -1615,6 +1615,7 @@ html { scroll-behavior: smooth; }
   flex-direction: column;
   gap: 10px;
   max-width: 420px;
+  margin-bottom: 4px;
 }
 
 .hero-link-group {
@@ -1960,18 +1961,22 @@ html { scroll-behavior: smooth; }
 .labyrinths-showcase {
   padding: 18px 0 2px;
   border-top: 1px solid #303038;
+  display: grid;
+  grid-template-columns: minmax(285px, .76fr) minmax(0, 2.55fr);
+  gap: 26px;
+  align-items: start;
 }
 
-.labyrinths-heading-row {
-  min-height: 0;
-  padding: 0 0 11px;
+.labyrinths-copy {
+  min-width: 0;
+  min-height: 100%;
+  padding: 0 12px 0 0;
+  align-self: stretch;
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 28px;
+  flex-direction: column;
 }
 
-.labyrinths-heading-row h2 {
+.labyrinths-copy h2 {
   margin: 0;
   color: #eeeef2;
   font-size: clamp(23px, 1.8vw, 29px);
@@ -1980,34 +1985,68 @@ html { scroll-behavior: smooth; }
   font-weight: 600;
 }
 
-.labyrinths-heading-row p {
-  max-width: 760px;
-  margin: 5px 0 0;
+.labyrinths-copy p {
+  margin: 0;
   color: #9f9ea9;
   font-size: 13px;
   line-height: 1.4;
 }
 
 .epic-wishlist-link {
-  flex: 0 0 auto;
-  min-height: 36px;
-  padding: 0 12px;
-  border: 1px solid #3a3a42;
-  display: inline-flex;
+  width: 100%;
+  max-width: 420px;
+  min-height: 56px;
+  margin-top: auto;
+  padding: 10px 12px;
+  border: 1px solid #23293a;
+  border-radius: 14px;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
   align-items: center;
-  color: #d7d7dd;
-  background: #141418;
-  font-size: 13px;
-  font-weight: 650;
+  gap: 12px;
+  color: #ecebf3;
+  background: linear-gradient(180deg, #111521 0%, #0d1019 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .03);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
   text-decoration: none;
+  white-space: nowrap;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease, box-shadow .18s ease;
 }
 
 .epic-wishlist-link:hover {
-  border-color: #5c747b;
-  color: #f0f0f3;
+  border-color: #3a4766;
+  background: linear-gradient(180deg, #141b2a 0%, #101420 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .22), inset 0 1px 0 rgba(255, 255, 255, .04);
+  transform: translateY(-1px);
+}
+
+.epic-wishlist-link:focus-visible {
+  outline: 2px solid #6a87d6;
+  outline-offset: 2px;
+}
+
+.epic-wishlist-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #30313a;
+  border-radius: 10px;
+  background: #1a1b22;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035);
+}
+
+.epic-games-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
 }
 
 .labyrinths-carousel {
+  min-width: 0;
   position: relative;
 }
 
@@ -2175,11 +2214,28 @@ html { scroll-behavior: smooth; }
 
   .hero-link-groups {
     margin-top: 0;
+    margin-bottom: 0;
     padding-top: 14px;
     gap: 14px;
   }
 
   .hero-link-group { gap: 9px; }
+
+  .labyrinths-showcase {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .labyrinths-copy {
+    min-height: 0;
+    padding: 4px 0 4px;
+    max-width: 760px;
+  }
+
+  .epic-wishlist-link {
+    width: min(100%, 420px);
+    margin-top: 14px;
+  }
 }
 
 @media (max-width: 780px) {
@@ -2230,12 +2286,6 @@ html { scroll-behavior: smooth; }
     gap: 10px;
   }
 
-  .labyrinths-heading-row {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
-  }
-
   .labyrinths-arrow {
     width: 38px;
     height: 52px;
@@ -2259,7 +2309,7 @@ html { scroll-behavior: smooth; }
     flex-wrap: wrap;
   }
 
-  .labyrinths-heading-row p { font-size: 13px; }
+  .labyrinths-copy p { font-size: 13px; }
 
   .image-lightbox { padding: 62px 44px; }
   .image-lightbox-image-wrap {
@@ -2280,7 +2330,7 @@ html { scroll-behavior: smooth; }
 
 /* UX20 — restore dashboard hierarchy and responsive coherence. */
 .hero-showcase-copy h1,
-.labyrinths-heading-row h2 {
+.labyrinths-copy h2 {
   font-size: clamp(23px, 1.8vw, 29px);
   line-height: 1.08;
   letter-spacing: -.025em;
@@ -2351,14 +2401,6 @@ html { scroll-behavior: smooth; }
 .joint-snapshot .snapshot-stat > small { font-size: 12px; }
 .staking-snapshot .snapshot-stat:nth-child(3),
 .staking-snapshot .snapshot-stat:nth-child(4) { border-top: 0; }
-
-.epic-wishlist-link { gap: 8px; }
-.epic-games-icon {
-  width: 18px;
-  height: 18px;
-  flex: 0 0 auto;
-  display: block;
-}
 
 /* The active screenshot stays centered at every width. Desktop shows three
    complete screenshots plus half-width peeks at both edges; narrower layouts
