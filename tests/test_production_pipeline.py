@@ -37,32 +37,33 @@ class ProductionPipelineTests(unittest.TestCase):
         )
         self.assertIn("workflow_dispatch:", text)
         self.assertNotIn("inputs:", text)
-        self.assertIn("schedule:", text)
-        self.assertIn('cron: "7,37 * * * *"', text)
+        self.assertNotIn("schedule:", text)
+        self.assertNotIn("cron:", text)
         self.assertIn("repository_dispatch:", text)
         self.assertIn("types: [production_cron]", text)
-        self.assertIn("github.event_name == 'schedule'", text)
+        self.assertNotIn("github.event_name == 'schedule'", text)
         self.assertIn("github.event_name == 'repository_dispatch'", text)
         self.assertIn("github.event.action == 'production_cron'", text)
         self.assertIn("if: github.event_name == 'workflow_dispatch'", text)
         self.assertEqual(text.count("--mode production"), 1)
         self.assertEqual(text.count("--mode dry-run"), 1)
         self.assertIn("manual-dry-run:", text)
-        self.assertIn("scheduled-production:", text)
+        self.assertIn("production-release:", text)
+        self.assertNotIn("scheduled-production:", text)
         self.assertIn("contents: write", text)
         self.assertIn("contents: read", text)
         self.assertIn("cancel-in-progress: false", text)
         self.assertEqual(text.count("fetch-depth: 0"), 2)
         self.assertEqual(text.count("ref: main"), 2)
-        manual = text.split("manual-dry-run:", 1)[1].split("scheduled-production:", 1)[0]
-        scheduled = text.split("scheduled-production:", 1)[1]
+        manual = text.split("manual-dry-run:", 1)[1].split("production-release:", 1)[0]
+        production = text.split("production-release:", 1)[1]
         self.assertIn("contents: read", manual)
         self.assertIn("--mode dry-run", manual)
         self.assertNotIn("--mode production", manual)
         self.assertNotIn("HELIUS_WEBHOOK_AUTH", manual)
-        self.assertIn("contents: write", scheduled)
-        self.assertIn("--mode production", scheduled)
-        self.assertIn("HELIUS_WEBHOOK_AUTH", scheduled)
+        self.assertIn("contents: write", production)
+        self.assertIn("--mode production", production)
+        self.assertIn("HELIUS_WEBHOOK_AUTH", production)
         for secret in (
             "HELIUS_API_KEY",
             "ALCHEMY_API_KEY",
