@@ -1,5 +1,7 @@
 # Guild Saga webhook inbox
 
+Deployment is managed by Cloudflare Workers Builds from this directory.
+
 Durable Cloudflare Worker + D1 inbox for raw Solana webhook deliveries.
 
 The Worker authenticates, deduplicates by transaction signature, stores the raw payload, and acknowledges quickly. It does **not** interpret Guild Saga state. Parsing/reduction remains in the audited Python collector in GitHub Actions. A Cloudflare Cron Trigger also uses this Worker as the production clock and emits one narrowly scoped GitHub `repository_dispatch` event every 30 minutes.
