@@ -1,6 +1,5 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="discordTitle">
   <title id="discordTitle">Discord</title>
-  <rect width="1024" height="1024" fill="#070c34"/>
   <!-- The native Discord mark is visually small in a square. Scale it optically
        so its silhouette carries the same weight as the other platform marks. -->
   <g transform="translate(512 512) scale(1.42) translate(-512 -512)">
