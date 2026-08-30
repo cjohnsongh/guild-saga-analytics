@@ -50,6 +50,15 @@ class MigrationArchiveContracts(unittest.TestCase):
                 continue
             expected = manifest["uploaded_datasets"][source_name]["sha256"]
             self.assertEqual(sha256(ROOT / canonical), expected, source_name)
+            attrs = subprocess.run(
+                ["git", "check-attr", "text", "diff", "--", canonical],
+                cwd=ROOT,
+                check=True,
+                text=True,
+                stdout=subprocess.PIPE,
+            ).stdout.splitlines()
+            self.assertTrue(attrs[0].endswith(": text: unset"), attrs)
+            self.assertTrue(attrs[1].endswith(": diff: unset"), attrs)
 
     def test_archived_original_floor_history_matches_manifest(self):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
