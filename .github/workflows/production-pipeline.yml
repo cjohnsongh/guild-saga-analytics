@@ -1,12 +1,20 @@
 name: Production data pipeline
 
+run-name: >-
+  Production data pipeline · ${{ github.event_name == 'repository_dispatch' && 'Cloudflare cron' || github.event_name }}
+
 on:
+  # Temporary fallback while the Cloudflare Cron Trigger is being proven.
+  # Remove this native GitHub schedule after Cloudflare-triggered production runs are verified.
   schedule:
     - cron: "7,37 * * * *"
+  repository_dispatch:
+    types: [production_cron]
   workflow_dispatch:
 
-# Scheduled runs mutate production only through the fail-closed release pipeline.
-# Manual dispatch has no mode input, a read-only token, and is always a dry run.
+# Production may be entered only by GitHub's temporary native schedule or by the
+# exact repository_dispatch event emitted by the Cloudflare Cron Trigger.
+# Manual dispatch remains dry-run only.
 concurrency:
   group: guild-saga-production-pipeline
   cancel-in-progress: false
@@ -39,7 +47,9 @@ jobs:
         run: python scripts/production_pipeline.py --mode dry-run
 
   scheduled-production:
-    if: github.event_name == 'schedule'
+    if: >-
+      github.event_name == 'schedule' ||
+      (github.event_name == 'repository_dispatch' && github.event.action == 'production_cron')
     permissions:
       contents: write
       checks: read
@@ -60,7 +70,7 @@ jobs:
           python-version: "3.12"
       - name: Compile production Python
         run: python -m compileall -q collector scripts tests
-      - name: Execute scheduled production release
+      - name: Execute production release
         env:
           HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
           ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
