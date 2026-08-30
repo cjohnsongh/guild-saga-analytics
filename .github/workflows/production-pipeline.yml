@@ -4,17 +4,12 @@ run-name: >-
   Production data pipeline · ${{ github.event_name == 'repository_dispatch' && 'Cloudflare cron' || github.event_name }}
 
 on:
-  # Temporary fallback while the Cloudflare Cron Trigger is being proven.
-  # Remove this native GitHub schedule after Cloudflare-triggered production runs are verified.
-  schedule:
-    - cron: "7,37 * * * *"
   repository_dispatch:
     types: [production_cron]
   workflow_dispatch:
 
-# Production may be entered only by GitHub's temporary native schedule or by the
-# exact repository_dispatch event emitted by the Cloudflare Cron Trigger.
-# Manual dispatch remains dry-run only.
+# Automatic production may be entered only by the exact repository_dispatch
+# event emitted by the Cloudflare Cron Trigger. Manual dispatch remains dry-run only.
 concurrency:
   group: guild-saga-production-pipeline
   cancel-in-progress: false
@@ -46,10 +41,10 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/production_pipeline.py --mode dry-run
 
-  scheduled-production:
+  production-release:
     if: >-
-      github.event_name == 'schedule' ||
-      (github.event_name == 'repository_dispatch' && github.event.action == 'production_cron')
+      github.event_name == 'repository_dispatch' &&
+      github.event.action == 'production_cron'
     permissions:
       contents: write
       checks: read
