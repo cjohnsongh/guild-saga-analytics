@@ -1,24 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "b4b6d3e2af0058650447fcb0a4d2631bd5710aa331ab14193efd28b91ee13de2",
+    "data/state/checkpoints.json": "9ff97a12610ae8fb68f054460902bd7be77313c83f61f73fec1eb319fa981af2",
     "data/state/hero_deltas.csv": "927d96e7aea69b598e6b3f420ead1d58a466a7c2baad56e2951280f5dc310d50",
     "data/state/hero_event_cursors.csv": "8a9d93baa451d0faac50cbcfc6ebe5a1b770ac61d48444ddea858c6c90b057dd",
     "data/state/market_live_sales.csv": "703f7de7cb7bb9561257400b83dabbcaad089dbd38637c7798c090cc827cb6f9",
-    "data/state/webhook_processed_events.csv": "1c1f7df00d2af053b3c5248c226e3ab50bc7d1eb5193c43f1fb19d5bf2373b84"
+    "data/state/webhook_processed_events.csv": "a95032a0141c55bffd0c68b8e70cf9c2caf9564ced907217867719dfb9d16522"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "d860c490d964028fc958285d43d1335e23e5a6ce74658c9034d740a4d9bb6d42",
-    "site/public/data/market-history.json": "12a3354cac28a86079fc542b8847299fee3d6032ca23e322c8ee0a7bf4031a31",
+    "site/public/data/hero-state.json": "b69f09cbf50e374a8e150de293fd8e58466f14db60d3a51cd1378d1e2b0e31f1",
+    "site/public/data/market-history.json": "506ff60168892a2eab0dcdaafc61a7fb88bdcefd046fe4b92457301e3eb12757",
     "site/public/data/summary.json": "bffcedad79cbeeea4922f0e7117c9e7a20a239766b41bcd25b792cf0b9d9b42d"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 3,
+  "signature_count": 1,
   "signatures": [
-    "4fVgN2Ldp7ijnYMHKenptNs3huVBkgAJB36tuXUDD9Gzt8MzWfXAD54fgsxjaXNxX12LzoMoowQYMweKivU7imVK",
-    "4NifaMFZBM11HCDgh4sgowkuRnYChGRGsDv9sxXCqrCECaQpjwth7TPXCqFvePK3FKpzb6TVjW8vp2325n5s6KNJ",
-    "4jpg4CeZSMe6MvoB5qKPmGbECiHwYMCZ4g2PbVMExbfVV3WXaRx1rfsnfi4Sqk6h8Bo7aGfMFcpS1SuH7fvkFayv"
+    "42KZPdTMxB5mxm8aUwfURM4b3wEqxEhE5QyHB36NbzedoWorTG2AtGLNWh7NRbuEMw94WassrzQTo9xTBs1QgGuM"
   ],
-  "snapshot_received_at": "2026-08-29T22:37:48.633Z"
+  "snapshot_received_at": "2026-08-30T01:13:02.556Z"
 }
