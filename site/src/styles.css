@@ -394,6 +394,30 @@ h1 {
 .trading-actions { display: flex; align-items: center; gap: 14px; }
 .trading-actions a { color: #c3c2cd; font-size: 13px; }
 .trading-chart { height: 690px; }
+.trading-chart .chart { position: relative; }
+.market-axis-drag-hint {
+  position: absolute;
+  z-index: 8;
+  width: 12px;
+  height: 18px;
+  display: block;
+  opacity: 0;
+  color: #c4c8ca;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity .1s ease;
+}
+.market-axis-drag-hint.is-visible { opacity: .9; }
+.market-axis-drag-hint svg {
+  width: 12px;
+  height: 18px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .trading-rangebar {
   min-height: 48px;
   padding: 0 14px;
@@ -1303,7 +1327,7 @@ html { scroll-behavior: smooth; }
 :root {
   --accent: #668a95;
   --accent-soft: #789aa3;
-  --accent-faint: #4f7079;
+  --accent-faint: #45636b;
 }
 
 .intro-gallery-thumbs button.is-active {
@@ -1952,11 +1976,10 @@ html { scroll-behavior: smooth; }
   transition: background .16s ease, border-color .16s ease;
 }
 
-.labyrinths-arrow span {
+.labyrinths-arrow .image-lightbox-control-icon {
+  width: 27px;
+  height: 27px;
   display: block;
-  font-size: 31px;
-  line-height: 1;
-  transform: translateY(2px);
 }
 
 .labyrinths-arrow:hover {
@@ -2234,9 +2257,9 @@ html { scroll-behavior: smooth; }
   display: block;
 }
 
-/* Four screenshots at full width, then 3, 2, and finally one complete image
-   with faded neighboring peeks on narrow phones. Item width itself is set by
-   the responsive carousel logic so the infinite-loop transform stays exact. */
+/* The active screenshot stays centered at every width. Desktop shows three
+   complete screenshots plus half-width peeks at both edges; narrower layouts
+   progressively collapse toward one centered image with neighboring peeks. */
 @media (max-width: 1120px) {
   .labyrinths-carousel-viewport {
     -webkit-mask-image: linear-gradient(to right, transparent 0, #000 3.5%, #000 96.5%, transparent 100%);

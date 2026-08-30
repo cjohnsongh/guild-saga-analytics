@@ -30,6 +30,33 @@ const HERO_SOURCE_GITHUB_URL = 'https://github.com/cjohnsongh/guild-saga-analyti
 const HERO_SOURCE_PREVIEW_IDS = Array.from({ length: 21 }, (_, index) => index);
 const HERO_SOURCE_PREVIEW_GAP = 3;
 const heroSourceImageCache = new Map();
+const HERO_PREFERENCE_STORAGE_KEY = 'guild-saga-hero-pfp-preference-v1';
+
+function readHeroPreference() {
+  const fallback = { heroId: 0, color: getHeroDefaultColor(0) };
+  try {
+    const stored = window.localStorage.getItem(HERO_PREFERENCE_STORAGE_KEY);
+    if (!stored) return fallback;
+    const parsed = JSON.parse(stored);
+    const heroId = Number(parsed?.heroId);
+    if (!Number.isInteger(heroId) || heroId < 0 || heroId > 9999) return fallback;
+    const rawColor = String(parsed?.color || '').trim();
+    const color = /^#[0-9a-f]{6}$/i.test(rawColor)
+      ? rawColor.toUpperCase()
+      : getHeroDefaultColor(heroId);
+    return { heroId, color };
+  } catch {
+    return fallback;
+  }
+}
+
+function saveHeroPreference(heroId, color) {
+  try {
+    window.localStorage.setItem(HERO_PREFERENCE_STORAGE_KEY, JSON.stringify({ heroId, color }));
+  } catch {
+    // Storage can be blocked in strict/private browser modes; the site still works for the session.
+  }
+}
 
 const LABYRINTHS_SLIDES = [
   { id: '01', src: '/assets/labyrinths/01.png', alt: 'Guild Saga: Labyrinths gameplay screenshot 1' },
@@ -87,7 +114,7 @@ const COLORS = {
   axis: '#50505a',
   accent: '#668a95',
   accentSoft: '#789aa3',
-  accentDark: '#4f7079',
+  accentDark: '#45636b',
   line: '#668a95',
   line2: '#9a865f',
   bar: '#668a95',
@@ -99,12 +126,12 @@ const CHART_COLORS = {
   market: '#668a95',
   volume: '#3f626b',
   ownershipHolders: '#668a95',
-  ownershipSupply: '#4f7079',
+  ownershipSupply: '#45636b',
   staking: '#668a95',
   mint: '#668a95',
   wallet: '#668a95',
   resale: '#668a95',
-  resaleDark: '#4f7079',
+  resaleDark: '#45636b',
   burn: '#668a95',
   royalties: '#668a95',
   treasury: '#668a95',
@@ -659,6 +686,7 @@ function makeTradingMarketOption(displayRows, marketRows, startDate, endDate, ra
 
 function installMarketYAxisDrag(chart) {
   const zr = chart.getZr();
+  const chartDom = chart.getDom();
   const initial = chart.getOption().yAxis.map((axis) => ({
     min: Number(axis.min),
     max: Number(axis.max),
@@ -666,17 +694,27 @@ function installMarketYAxisDrag(chart) {
   }));
   let drag = null;
 
+  const axisHint = document.createElement('span');
+  axisHint.className = 'market-axis-drag-hint';
+  axisHint.setAttribute('aria-hidden', 'true');
+  axisHint.innerHTML = `
+    <svg viewBox="0 0 12 18" focusable="false" aria-hidden="true">
+      <path d="M6 1.5 2.5 5M6 1.5 9.5 5M6 1.5v15M6 16.5 2.5 13M6 16.5 9.5 13" />
+    </svg>`;
+  chartDom.appendChild(axisHint);
+
   const pointOf = (event) => ({
     x: Number(event.offsetX ?? event.event?.offsetX ?? 0),
     y: Number(event.offsetY ?? event.event?.offsetY ?? 0),
   });
 
+  const gridRect = (gridIndex) => chart.getModel().getComponent('grid', gridIndex)?.coordinateSystem?.getRect?.() || null;
+
   const hitRightAxis = (event) => {
     const { x, y } = pointOf(event);
     const width = chart.getWidth();
     for (const gridIndex of [0, 1]) {
-      const grid = chart.getModel().getComponent('grid', gridIndex)?.coordinateSystem;
-      const rect = grid?.getRect?.();
+      const rect = gridRect(gridIndex);
       if (!rect) continue;
       const inY = y >= rect.y && y <= rect.y + rect.height;
       const inAxisGutter = x >= rect.x + rect.width - 5 && x <= width;
@@ -685,8 +723,41 @@ function installMarketYAxisDrag(chart) {
     return null;
   };
 
+  const hitPlotGrid = (event) => {
+    const { x, y } = pointOf(event);
+    for (const gridIndex of [0, 1]) {
+      const rect = gridRect(gridIndex);
+      if (!rect) continue;
+      if (x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height) {
+        return gridIndex;
+      }
+    }
+    return null;
+  };
+
+  const showAxisHint = (event, axisIndex) => {
+    if (axisIndex === null) {
+      axisHint.classList.remove('is-visible');
+      return;
+    }
+    const { y } = pointOf(event);
+    const gridIndex = axisIndex === 0 ? 0 : 1;
+    const rect = gridRect(gridIndex);
+    if (!rect) return;
+    const top = Math.max(rect.y + 9, Math.min(rect.y + rect.height - 9, y));
+    axisHint.style.left = `${Math.min(chart.getWidth() - 15, rect.x + rect.width + 43)}px`;
+    axisHint.style.top = `${top}px`;
+    axisHint.classList.add('is-visible');
+  };
+
   const setCursor = (event) => {
-    chart.getDom().style.cursor = hitRightAxis(event) !== null ? 'ns-resize' : '';
+    const axisIndex = hitRightAxis(event);
+    showAxisHint(event, axisIndex);
+    if (axisIndex !== null) {
+      chartDom.style.cursor = 'ns-resize';
+      return;
+    }
+    chartDom.style.cursor = hitPlotGrid(event) !== null ? 'grab' : '';
   };
 
   const patchAxis = (axisIndex, min, max) => {
@@ -701,28 +772,55 @@ function installMarketYAxisDrag(chart) {
     chart.setOption({ yAxis }, { lazyUpdate: true });
   };
 
+  const currentAxisRange = (axisIndex) => {
+    const option = chart.getOption().yAxis?.[axisIndex] || {};
+    const min = Number(option.min);
+    const max = Number(option.max);
+    if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) return null;
+    return { min, max, span: max - min };
+  };
+
   const onMouseDown = (event) => {
     const raw = event.event;
     if (raw?.button !== undefined && raw.button !== 0) return;
     const axisIndex = hitRightAxis(event);
-    if (axisIndex === null) return;
 
-    const option = chart.getOption().yAxis?.[axisIndex] || {};
-    const min = Number(option.min);
-    const max = Number(option.max);
-    if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) return;
+    if (axisIndex !== null) {
+      const range = currentAxisRange(axisIndex);
+      if (!range) return;
+      const { y } = pointOf(event);
+      drag = {
+        mode: 'scale',
+        axisIndex,
+        startY: y,
+        startMin: range.min,
+        startMax: range.max,
+        startSpan: range.span,
+        center: (range.min + range.max) / 2,
+      };
+      chartDom.style.cursor = 'ns-resize';
+      raw?.preventDefault?.();
+      return;
+    }
 
+    const gridIndex = hitPlotGrid(event);
+    if (gridIndex === null) return;
+    const plotAxisIndex = gridIndex === 0 ? 0 : 2;
+    const range = currentAxisRange(plotAxisIndex);
+    const rect = gridRect(gridIndex);
+    if (!range || !rect) return;
     const { y } = pointOf(event);
     drag = {
-      axisIndex,
+      mode: 'pan',
+      axisIndex: plotAxisIndex,
       startY: y,
-      startMin: min,
-      startMax: max,
-      startSpan: max - min,
-      center: (min + max) / 2,
+      startMin: range.min,
+      startMax: range.max,
+      startSpan: range.span,
+      gridHeight: rect.height,
     };
-    chart.getDom().style.cursor = 'ns-resize';
-    raw?.preventDefault?.();
+    axisHint.classList.remove('is-visible');
+    chartDom.style.cursor = 'grabbing';
   };
 
   const onMouseMove = (event) => {
@@ -732,11 +830,34 @@ function installMarketYAxisDrag(chart) {
     }
 
     const { y } = pointOf(event);
+
+    if (drag.mode === 'scale') {
+      const deltaY = y - drag.startY;
+      const factor = Math.exp(deltaY * 0.009);
+      const span = Math.min(drag.startSpan * 25, Math.max(drag.startSpan * 0.04, drag.startSpan * factor));
+      let min = drag.center - span / 2;
+      let max = drag.center + span / 2;
+
+      if (min < 0) {
+        max -= min;
+        min = 0;
+      }
+      if (drag.axisIndex === 2) {
+        min = Math.max(0, Math.floor(min));
+        max = Math.max(min + 1, Math.ceil(max));
+      }
+
+      patchAxis(drag.axisIndex, min, max);
+      chartDom.style.cursor = 'ns-resize';
+      showAxisHint(event, drag.axisIndex);
+      event.event?.preventDefault?.();
+      return;
+    }
+
     const deltaY = y - drag.startY;
-    const factor = Math.exp(deltaY * 0.009);
-    const span = Math.min(drag.startSpan * 25, Math.max(drag.startSpan * 0.04, drag.startSpan * factor));
-    let min = drag.center - span / 2;
-    let max = drag.center + span / 2;
+    const shift = drag.gridHeight > 0 ? (deltaY / drag.gridHeight) * drag.startSpan : 0;
+    let min = drag.startMin + shift;
+    let max = drag.startMax + shift;
 
     if (min < 0) {
       max -= min;
@@ -748,12 +869,16 @@ function installMarketYAxisDrag(chart) {
     }
 
     patchAxis(drag.axisIndex, min, max);
-    event.event?.preventDefault?.();
+    chartDom.style.cursor = 'grabbing';
   };
 
-  const stopDrag = () => {
+  const stopDrag = (event) => {
     drag = null;
-    chart.getDom().style.cursor = '';
+    if (event) setCursor(event);
+    else {
+      axisHint.classList.remove('is-visible');
+      chartDom.style.cursor = '';
+    }
   };
 
   const onDoubleClick = (event) => {
@@ -778,10 +903,10 @@ function installMarketYAxisDrag(chart) {
     zr.off('mouseup', stopDrag);
     zr.off('globalout', stopDrag);
     zr.off('dblclick', onDoubleClick);
-    chart.getDom().style.cursor = '';
+    axisHint.remove();
+    chartDom.style.cursor = '';
   };
 }
-
 
 function makeMintPhaseOption(rows) {
   const values = rows.map((row) => Number(row.heroes_minted || 0));
@@ -1437,7 +1562,8 @@ function setHeroFavicon(href) {
 }
 
 function BrandHeroMark({ candidate }) {
-  const [currentUrl, setCurrentUrl] = useState(HERO_ZERO_FACE_PFP);
+  const initialUsesStaticHeroZero = candidate.heroId === 0 && candidate.color === getHeroDefaultColor(0);
+  const [currentUrl, setCurrentUrl] = useState(initialUsesStaticHeroZero ? HERO_ZERO_FACE_PFP : null);
   const [nextUrl, setNextUrl] = useState(null);
   const [nextVisible, setNextVisible] = useState(false);
   const candidateVersionRef = useRef(0);
@@ -1445,9 +1571,13 @@ function BrandHeroMark({ candidate }) {
   const nextBlobUrlRef = useRef(null);
   const currentFaviconBlobUrlRef = useRef(null);
   const fadeTimerRef = useRef(null);
+  const firstCandidateRef = useRef(true);
 
   useEffect(() => {
     const version = ++candidateVersionRef.current;
+    const isInitialCandidate = firstCandidateRef.current;
+    const delay = isInitialCandidate ? 0 : HERO_IDENTITY_DELAY_MS;
+    firstCandidateRef.current = false;
     const timer = window.setTimeout(async () => {
       try {
         const sourceImage = await loadHeroSourceImage(candidate.heroId);
@@ -1460,16 +1590,27 @@ function BrandHeroMark({ candidate }) {
 
         const url = URL.createObjectURL(headerBlob);
         const faviconUrl = URL.createObjectURL(faviconBlob);
-        nextBlobUrlRef.current = url;
-        setNextVisible(false);
-        setNextUrl(url);
 
-        // The favicon intentionally snaps to the settled Hero. The in-page mark
-        // crossfades over the old Hero instead of changing abruptly.
         const previousFaviconBlobUrl = currentFaviconBlobUrlRef.current;
         currentFaviconBlobUrlRef.current = faviconUrl;
         setHeroFavicon(faviconUrl);
         if (previousFaviconBlobUrl) URL.revokeObjectURL(previousFaviconBlobUrl);
+
+        // A persisted preference is restored immediately on first load. Later
+        // changes keep the intentional 1.5 s settle delay + crossfade.
+        if (isInitialCandidate) {
+          const previousBlobUrl = currentBlobUrlRef.current;
+          currentBlobUrlRef.current = url;
+          setCurrentUrl(url);
+          setNextUrl(null);
+          setNextVisible(false);
+          if (previousBlobUrl) URL.revokeObjectURL(previousBlobUrl);
+          return;
+        }
+
+        nextBlobUrlRef.current = url;
+        setNextVisible(false);
+        setNextUrl(url);
 
         window.requestAnimationFrame(() => {
           window.requestAnimationFrame(() => setNextVisible(true));
@@ -1488,7 +1629,7 @@ function BrandHeroMark({ candidate }) {
       } catch (error) {
         if (version === candidateVersionRef.current) console.error(error);
       }
-    }, HERO_IDENTITY_DELAY_MS);
+    }, delay);
 
     return () => window.clearTimeout(timer);
   }, [candidate.heroId, candidate.color]);
@@ -1502,7 +1643,7 @@ function BrandHeroMark({ candidate }) {
 
   return (
     <span className="brand-mark" aria-hidden="true">
-      <img className="brand-mark-image" src={currentUrl} alt="" />
+      {currentUrl && <img className="brand-mark-image" src={currentUrl} alt="" />}
       {nextUrl && (
         <img
           className={`brand-mark-image brand-mark-image-next ${nextVisible ? 'is-visible' : ''}`}
@@ -1592,14 +1733,15 @@ function PfpColorPopover({ color, onChange, defaultColor }) {
 }
 
 function HeroShowcase({ onIdentityCandidate }) {
+  const [initialPreference] = useState(readHeroPreference);
   const [mobileView, setMobileView] = useState('original');
   const [heroLightboxIndex, setHeroLightboxIndex] = useState(null);
-  const [heroInput, setHeroInput] = useState('0');
-  const [heroId, setHeroId] = useState(0);
-  const [pfpColor, setPfpColor] = useState(() => getHeroDefaultColor(0));
+  const [heroInput, setHeroInput] = useState(() => String(initialPreference.heroId));
+  const [heroId, setHeroId] = useState(initialPreference.heroId);
+  const [pfpColor, setPfpColor] = useState(initialPreference.color);
   const [visibleHeroSet, setVisibleHeroSet] = useState(() => ({
-    heroId: 0,
-    original: getHeroOriginalUrl(0),
+    heroId: initialPreference.heroId,
+    original: getHeroOriginalUrl(initialPreference.heroId),
     body: HERO_ZERO_BODY_PFP,
     face: HERO_ZERO_FACE_PFP,
   }));
@@ -1607,6 +1749,7 @@ function HeroShowcase({ onIdentityCandidate }) {
   const activeBlobUrlsRef = useRef([]);
 
   useEffect(() => {
+    saveHeroPreference(heroId, pfpColor);
     onIdentityCandidate?.({ heroId, color: pfpColor });
   }, [heroId, pfpColor, onIdentityCandidate]);
 
@@ -1804,10 +1947,8 @@ function EpicGamesIcon() {
 
 function getLabyrinthsCarouselLayout() {
   const width = window.innerWidth;
-  if (width <= 520) return { step: 84, offset: 8 };
-  if (width <= 780) return { step: 50, offset: 0 };
-  if (width <= 1120) return { step: 100 / 3, offset: 0 };
-  return { step: 25, offset: 0 };
+  const step = width <= 520 ? 84 : width <= 780 ? 50 : width <= 1120 ? (100 / 3) : 25;
+  return { step, offset: (100 - step) / 2 };
 }
 
 function LabyrinthsShowcase() {
@@ -1940,13 +2081,13 @@ function LabyrinthsShowcase() {
               className="labyrinths-arrow labyrinths-arrow-prev"
               aria-label="Previous screenshots"
               onClick={() => moveCarousel(-1)}
-            ><span aria-hidden="true">‹</span></button>
+            ><LightboxIcon type="prev" /></button>
             <button
               type="button"
               className="labyrinths-arrow labyrinths-arrow-next"
               aria-label="Next screenshots"
               onClick={() => moveCarousel(1)}
-            ><span aria-hidden="true">›</span></button>
+            ><LightboxIcon type="next" /></button>
           </>
         )}
       </div>
@@ -2362,7 +2503,7 @@ function SiteFooter({ data }) {
   );
 }
 
-function DataPage({ onBack, data }) {
+function DataPage({ onBack }) {
   const heroSourceStripRef = useRef(null);
   const [heroSourcePreviewCount, setHeroSourcePreviewCount] = useState(HERO_SOURCE_PREVIEW_IDS.length);
 
@@ -2487,7 +2628,6 @@ function DataPage({ onBack, data }) {
         </div>
       </section>
 
-      <FreshnessChip data={data} />
     </div>
   );
 }
@@ -2497,10 +2637,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState('overview');
   const [showDataPage, setShowDataPage] = useState(() => window.location.hash === '#data');
-  const [heroIdentityCandidate, setHeroIdentityCandidate] = useState(() => ({
-    heroId: 0,
-    color: getHeroDefaultColor(0),
-  }));
+  const [heroIdentityCandidate, setHeroIdentityCandidate] = useState(readHeroPreference);
 
   useEffect(() => {
     Promise.all(DATA_PATHS.map(fetchJson))
@@ -2596,7 +2733,7 @@ export default function App() {
 
       <div className="content-shell">
         {showDataPage ? (
-          <DataPage onBack={backToAnalytics} data={data} />
+          <DataPage onBack={backToAnalytics} />
         ) : (
           <>
             <div className="single-page">
