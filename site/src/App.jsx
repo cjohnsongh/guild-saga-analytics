@@ -89,6 +89,25 @@ const NAV_ITEMS = [
   { id: 'economy', label: 'Economy', target: 'economy' },
 ];
 
+const HERO_PLATFORM_GROUPS = [
+  {
+    id: 'trade',
+    label: 'Trade',
+    links: [
+      { id: 'tensor', label: 'Tensor', href: 'https://www.tensor.trade/trade/guild_saga_heroes', icon: '/assets/platforms/tensor.png' },
+      { id: 'magiceden', label: 'Magic Eden', href: 'https://magiceden.io/marketplace/guild_saga_heroes', icon: '/assets/platforms/magiceden.png' },
+    ],
+  },
+  {
+    id: 'community',
+    label: 'Community',
+    links: [
+      { id: 'discord', label: 'Discord', href: 'https://discord.gg/GuildSaga', icon: '/assets/platforms/discord.svg' },
+      { id: 'x', label: 'X', href: 'https://x.com/GuildSaga', icon: '/assets/platforms/x.svg' },
+    ],
+  },
+];
+
 
 function HomeIcon() {
   return (
@@ -1862,10 +1881,30 @@ function HeroShowcase({ onIdentityCandidate }) {
         <p className="intro-body">
           This community-made site tracks the collection's supply, holders, staking activity, burns and secondary-market history using on-chain data.
         </p>
-        <div className="intro-actions hero-trade-actions">
-          <span>Trade:</span>
-          <a href="https://www.tensor.trade/trade/guild_saga_heroes" target="_blank" rel="noreferrer">Tensor</a>
-          <a href="https://magiceden.io/marketplace/guild_saga_heroes" target="_blank" rel="noreferrer">Magic Eden</a>
+        <div className="hero-link-groups" aria-label="Marketplace and community links">
+          {HERO_PLATFORM_GROUPS.map((group) => (
+            <div key={group.id} className="hero-link-group">
+              <span className="hero-link-group-label">{group.label}</span>
+              <div className="hero-link-grid">
+                {group.links.map((item) => (
+                  <a
+                    key={item.id}
+                    className="hero-platform-link"
+                    data-platform={item.id}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="hero-platform-link-icon" aria-hidden="true">
+                      <img src={item.icon} alt="" />
+                    </span>
+                    <span className="hero-platform-link-title">{item.label}</span>
+                    <span className="hero-platform-link-external" aria-hidden="true">↗</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
