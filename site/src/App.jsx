@@ -228,20 +228,69 @@ function formatDataThrough(value) {
   });
 }
 
-function getDataThrough(data) {
-  return data?.summary?.cutover_date
-    || data?.hero?.as_of
-    || data?.market?.as_of
-    || data?.floor?.as_of
-    || data?.dailyMarket?.as_of
-    || null;
+function toUtcDateKey(value) {
+  if (!value) return null;
+  const text = String(value);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString().slice(0, 10);
+}
+
+function utcDateKeyToDay(value) {
+  if (!value) return null;
+  const [year, month, day] = value.split('-').map(Number);
+  if (![year, month, day].every(Number.isFinite)) return null;
+  return Math.floor(Date.UTC(year, month - 1, day) / 86400000);
+}
+
+function getFreshnessStatus(data, now = new Date()) {
+  const todayKey = now.toISOString().slice(0, 10);
+  const todayDay = utcDateKeyToDay(todayKey);
+  const heroDate = toUtcDateKey(data?.hero?.as_of);
+  const floorDate = toUtcDateKey(data?.floor?.as_of);
+  const heroDay = utcDateKeyToDay(heroDate);
+  const floorDay = utcDateKeyToDay(floorDate);
+
+  if (heroDay == null || floorDay == null) {
+    return { tone: 'warning', displayDate: heroDate || floorDate || null };
+  }
+
+  const heroAgeDays = todayDay - heroDay;
+  const floorAgeDays = todayDay - floorDay;
+
+  // Hero/market is expected to advance during the current UTC day. Floor/listings
+  // is sampled near 23:30 UTC, so yesterday's snapshot is healthy until tonight's
+  // collection window has had a chance to run.
+  const heroIsCurrent = heroAgeDays <= 0;
+  const floorIsCurrent = floorAgeDays <= 1;
+
+  if (heroIsCurrent && floorIsCurrent) {
+    return { tone: 'healthy', displayDate: todayKey };
+  }
+
+  const displayDay = Math.min(heroDay, floorDay);
+  const displayDate = new Date(displayDay * 86400000).toISOString().slice(0, 10);
+  const bothOverMonthOld = heroAgeDays > 30 && floorAgeDays > 30;
+
+  return {
+    tone: bothOverMonthOld ? 'critical' : 'warning',
+    displayDate,
+  };
 }
 
 function FreshnessChip({ data }) {
+  const status = getFreshnessStatus(data);
+  const toneLabel = status.tone === 'healthy'
+    ? 'Current'
+    : status.tone === 'critical'
+      ? 'Data is over a month out of date'
+      : 'One or more data sources are behind schedule';
+
   return (
-    <div className="freshness-chip">
+    <div className={`freshness-chip is-${status.tone}`} title={toneLabel} aria-label={`${toneLabel}. Updated ${formatDataThrough(status.displayDate)}.`}>
       <i aria-hidden="true" />
-      <span>Data through {formatDataThrough(getDataThrough(data))}</span>
+      <span>Updated {formatDataThrough(status.displayDate)}</span>
     </div>
   );
 }
@@ -2312,7 +2361,7 @@ function LabyrinthsShowcase() {
     <section className="labyrinths-showcase" aria-labelledby="labyrinths-showcase-title">
       <div className="labyrinths-copy" ref={labyrinthsCopyRef}>
         <h2 id="labyrinths-showcase-title">Guild Saga: Labyrinths</h2>
-        <p>A free-to-play tactical RPG of ever-changing dungeon archives, strategic battles and risky choices—playable with Guild Saga Heroes.</p>
+        <p>A free-to-play tactical RPG of ever-changing dungeon archives, strategic battles and risky choices.</p>
         <a className="epic-wishlist-link" href="https://store.epicgames.com/p/guild-saga-labyrinths-ca0f96?lang=en-US" target="_blank" rel="noreferrer">
           <span className="epic-wishlist-icon" aria-hidden="true"><EpicGamesIcon /></span>
           <span>Wishlist on Epic Games Store</span>
@@ -2772,11 +2821,10 @@ function Economy({ data }) {
   );
 }
 
-function SiteFooter({ data }) {
+function SiteFooter() {
   return (
     <footer className="site-footer">
       <a className="data-page-link" href="#data">Data & Methodology</a>
-      <FreshnessChip data={data} />
     </footer>
   );
 }
@@ -3014,6 +3062,9 @@ export default function App() {
           <DataPage onBack={backToAnalytics} />
         ) : (
           <>
+            <div className="page-freshness-row">
+              <FreshnessChip data={data} />
+            </div>
             <div className="single-page">
               <section id="overview" className="scroll-section scroll-section-overview" data-nav-section>
                 <Overview onHeroIdentityCandidate={setHeroIdentityCandidate} />
@@ -3031,7 +3082,7 @@ export default function App() {
                 <Economy data={data} />
               </section>
             </div>
-            <SiteFooter data={data} />
+            <SiteFooter />
           </>
         )}
       </div>
