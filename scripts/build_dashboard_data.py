@@ -6,6 +6,7 @@ our final Dune dashboard snapshot before any live API collector is introduced.
 """
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 from collections import Counter, defaultdict
@@ -377,11 +378,29 @@ def build_treasury():
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--only-floor",
+        action="store_true",
+        help="Rebuild floor-listings.json and only the floor section of summary.json.",
+    )
+    args = parser.parse_args()
+
     checkpoints = json.loads((DATA / "state" / "checkpoints.json").read_text(encoding="utf-8"))
+    floor = build_floor(checkpoints)
+
+    if args.only_floor:
+        summary_path = OUT / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        summary["floor"] = floor["kpis"]
+        write_json("summary.json", summary)
+        write_json("floor-listings.json", floor)
+        print(json.dumps({"floor": floor["kpis"]}, indent=2, ensure_ascii=False))
+        return
+
     hero = build_hero_state(checkpoints)
     launch = build_launch()
     market = build_market(checkpoints)
-    floor = build_floor(checkpoints)
     treasury = build_treasury()
 
     summary = {

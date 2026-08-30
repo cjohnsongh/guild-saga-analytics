@@ -4,7 +4,7 @@ Deployment is managed by Cloudflare Workers Builds from this directory.
 
 Durable Cloudflare Worker + D1 inbox for raw Solana webhook deliveries.
 
-The Worker authenticates, deduplicates by transaction signature, stores the raw payload, and acknowledges quickly. It does **not** interpret Guild Saga state. Parsing/reduction remains in the audited Python collector in GitHub Actions. A Cloudflare Cron Trigger also uses this Worker as the production clock and emits one narrowly scoped GitHub `repository_dispatch` event every 30 minutes.
+The Worker authenticates, deduplicates by transaction signature, stores the raw payload, and acknowledges quickly. It does **not** interpret Guild Saga state. Parsing/reduction remains in the audited Python collector in GitHub Actions. Cloudflare Cron Triggers also use this Worker as the scheduler for the 30-minute webhook production pipeline and the independently checkpointed floor/listings snapshot.
 
 ## Endpoints
 
@@ -22,7 +22,7 @@ Never commit values. Configure these as Cloudflare Worker secrets:
 
 - `HELIUS_WEBHOOK_AUTH`
 - `PIPELINE_TOKEN`
-- `GITHUB_DISPATCH_TOKEN` — fine-grained GitHub token restricted to `cjohnsongh/guild-saga-analytics` with **Contents: Read and write**, used only to create the `production_cron` repository-dispatch event.
+- `GITHUB_DISPATCH_TOKEN` — fine-grained GitHub token restricted to `cjohnsongh/guild-saga-analytics` with **Contents: Read and write**, used only to create the allow-listed `production_cron` and `floor_listings_daily` repository-dispatch events.
 
 ## D1
 
@@ -30,8 +30,11 @@ Apply `schema.sql` to the bound D1 database before enabling the Helius webhook.
 
 The `signature` primary key makes duplicate Helius deliveries harmless.
 
-## Production cron
+## Scheduled dispatches
 
-`wrangler.jsonc` defines `0,30 * * * *` (UTC). The scheduled handler POSTs `repository_dispatch` with event type `production_cron` to the GitHub repository. Transient network, HTTP 408/429, and 5xx failures are retried inside the Worker; authentication/configuration failures fail visibly rather than silently falling back.
+`wrangler.jsonc` defines two UTC schedules:
 
-During rollout, the old GitHub-native `7,37 * * * *` schedule remains in the Actions workflow as a temporary fallback. Remove that schedule and `schedule-probe.yml` only after at least one Cloudflare-triggered production run has completed successfully. Manual `workflow_dispatch` remains dry-run only.
+- `0,30 * * * *` -> `production_cron` every 30 minutes for Hero/market webhook processing.
+- `30,50 23 * * *` -> `floor_listings_daily` at 23:30 UTC, with a same-day retry at 23:50 UTC. This samples close to the end of the UTC day to better match the historical Tensor daily-close series while avoiding an exact-midnight scrape. The workflow writes at most one row per UTC date, so the second firing is a no-op if the first succeeded.
+
+The scheduled handler refuses unknown cron strings. Transient network, HTTP 408/429, and 5xx failures are retried inside the Worker; authentication/configuration failures fail visibly. GitHub manual `workflow_dispatch` remains dry-run only for both pipelines.

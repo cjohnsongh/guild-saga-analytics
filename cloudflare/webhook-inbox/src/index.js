@@ -9,7 +9,10 @@ const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
 
 const GITHUB_DISPATCH_URL = "https://api.github.com/repos/cjohnsongh/guild-saga-analytics/dispatches";
 const GITHUB_API_VERSION = "2026-03-10";
-const GITHUB_DISPATCH_EVENT = "production_cron";
+const CRON_DISPATCH_EVENTS = new Map([
+  ["0,30 * * * *", "production_cron"],
+  ["30,50 23 * * *", "floor_listings_daily"],
+]);
 const DISPATCH_RETRY_DELAYS_MS = [0, 2000, 5000];
 
 function sleep(ms) {
@@ -20,13 +23,18 @@ function retryableDispatchStatus(status) {
   return status === 408 || status === 429 || status >= 500;
 }
 
-async function dispatchProductionCron(controller, env) {
+async function dispatchScheduledCron(controller, env) {
   if (!env.GITHUB_DISPATCH_TOKEN) {
     throw new Error("GITHUB_DISPATCH_TOKEN is not configured");
   }
 
+  const eventType = CRON_DISPATCH_EVENTS.get(controller.cron);
+  if (!eventType) {
+    throw new Error(`Unrecognized cron trigger: ${controller.cron}`);
+  }
+
   const payload = JSON.stringify({
-    event_type: GITHUB_DISPATCH_EVENT,
+    event_type: eventType,
     client_payload: {
       source: "cloudflare_cron",
       scheduled_time: new Date(controller.scheduledTime).toISOString(),
@@ -53,7 +61,7 @@ async function dispatchProductionCron(controller, env) {
       });
 
       if (response.status === 204) {
-        console.log(`Dispatched ${GITHUB_DISPATCH_EVENT} to GitHub on attempt ${attempt + 1}.`);
+        console.log(`Dispatched ${eventType} to GitHub on attempt ${attempt + 1}.`);
         return;
       }
 
@@ -265,7 +273,7 @@ async function setActivation(request, env) {
 
 export default {
   async scheduled(controller, env) {
-    await dispatchProductionCron(controller, env);
+    await dispatchScheduledCron(controller, env);
   },
 
   async fetch(request, env) {

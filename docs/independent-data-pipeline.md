@@ -53,7 +53,9 @@ Sales are deduplicated by `(signature, mint)`. Buyer, seller, mint, and price co
 
 ### Floor/listings
 
-Daily marketplace snapshot, independently checkpointed. A failed source request must not fabricate today's row using yesterday's values.
+Daily marketplace snapshot, independently checkpointed. Production preserves the final Dune query's source-field and history semantics without calling Dune: Magic Eden's public Solana collection-stats endpoint is read with `listingAggMode=false` for `floorPrice` and `listingAggMode=true` for aggregated `listedCount`. Floor lamports are converted to SOL. A failed source request must not fabricate today's row using yesterday's values, and missed dates are not backfilled with guessed values.
+
+Cloudflare emits `floor_listings_daily` at 23:30 UTC, with a same-day retry at 23:50 UTC. The late-day primary sample is intentionally close to the UTC day boundary so the post-Tensor series better matches the historical Tensor daily-close semantics without scraping exactly at midnight. The first successful run owns that UTC date; once the date is committed, the second firing skips the marketplace request and only proves that the already-current floor snapshot is deployed. This deliberately makes the second firing a recovery opportunity rather than a second sample for the same date. The pipeline advances only `floor_checkpoint_date`, rebuilds only `floor-listings.json` plus the floor section of `summary.json`, runs the full regression/cutover/live validation suite, commits an exact allow-listed path set, pushes race-safely, and proves the resulting Cloudflare Pages JSON before reporting success.
 
 ### Historical/static
 
@@ -95,9 +97,9 @@ There is no ignored local receipt in the correctness boundary and no D1 schema m
 
 ### GitHub Actions
 
-`.github/workflows/production-pipeline.yml` owns the concurrency group `guild-saga-production-pipeline` with `cancel-in-progress: false`. During review it is intentionally `workflow_dispatch` only, read-only, and hard-coded to `--mode dry-run`; there is no schedule or manual production input. An accidental dispatch cannot commit, push, edit the Helius watch set, deploy, or ACK D1.
+`.github/workflows/production-pipeline.yml` and `.github/workflows/floor-listings.yml` share the repository-wide concurrency group `guild-saga-production-pipeline` with `cancel-in-progress: false`, so their writes to `main` cannot race each other. Automatic production is entered only through the exact Cloudflare `repository_dispatch` event type owned by each workflow. Manual `workflow_dispatch` is dry-run only.
 
-The dry run authenticates to the Worker, freezes pending state, checks Helius and Alchemy RPC health, exercises GitHub deployment discovery, computes the watch frontier in a disposable Git clone, reduces any selected batch there, builds candidate JSON, and runs the complete unit/cutover/live validation suite. It verifies the source checkout is unchanged afterward.
+The webhook dry run authenticates to the Worker, freezes pending state, checks Helius and Alchemy RPC health, exercises GitHub deployment discovery, computes the watch frontier in a disposable Git clone, reduces any selected batch there, builds candidate JSON, and runs the complete unit/cutover/live validation suite. The floor/listings dry run fetches both Magic Eden stats views, applies the candidate only in a disposable clone, rebuilds the floor-facing JSON, and runs the same regression/cutover/live validation gates. Both verify the source checkout remains unchanged.
 
 Required review/dry-run repository secrets are:
 
@@ -129,7 +131,7 @@ To disable processing safely, disable the GitHub workflow or remove its schedule
 
 For a stuck committed-but-unACKed batch, do not re-run the reducer and do not edit the manifest. Re-run `python scripts/production_pipeline.py --mode production` from a clean, current `main` checkout with all production secrets. Recovery runs before new preparation, re-verifies the manifest's introducing release, and ACKs only its exact signatures. If verification still fails, leave the rows pending and investigate the Pages check/deployment.
 
-After review, activation is a separate audited change: add the `7,37 * * * *` UTC cron, change the job command to `--mode production`, pass `HELIUS_WEBHOOK_AUTH`, and grant `contents: write`. Do not change the concurrency group or enable cancellation.
+The active scheduler is Cloudflare, not GitHub's native `schedule:` event. The Worker dispatches `production_cron` every 30 minutes and `floor_listings_daily` on its twice-daily retry clock. Do not introduce a second automatic GitHub clock; keep manual Actions runs dry-run only and preserve the shared concurrency group.
 
 ## Validation split
 

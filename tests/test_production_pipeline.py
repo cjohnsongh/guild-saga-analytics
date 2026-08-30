@@ -79,7 +79,8 @@ class ProductionPipelineTests(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn("async scheduled(controller, env)", worker)
-        self.assertIn('GITHUB_DISPATCH_EVENT = "production_cron"', worker)
+        self.assertIn('["0,30 * * * *", "production_cron"]', worker)
+        self.assertIn('["30,50 23 * * *", "floor_listings_daily"]', worker)
         self.assertIn("GITHUB_DISPATCH_TOKEN", worker)
         self.assertIn("api.github.com/repos/cjohnsongh/guild-saga-analytics/dispatches", worker)
         self.assertIn('"0,30 * * * *"', wrangler)
