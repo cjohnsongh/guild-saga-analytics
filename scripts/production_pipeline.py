@@ -41,6 +41,12 @@ VERIFY_FILES = (
     "site/public/data/summary.json",
 )
 USER_AGENT = "GuildSagaAnalytics-ProductionPipeline/1.0"
+DEPLOYMENT_FALLBACK_ORIGINS = (
+    "https://guildsaga.pages.dev",
+    # Keep the original fallback for compatibility with any older Pages project name.
+    "https://guild-saga-analytics.pages.dev",
+)
+DEPLOYMENT_NETWORK_ERRORS = (urllib.error.URLError, TimeoutError, ConnectionError)
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -285,11 +291,17 @@ def normalize_origin(value: str) -> str | None:
 
 
 def deployment_candidates(commit: str, github_token: str) -> set[str]:
-    candidates = {"https://guild-saga-analytics.pages.dev"}
+    candidates = set(DEPLOYMENT_FALLBACK_ORIGINS)
     for endpoint in (f"commits/{commit}/status", f"commits/{commit}/check-runs"):
-        status, obj, _ = request_json(
-            "GET", f"{GITHUB_API}/{endpoint}", token=github_token or None, github=True,
-        )
+        try:
+            status, obj, _ = request_json(
+                "GET", f"{GITHUB_API}/{endpoint}", token=github_token or None, github=True,
+            )
+        except DEPLOYMENT_NETWORK_ERRORS as exc:
+            # GitHub's status/check APIs are discovery helpers, not authority. A
+            # transient DNS/connectivity failure must not abort exact Pages proof.
+            print(f"Deployment discovery transient network error ({endpoint}): {exc}", flush=True)
+            continue
         if status != 200:
             continue
         encoded = json.dumps(obj)
@@ -310,7 +322,14 @@ def deployment_discovery_smoke(commit: str, github_token: str) -> None:
 def candidate_matches(origin: str, expected: dict[str, object], commit: str) -> bool:
     for rel, wanted in expected.items():
         url = f"{origin}/{rel}?release={commit}"
-        status, obj, _ = request_json("GET", url)
+        try:
+            status, obj, _ = request_json("GET", url)
+        except DEPLOYMENT_NETWORK_ERRORS as exc:
+            # Pages propagation and public DNS can both be briefly unavailable.
+            # Treat that exactly like "not deployed yet" and let the bounded
+            # verification loop retry. D1 remains unacknowledged meanwhile.
+            print(f"Deployment verification transient network error ({origin}): {exc}", flush=True)
+            return False
         if status != 200 or obj != wanted:
             return False
     return True
@@ -328,7 +347,14 @@ def wait_for_deployment(
     token = os.environ.get("GITHUB_TOKEN", "").strip()
     deadline = time.monotonic() + timeout_seconds
     while True:
-        for origin in sorted(candidate_source(commit, token)):
+        try:
+            candidates = candidate_source(commit, token)
+        except DEPLOYMENT_NETWORK_ERRORS as exc:
+            # A custom/test discovery source may still surface a transport error.
+            # Preserve the same bounded retry behavior as the real discovery path.
+            print(f"Deployment discovery transient network error: {exc}", flush=True)
+            candidates = set(DEPLOYMENT_FALLBACK_ORIGINS)
+        for origin in sorted(candidates):
             if candidate_matches(origin, expected, commit):
                 return origin
         if time.monotonic() >= deadline:

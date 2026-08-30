@@ -181,6 +181,42 @@ class ProductionPipelineTests(unittest.TestCase):
     def test_matching_push_base_passes(self):
         mod.assert_push_base("same", "same")
 
+    def test_deployment_candidates_survive_transient_github_dns_failure(self):
+        with mock.patch.object(
+            mod, "request_json", side_effect=mod.urllib.error.URLError("temporary dns failure")
+        ):
+            candidates = mod.deployment_candidates("a" * 40, "token")
+        self.assertIn("https://guildsaga.pages.dev", candidates)
+        self.assertIn("https://guild-saga-analytics.pages.dev", candidates)
+
+    def test_candidate_matches_treats_transient_dns_failure_as_not_ready(self):
+        with mock.patch.object(
+            mod, "request_json", side_effect=mod.urllib.error.URLError("temporary dns failure")
+        ):
+            matched = mod.candidate_matches(
+                "https://release.pages.dev", {"data/example.json": {"ok": True}}, "a" * 40
+            )
+        self.assertFalse(matched)
+
+    def test_wait_for_deployment_retries_transient_discovery_failure(self):
+        source = mock.Mock(
+            side_effect=[
+                mod.urllib.error.URLError("temporary dns failure"),
+                {"https://release.pages.dev"},
+            ]
+        )
+        with (
+            mock.patch.object(mod, "expected_release_json", return_value={"data/example.json": {"ok": True}}),
+            mock.patch.object(mod, "candidate_matches", return_value=True) as matches,
+            mock.patch.object(mod.time, "sleep"),
+        ):
+            origin = mod.wait_for_deployment(
+                "a" * 40, {}, timeout_seconds=10, poll_seconds=1, candidate_source=source
+            )
+        self.assertIn(origin, {"https://guildsaga.pages.dev", "https://guild-saga-analytics.pages.dev"})
+        self.assertEqual(source.call_count, 1)
+        matches.assert_called_once()
+
     def test_missing_secret_fails_before_provider_or_ack(self):
         with mock.patch.object(mod, "assert_clean_production_tree"):
             with self.assertRaises(RuntimeError) as raised:
