@@ -7,6 +7,69 @@ import {
 
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
 
+const GITHUB_DISPATCH_URL = "https://api.github.com/repos/cjohnsongh/guild-saga-analytics/dispatches";
+const GITHUB_API_VERSION = "2026-03-10";
+const GITHUB_DISPATCH_EVENT = "production_cron";
+const DISPATCH_RETRY_DELAYS_MS = [0, 2000, 5000];
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function retryableDispatchStatus(status) {
+  return status === 408 || status === 429 || status >= 500;
+}
+
+async function dispatchProductionCron(controller, env) {
+  if (!env.GITHUB_DISPATCH_TOKEN) {
+    throw new Error("GITHUB_DISPATCH_TOKEN is not configured");
+  }
+
+  const payload = JSON.stringify({
+    event_type: GITHUB_DISPATCH_EVENT,
+    client_payload: {
+      source: "cloudflare_cron",
+      scheduled_time: new Date(controller.scheduledTime).toISOString(),
+      cron: controller.cron,
+    },
+  });
+
+  let lastError = null;
+  for (let attempt = 0; attempt < DISPATCH_RETRY_DELAYS_MS.length; attempt += 1) {
+    const delay = DISPATCH_RETRY_DELAYS_MS[attempt];
+    if (delay) await sleep(delay);
+
+    try {
+      const response = await fetch(GITHUB_DISPATCH_URL, {
+        method: "POST",
+        headers: {
+          accept: "application/vnd.github+json",
+          authorization: `Bearer ${env.GITHUB_DISPATCH_TOKEN}`,
+          "content-type": "application/json",
+          "user-agent": "guild-saga-webhook-inbox",
+          "x-github-api-version": GITHUB_API_VERSION,
+        },
+        body: payload,
+      });
+
+      if (response.status === 204) {
+        console.log(`Dispatched ${GITHUB_DISPATCH_EVENT} to GitHub on attempt ${attempt + 1}.`);
+        return;
+      }
+
+      const detail = (await response.text()).slice(0, 1000);
+      lastError = new Error(`GitHub repository_dispatch failed: HTTP ${response.status} ${detail}`.trim());
+      if (!retryableDispatchStatus(response.status)) throw lastError;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      if (attempt === DISPATCH_RETRY_DELAYS_MS.length - 1) break;
+    }
+  }
+
+  throw lastError ?? new Error("GitHub repository_dispatch failed");
+}
+
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: JSON_HEADERS });
 }
@@ -201,6 +264,10 @@ async function setActivation(request, env) {
 }
 
 export default {
+  async scheduled(controller, env) {
+    await dispatchProductionCron(controller, env);
+  },
+
   async fetch(request, env) {
     const url = new URL(request.url);
 

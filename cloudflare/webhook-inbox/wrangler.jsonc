@@ -3,6 +3,11 @@
   "name": "guild-saga-webhook-inbox",
   "main": "src/index.js",
   "compatibility_date": "2026-08-28",
+  "triggers": {
+    "crons": [
+      "0,30 * * * *"
+    ]
+  },
   "d1_databases": [
     {
       "binding": "DB",

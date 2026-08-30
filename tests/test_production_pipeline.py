@@ -31,7 +31,7 @@ class FakeWorker:
 
 
 class ProductionPipelineTests(unittest.TestCase):
-    def test_workflow_routes_only_schedule_to_production(self):
+    def test_workflow_routes_only_approved_events_to_production(self):
         text = (ROOT / ".github" / "workflows" / "production-pipeline.yml").read_text(
             encoding="utf-8"
         )
@@ -39,7 +39,11 @@ class ProductionPipelineTests(unittest.TestCase):
         self.assertNotIn("inputs:", text)
         self.assertIn("schedule:", text)
         self.assertIn('cron: "7,37 * * * *"', text)
-        self.assertIn("if: github.event_name == 'schedule'", text)
+        self.assertIn("repository_dispatch:", text)
+        self.assertIn("types: [production_cron]", text)
+        self.assertIn("github.event_name == 'schedule'", text)
+        self.assertIn("github.event_name == 'repository_dispatch'", text)
+        self.assertIn("github.event.action == 'production_cron'", text)
         self.assertIn("if: github.event_name == 'workflow_dispatch'", text)
         self.assertEqual(text.count("--mode production"), 1)
         self.assertEqual(text.count("--mode dry-run"), 1)
@@ -66,6 +70,18 @@ class ProductionPipelineTests(unittest.TestCase):
             "HELIUS_WEBHOOK_AUTH",
         ):
             self.assertIn(f"secrets.{secret}", text)
+
+        worker = (ROOT / "cloudflare" / "webhook-inbox" / "src" / "index.js").read_text(
+            encoding="utf-8"
+        )
+        wrangler = (ROOT / "cloudflare" / "webhook-inbox" / "wrangler.jsonc").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("async scheduled(controller, env)", worker)
+        self.assertIn('GITHUB_DISPATCH_EVENT = "production_cron"', worker)
+        self.assertIn("GITHUB_DISPATCH_TOKEN", worker)
+        self.assertIn("api.github.com/repos/cjohnsongh/guild-saga-analytics/dispatches", worker)
+        self.assertIn('"0,30 * * * *"', wrangler)
 
     def test_tracked_webhook_config_is_raw_and_immutable_boundary(self):
         config = json.loads(
