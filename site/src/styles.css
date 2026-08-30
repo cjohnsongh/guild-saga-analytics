@@ -1582,7 +1582,10 @@ html { scroll-behavior: smooth; }
 
 .hero-showcase-copy {
   min-width: 0;
-  padding: 0 12px 10px 0;
+  padding: 0 12px 0 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
 }
 
 .hero-showcase-copy h1 {
@@ -1606,7 +1609,8 @@ html { scroll-behavior: smooth; }
 }
 
 .hero-link-groups {
-  margin-top: 18px;
+  margin-top: auto;
+  padding-top: 18px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1637,7 +1641,7 @@ html { scroll-behavior: smooth; }
   min-height: 56px;
   padding: 10px 12px;
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto;
+  grid-template-columns: 40px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
   border: 1px solid #23293a;
@@ -1681,33 +1685,12 @@ html { scroll-behavior: smooth; }
   object-fit: cover;
 }
 
-.hero-platform-link[data-platform='discord'] .hero-platform-link-icon img {
-  width: 108%;
-  height: 108%;
-  object-fit: contain;
-}
-
-.hero-platform-link[data-platform='x'] .hero-platform-link-icon img {
-  width: 94%;
-  height: 94%;
-  object-fit: contain;
-}
-
 .hero-platform-link-title {
   min-width: 0;
   font-size: 14px;
   font-weight: 600;
   line-height: 1.2;
-}
-
-.hero-platform-link-external {
-  color: #7883a1;
-  font-size: 15px;
-  line-height: 1;
-}
-
-.hero-platform-link:hover .hero-platform-link-external {
-  color: #d2daf0;
+  white-space: nowrap;
 }
 
 .hero-browser { min-width: 0; }
@@ -2163,6 +2146,12 @@ html { scroll-behavior: smooth; }
   .hero-showcase-copy {
     padding: 4px 0 4px;
     max-width: 760px;
+    align-self: auto;
+  }
+
+  .hero-link-groups {
+    margin-top: 0;
+    padding-top: 18px;
   }
 }
 

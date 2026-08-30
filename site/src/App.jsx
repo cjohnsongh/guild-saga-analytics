@@ -95,7 +95,7 @@ const HERO_PLATFORM_GROUPS = [
     label: 'Trade',
     links: [
       { id: 'tensor', label: 'Tensor', href: 'https://www.tensor.trade/trade/guild_saga_heroes', icon: '/assets/platforms/tensor.png' },
-      { id: 'magiceden', label: 'Magic Eden', href: 'https://magiceden.io/marketplace/guild_saga_heroes', icon: '/assets/platforms/magiceden.png' },
+      { id: 'magiceden', label: 'Magic Eden', href: 'https://magiceden.io/marketplace/guild_saga_heroes', icon: '/assets/platforms/magiceden.svg' },
     ],
   },
   {
@@ -1899,7 +1899,6 @@ function HeroShowcase({ onIdentityCandidate }) {
                       <img src={item.icon} alt="" />
                     </span>
                     <span className="hero-platform-link-title">{item.label}</span>
-                    <span className="hero-platform-link-external" aria-hidden="true">↗</span>
                   </a>
                 ))}
               </div>
