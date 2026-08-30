@@ -1,0 +1,68 @@
+name: Daily floor and listings
+
+run-name: >-
+  Daily floor/listings · ${{ github.event_name == 'repository_dispatch' && 'Cloudflare cron' || github.event_name }}
+
+on:
+  repository_dispatch:
+    types: [floor_listings_daily]
+  workflow_dispatch:
+
+# Share the production concurrency group so a floor snapshot can never race the
+# 30-minute webhook release for origin/main.
+concurrency:
+  group: guild-saga-production-pipeline
+  cancel-in-progress: false
+
+jobs:
+  manual-dry-run:
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      checks: read
+      statuses: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile production Python
+        run: python -m compileall -q collector scripts tests
+      - name: Fetch and validate floor/listings candidate without mutation
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/floor_listings_pipeline.py --mode dry-run
+
+  production-release:
+    if: >-
+      github.event_name == 'repository_dispatch' &&
+      github.event.action == 'floor_listings_daily'
+    permissions:
+      contents: write
+      checks: read
+      statuses: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Configure release commit identity
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile production Python
+        run: python -m compileall -q collector scripts tests
+      - name: Fetch, validate, publish, and prove daily floor/listings
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/floor_listings_pipeline.py --mode production
