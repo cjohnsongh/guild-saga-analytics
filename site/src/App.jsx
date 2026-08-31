@@ -692,7 +692,7 @@ function commonTimeAxis(gridIndex, startDate, endDate, showLabels = true) {
     axisPointer: {
       show: true,
       snap: false,
-      lineStyle: { color: '#7c7c7c', width: 1, type: 'dashed' },
+      lineStyle: { color: 'transparent', width: 0, opacity: 0 },
       label: { show: false },
     },
   };
@@ -930,7 +930,7 @@ function makeTradingMarketOption(displayRows, marketRows, startDate, endDate, ra
     tooltip: {
       trigger: 'axis',
       confine: true,
-      axisPointer: { type: 'line', snap: false, lineStyle: { color: '#747480', type: 'dashed', width: 1 } },
+      axisPointer: { type: 'line', snap: false, lineStyle: { color: 'transparent', width: 0, opacity: 0 } },
       backgroundColor: '#17171b',
       borderColor: '#45454d',
       textStyle: { color: '#efeff3', fontSize: 13 },
@@ -1040,10 +1040,21 @@ function makeTradingMarketOption(displayRows, marketRows, startDate, endDate, ra
 }
 
 
-function axisPointerValue(axisDim, converted) {
-  if (!Array.isArray(converted)) return converted;
-  if (axisDim === 'x') return converted[0];
-  return converted.length > 1 ? converted[1] : converted[0];
+function pointerXValue(chart, spec, pointX, rect, dataLength) {
+  // ECharts x-axis conversion expects a scalar pixel when the finder targets a
+  // single x axis. Passing [x, y] can yield NaN for an axis-only conversion,
+  // which previously collapsed category charts to data index 0.
+  let converted = chart.convertFromPixel({ xAxisIndex: spec.xAxisIndex }, pointX);
+
+  if (Array.isArray(converted)) converted = converted[0];
+  if (typeof converted === 'string' && converted) return converted;
+  if (Number.isFinite(Number(converted))) return Number(converted);
+
+  // Defensive category-axis fallback. This also keeps the interaction stable
+  // if a browser/ECharts build cannot convert the scalar pixel for some reason.
+  const count = Math.max(1, Number(dataLength || 0));
+  const ratio = Math.max(0, Math.min(0.999999, (pointX - rect.x) / Math.max(1, rect.width)));
+  return Math.floor(ratio * count);
 }
 
 function nearestSeriesValueAtX(chart, spec, xValue) {
@@ -1054,8 +1065,11 @@ function nearestSeriesValueAtX(chart, spec, xValue) {
 
   const first = data[0];
   if (Array.isArray(first) || Array.isArray(first?.value)) {
-    const target = Number(xValue);
+    const numericTarget = Number(xValue);
+    const dateTarget = typeof xValue === 'string' ? new Date(xValue).getTime() : NaN;
+    const target = Number.isFinite(numericTarget) ? numericTarget : dateTarget;
     if (!Number.isFinite(target)) return null;
+
     let bestIndex = 0;
     let bestDistance = Infinity;
     data.forEach((entry, index) => {
@@ -1087,17 +1101,17 @@ function nearestSeriesValueAtX(chart, spec, xValue) {
 
 /*
  * Dune-style line-chart crosshair:
- * - ECharts owns the ordinary tooltip + vertical axis pointer, so X follows the mouse.
- * - This helper draws only the horizontal guide, at the nearest line-series Y value.
- *
- * Keeping those responsibilities separate is important. The previous version dispatched
- * updateAxisPointer on every mousemove, which competed with ECharts' own tooltip lifecycle
- * and is why charts such as Burn History only showed the guide after a click.
+ * - the vertical guide follows the mouse continuously;
+ * - the horizontal guide snaps to the selected line's value at the nearest X;
+ * - ECharts still owns the tooltip, but its native vertical line is hidden on
+ *   these charts so category axes cannot visually snap the crosshair sideways.
  */
 function installSnappedLineCrosshair(chart, specs) {
   const zr = chart.getZr();
-  const lineId = 'snapped-line-horizontal';
-  const labelId = 'snapped-line-label';
+  const horizontalLineId = 'snapped-line-horizontal';
+  const horizontalLabelId = 'snapped-line-label';
+  const verticalIds = [...new Set(specs.map((spec) => spec.gridIndex))]
+    .map((gridIndex) => ({ gridIndex, id: `snapped-line-vertical-${gridIndex}` }));
 
   const pointOf = (event) => ({
     x: Number(event.offsetX ?? event.event?.offsetX ?? 0),
@@ -1109,8 +1123,9 @@ function installSnappedLineCrosshair(chart, specs) {
   const hide = () => {
     chart.setOption({
       graphic: [
-        { id: lineId, type: 'line', invisible: true },
-        { id: labelId, type: 'text', invisible: true },
+        { id: horizontalLineId, type: 'line', invisible: true },
+        { id: horizontalLabelId, type: 'text', invisible: true },
+        ...verticalIds.map(({ id }) => ({ id, type: 'line', invisible: true })),
       ],
     }, { lazyUpdate: true, silent: true });
   };
@@ -1129,30 +1144,50 @@ function installSnappedLineCrosshair(chart, specs) {
       return;
     }
 
-    const converted = chart.convertFromPixel({ xAxisIndex: spec.xAxisIndex }, [point.x, point.y]);
-    const xValue = axisPointerValue('x', converted);
+    const rect = gridRect(spec.gridIndex);
+    const option = chart.getOption();
+    const seriesData = option.series?.[spec.seriesIndex]?.data || [];
+    const xValue = pointerXValue(chart, spec, point.x, rect, seriesData.length);
     const nearest = nearestSeriesValueAtX(chart, spec, xValue);
     if (!nearest) {
       hide();
       return;
     }
 
-    const rect = gridRect(spec.gridIndex);
     const yPixel = Number(chart.convertToPixel({ yAxisIndex: spec.yAxisIndex }, nearest.value));
-    if (!rect || !Number.isFinite(yPixel)) {
+    if (!Number.isFinite(yPixel)) {
       hide();
       return;
     }
 
-    const option = chart.getOption();
     const axisPosition = option.yAxis?.[spec.yAxisIndex]?.position || 'left';
     const rightSide = axisPosition === 'right';
     const labelText = spec.formatValue ? spec.formatValue(nearest.value) : formatDecimal(nearest.value, 2);
 
+    const verticalGraphics = verticalIds.flatMap(({ gridIndex, id }) => {
+      const verticalRect = gridRect(gridIndex);
+      if (!verticalRect) return [];
+      return [{
+        id,
+        type: 'line',
+        silent: true,
+        invisible: false,
+        z: 100,
+        shape: {
+          x1: point.x,
+          y1: verticalRect.y,
+          x2: point.x,
+          y2: verticalRect.y + verticalRect.height,
+        },
+        style: { stroke: '#747480', lineWidth: 1, lineDash: [4, 4] },
+      }];
+    });
+
     chart.setOption({
       graphic: [
+        ...verticalGraphics,
         {
-          id: lineId,
+          id: horizontalLineId,
           type: 'line',
           silent: true,
           invisible: false,
@@ -1161,7 +1196,7 @@ function installSnappedLineCrosshair(chart, specs) {
           style: { stroke: '#747480', lineWidth: 1, lineDash: [4, 4] },
         },
         {
-          id: labelId,
+          id: horizontalLabelId,
           type: 'text',
           silent: true,
           invisible: false,
@@ -1575,7 +1610,7 @@ function makeBurnHistoryOption(rows) {
     },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'line', snap: false, lineStyle: { color: '#747480', type: 'dashed', width: 1 } },
+      axisPointer: { type: 'line', snap: false, lineStyle: { color: 'transparent', width: 0, opacity: 0 } },
       backgroundColor: '#17171b',
       borderColor: '#45454d',
       textStyle: { color: '#efeff3', fontSize: 13 },
@@ -1703,7 +1738,7 @@ function makeSolConversionOption(rows) {
     },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'line', snap: false, lineStyle: { color: '#747480', type: 'dashed', width: 1 } },
+      axisPointer: { type: 'line', snap: false, lineStyle: { color: 'transparent', width: 0, opacity: 0 } },
       backgroundColor: '#17171b',
       borderColor: '#45454d',
       textStyle: { color: '#efeff3', fontSize: 13 },
@@ -1751,7 +1786,7 @@ function makeUsdcConversionOption(rows) {
     },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'line', snap: false, lineStyle: { color: '#747480', type: 'dashed', width: 1 } },
+      axisPointer: { type: 'line', snap: false, lineStyle: { color: 'transparent', width: 0, opacity: 0 } },
       backgroundColor: '#17171b',
       borderColor: '#45454d',
       textStyle: { color: '#efeff3', fontSize: 13 },
@@ -1790,7 +1825,7 @@ function makeRoyaltiesOption(rows) {
     grid: { left: 58, right: 18, top: 30, bottom: 46 },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'line', snap: false, lineStyle: { color: '#747480', type: 'dashed', width: 1 } },
+      axisPointer: { type: 'line', snap: false, lineStyle: { color: 'transparent', width: 0, opacity: 0 } },
       backgroundColor: '#17171b',
       borderColor: '#45454d',
       textStyle: { color: '#efeff3', fontSize: 13 },
