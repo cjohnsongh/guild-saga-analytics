@@ -264,6 +264,20 @@ function formatDataThrough(value) {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function formatFreshnessDate(value) {
+  if (!value) return 'Unavailable';
+  const text = String(value);
+  let date;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    const [year, month, day] = text.split('-').map(Number);
+    date = new Date(year, month - 1, day);
+  } else {
+    date = new Date(value);
+  }
+  if (Number.isNaN(date.getTime())) return text;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 function toUtcDateKey(value) {
   if (!value) return null;
   const text = String(value);
@@ -333,9 +347,9 @@ function FreshnessChip({ data }) {
       : 'One or more data sources are behind schedule';
 
   return (
-    <div className={`freshness-chip is-${status.tone}`} title={toneLabel} aria-label={`${toneLabel}. Updated ${formatDataThrough(status.displayDate)}.`}>
+    <div className={`freshness-chip is-${status.tone}`} title={toneLabel} aria-label={`${toneLabel}. Updated ${formatFreshnessDate(status.displayDate)}.`}>
       <i aria-hidden="true" />
-      <span>Updated {formatDataThrough(status.displayDate)}</span>
+      <span>Updated {formatFreshnessDate(status.displayDate)}</span>
     </div>
   );
 }
@@ -827,8 +841,8 @@ function makeStakingOption(rows) {
       axisLabel: {
         color: COLORS.muted,
         fontSize: 12,
-        interval: 0,
-        formatter: (value, index) => (index % 3 === 0 ? value : ''),
+        interval: 'auto',
+        hideOverlap: true,
       },
     },
     yAxis: valueAxis(0, scale, (value) => formatInt(value), { position: 'left' }),
@@ -1480,7 +1494,7 @@ function makeFirstResaleOption(rows) {
       data: rows.map((row) => row.bucket),
       axisTick: { show: false },
       axisLine: { lineStyle: { color: COLORS.axis } },
-      axisLabel: { color: COLORS.muted, fontSize: 12, interval: 0 },
+      axisLabel: { color: COLORS.muted, fontSize: 12, interval: 'auto', hideOverlap: true },
     },
     yAxis: valueAxis(0, scale, (value) => formatInt(value), { position: 'left' }),
     series: [{
@@ -2373,6 +2387,17 @@ function HeroShowcase({ onIdentityCandidate }) {
       </div>
 
       <div className="hero-browser">
+        <div className="hero-art-grid">
+          {heroShowcaseItems.map((item, index) => (
+            <HeroImageCard
+              key={item.id}
+              item={item}
+              mobileActive={mobileView === item.id}
+              onOpen={() => setHeroLightboxIndex(index)}
+            />
+          ))}
+        </div>
+
         <div className="hero-mobile-tabs" role="tablist" aria-label="Hero image type">
           {heroShowcaseItems.map((item) => (
             <button
@@ -2385,17 +2410,6 @@ function HeroShowcase({ onIdentityCandidate }) {
             >
               {item.id === 'original' ? 'NFT' : item.id === 'body' ? 'Body' : 'Face'}
             </button>
-          ))}
-        </div>
-
-        <div className="hero-art-grid">
-          {heroShowcaseItems.map((item, index) => (
-            <HeroImageCard
-              key={item.id}
-              item={item}
-              mobileActive={mobileView === item.id}
-              onOpen={() => setHeroLightboxIndex(index)}
-            />
           ))}
         </div>
 
