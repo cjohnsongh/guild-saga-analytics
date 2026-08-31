@@ -90,8 +90,8 @@ def classify_world_call(
 ) -> WorldCall | None:
     """Classify one World Mode instruction using the validated discriminators.
 
-    Dune's element_at(account_arguments, 4) is 1-indexed, so the staking wallet
-    is Python index 3.
+    The validated stake/unstake layout places the staking wallet in the fourth
+    account argument, which is Python index 3.
     """
     if executing_account != WORLD_MODE_PROGRAM or not signer:
         return None

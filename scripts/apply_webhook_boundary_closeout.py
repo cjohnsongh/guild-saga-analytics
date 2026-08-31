@@ -243,7 +243,7 @@ def main():
 
             cp["hero_state_checkpoint"] = boundary
             cp["notes"] = (
-                "Canonical production seed created from final Dune state exports. "
+                "Canonical production seed created from the frozen baseline state. "
                 f"Hero state independently closed through durable Helius webhook boundary {boundary}. "
                 "Subsequent Hero updates come from the independent webhook pipeline. "
                 "Market and floor/listings retain their own independent checkpoints."

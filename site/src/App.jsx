@@ -26,7 +26,8 @@ const HERO_FAVICON_OUTPUT = { width: 52, height: 52 };
 const HERO_FAVICON_RADIUS = 9;
 const HERO_IDENTITY_DELAY_MS = 1500;
 const HERO_IDENTITY_FADE_MS = 360;
-const HERO_SOURCE_GITHUB_URL = 'https://github.com/cjohnsongh/guild-saga-analytics/tree/main/site/public/assets/heroes/source';
+const GITHUB_REPO_URL = 'https://github.com/cjohnsongh/guild-saga-analytics';
+const HERO_SOURCE_GITHUB_URL = `${GITHUB_REPO_URL}/tree/main/site/public/assets/heroes/source`;
 const HERO_SOURCE_PREVIEW_IDS = Array.from({ length: 21 }, (_, index) => index);
 const HERO_SOURCE_PREVIEW_GAP = 3;
 const heroSourceImageCache = new Map();
@@ -1106,7 +1107,7 @@ function nearestSeriesValueAtX(chart, spec, xValue) {
 }
 
 /*
- * Dune-style line-chart crosshair:
+ * Line-chart crosshair:
  * - the vertical guide follows the mouse continuously;
  * - the horizontal guide snaps to the selected line's value at the nearest X;
  * - ECharts still owns the tooltip, but its native vertical line is hidden on
@@ -3315,7 +3316,7 @@ function DataPage({ onBack }) {
   }, []);
 
   const files = [
-    ['summary.json', 'Current headline collection and market metrics.'],
+    ['summary.json', 'Current headline collection, market, launch and freshness metrics.'],
     ['hero-state.json', 'Holder tiers, staking and quest state, burn history, and burned rarity.'],
     ['floor-listings.json', 'Historical floor price and listing-count observations.'],
     ['market-history.json', 'Secondary-market activity, first-resale timing, and royalty history.'],
@@ -3324,25 +3325,215 @@ function DataPage({ onBack }) {
     ['treasury.json', 'Mint-proceeds split and project-connected economic aggregates.'],
   ];
 
+  const metricDefinitions = [
+    ['Active supply', 'Heroes in canonical state that have not been explicitly burned.'],
+    ['Holders', 'Unique current beneficial owners after known staking or custody state is resolved, rather than a raw count of token accounts.'],
+    ['Staked', 'Heroes currently in the validated World Mode staking state.'],
+    ['Quest activity', 'Time since the last qualifying quest restart for a currently staked Hero. Time buckets can age forward without a new transaction.'],
+    ['Sales and volume', 'Validated secondary sales from supported marketplace program paths, deduplicated by transaction signature and Hero mint.'],
+    ['Floor and listings', 'One marketplace snapshot per UTC date. Missing dates are left missing rather than filled with invented values.'],
+    ['Royalties', 'Creator royalty value associated with validated secondary sales.'],
+    ['First resale', 'The first validated secondary sale after a Hero entered circulation.'],
+    ['Funding activity', 'Observed on-chain transfers and conversions involving project-connected wallets. A transfer relationship does not by itself prove common ownership or off-chain spending.'],
+  ];
+
+  const implementationPaths = [
+    ['collector/', 'Solana normalization, World Mode state rules, ownership logic, burn detection, and marketplace parsers.'],
+    ['cloudflare/webhook-inbox/', 'Worker, D1 schema, raw webhook inbox, authentication, and Cron Trigger dispatch.'],
+    ['.github/workflows/', 'Guarded dry-run and production entry points with shared release concurrency.'],
+    ['scripts/production_pipeline.py', 'Live Hero and market orchestration, validation, commit, deployment proof, and exact D1 acknowledgement.'],
+    ['scripts/floor_listings_pipeline.py', 'Independent daily marketplace snapshot, validation, release, and deployment proof.'],
+    ['scripts/build_dashboard_data.py', 'Deterministic builder for the JSON consumed by the website.'],
+    ['data/baseline/ + data/state/ + data/history/', 'Immutable baseline data, compact live state/checkpoints, and append-only or daily history.'],
+    ['site/', 'React frontend, public JSON, Hero art, and presentation logic.'],
+    ['tests/', 'Parser, state-machine, pipeline, baseline-integrity, and release-safety regression tests.'],
+  ];
+
   return (
     <div className="data-page page-stack">
       <section className="data-page-heading">
         <div>
-          <span className="eyebrow">Data</span>
+          <span className="eyebrow">Documentation</span>
           <h1>Data & Methodology</h1>
-          <p>Files used by this site, what they contain, and how to interpret the main metrics.</p>
+          <p>
+            How the site derives, validates, publishes, and presents Guild Saga Heroes data. This page is intended
+            to provide enough implementation context to understand the system or adapt the same architecture to
+            another Solana collection without reverse-engineering the entire repository.
+          </p>
         </div>
-        <button className="secondary-button" type="button" onClick={onBack}>Back to analytics</button>
+        <div className="data-header-actions">
+          <a className="data-github-link" href={GITHUB_REPO_URL} target="_blank" rel="noreferrer">
+            <span className="data-github-icon" aria-hidden="true">
+              <img src="/assets/icons/brand-github.svg" alt="" />
+            </span>
+            <span>View source on GitHub</span>
+          </a>
+          <button className="secondary-button" type="button" onClick={onBack}>Back to analytics</button>
+        </div>
       </section>
 
-      <section className="data-file-list">
-        {files.map(([name, description]) => (
-          <a key={name} href={`/data/${name}`} target="_blank" rel="noreferrer" className="data-file-row">
-            <code>{name}</code>
-            <span>{description}</span>
-            <b aria-hidden="true">↗</b>
-          </a>
-        ))}
+      <section className="data-summary-grid" aria-label="Data system at a glance">
+        <article className="data-summary-card">
+          <span className="data-card-kicker">Browser delivery</span>
+          <strong>Static JSON</strong>
+          <p>The public browser reads versioned JSON and image assets. It does not query Solana or marketplace APIs directly.</p>
+        </article>
+        <article className="data-summary-card">
+          <span className="data-card-kicker">Hero + market</span>
+          <strong>Twice hourly</strong>
+          <p>Raw Solana deliveries accumulate continuously and Cloudflare starts the guarded production reducer at :00 and :30 UTC.</p>
+        </article>
+        <article className="data-summary-card">
+          <span className="data-card-kicker">Floor + listings</span>
+          <strong>Daily close snapshot</strong>
+          <p>Collection stats are sampled at 23:30 UTC, with a 23:50 recovery firing. At most one row is written for each UTC date.</p>
+        </article>
+      </section>
+
+      <section className="data-method-section">
+        <div className="data-method-heading">
+          <span className="eyebrow">Published interface</span>
+          <h2>Public data files</h2>
+          <p>
+            The frontend is intentionally separated from collection infrastructure. These are the public files the site consumes,
+            so another client can inspect the same published state without reproducing the collector.
+          </p>
+        </div>
+        <div className="data-file-list">
+          {files.map(([name, description]) => (
+            <a key={name} href={`/data/${name}`} target="_blank" rel="noreferrer" className="data-file-row">
+              <code>{name}</code>
+              <span>{description}</span>
+              <b aria-hidden="true">↗</b>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section className="data-method-section">
+        <div className="data-method-heading">
+          <span className="eyebrow">Architecture</span>
+          <h2>How data reaches the website</h2>
+          <p>
+            There are three deliberately separate data paths. Live state is event-driven, floor/listings is a daily marketplace
+            snapshot, and historical facts are rebuilt from immutable local baselines. Keeping these domains separate prevents
+            one unavailable provider from corrupting unrelated data.
+          </p>
+        </div>
+
+        <div className="data-flow-grid">
+          <article className="data-flow-card">
+            <span className="data-flow-number">01</span>
+            <h3>Hero + market state</h3>
+            <div className="data-flow-steps" aria-label="Live Hero and market pipeline">
+              <span>Helius raw webhook</span><i>→</i><span>Cloudflare Worker + D1</span><i>→</i><span>30-minute Cron Trigger</span><i>→</i><span>GitHub Actions</span><i>→</i><span>Python reducers + validators</span><i>→</i><span>Commit + Pages proof</span><i>→</i><span>D1 ACK</span>
+            </div>
+            <p>Raw deliveries are stored first. Guild Saga state is interpreted later by tested deterministic Python code.</p>
+          </article>
+
+          <article className="data-flow-card">
+            <span className="data-flow-number">02</span>
+            <h3>Floor + listings</h3>
+            <div className="data-flow-steps" aria-label="Floor and listings pipeline">
+              <span>Cloudflare daily cron</span><i>→</i><span>GitHub Actions</span><i>→</i><span>Magic Eden collection stats</span><i>→</i><span>One UTC row</span><i>→</i><span>Validation</span><i>→</i><span>Commit + Pages proof</span>
+            </div>
+            <p>The 23:50 firing is recovery only. If 23:30 succeeded, the second run proves the current row and becomes a no-op.</p>
+          </article>
+
+          <article className="data-flow-card">
+            <span className="data-flow-number">03</span>
+            <h3>Historical + static</h3>
+            <div className="data-flow-steps" aria-label="Historical data pipeline">
+              <span>Immutable baseline files</span><i>→</i><span>Deterministic builder</span><i>→</i><span>Public JSON</span>
+            </div>
+            <p>Mint history, rarity, historical sales, and known funding history do not require a periodic full-chain rescan during normal production.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="data-method-section">
+        <div className="data-method-heading">
+          <span className="eyebrow">Infrastructure</span>
+          <h2>What Cloudflare does</h2>
+          <p>
+            Cloudflare is more than the web host. It is also the durable handoff and production clock between live Solana delivery
+            and the repository's deterministic data pipeline.
+          </p>
+        </div>
+        <div className="data-info-grid">
+          <article className="data-info-card"><h3>Worker</h3><p>Authenticates raw Helius webhook requests, deduplicates them by transaction signature, writes the original payload to D1, and returns quickly. The Worker deliberately does not calculate Guild Saga metrics.</p></article>
+          <article className="data-info-card"><h3>D1 inbox</h3><p>Acts as the durable pending-event queue. A stable receive-time watermark freezes each production batch, so events arriving during a run are left for the next run instead of leaking into the selected snapshot.</p></article>
+          <article className="data-info-card"><h3>Cron Triggers</h3><p>Cloudflare is the production scheduler. Only allow-listed cron strings can emit the two repository-dispatch events used by the live pipeline and the daily floor/listings pipeline.</p></article>
+          <article className="data-info-card"><h3>Pages</h3><p>Serves the React application and static JSON. Production does not acknowledge a live D1 batch until the pipeline verifies that the exact committed JSON is actually available from the corresponding Pages deployment.</p></article>
+        </div>
+      </section>
+
+      <section className="data-method-section">
+        <div className="data-method-heading">
+          <span className="eyebrow">Correctness</span>
+          <h2>Release safety and failure behavior</h2>
+          <p>The pipeline is intentionally conservative. A stale site is preferred to a fabricated or partially published state.</p>
+        </div>
+        <div className="data-safety-grid">
+          <div><strong>Stable batches</strong><span>Each live run processes a frozen D1 snapshot. Later arrivals remain pending.</span></div>
+          <div><strong>Idempotent input</strong><span>Duplicate webhook delivery is harmless because signatures are unique in the inbox and reducers keep deterministic cursors.</span></div>
+          <div><strong>Fail closed</strong><span>Stale state cannot overwrite newer state, ambiguous same-slot ownership conflicts are rejected, and missing marketplace fields do not create guessed values.</span></div>
+          <div><strong>Checkpoint discipline</strong><span>A checkpoint advances only after collection, reduction, JSON generation, and validation all succeed.</span></div>
+          <div><strong>Exact release inventory</strong><span>Production stages only explicit allow-listed files and refuses a moved main branch instead of force-pushing over it.</span></div>
+          <div><strong>Deployment proof</strong><span>The exact committed public JSON must be observed on Cloudflare Pages before a live webhook batch is acknowledged.</span></div>
+          <div><strong>Crash recovery</strong><span>A committed batch manifest lets a later runner prove the already-published release and safely finish the ACK without reducing a different batch.</span></div>
+          <div><strong>No production race</strong><span>Live updates and daily floor/listings use the same GitHub Actions concurrency group, so both cannot write main at once.</span></div>
+        </div>
+      </section>
+
+      <section className="data-method-section">
+        <div className="data-method-heading">
+          <span className="eyebrow">Definitions</span>
+          <h2>How the main metrics are interpreted</h2>
+          <p>These definitions matter because blockchain accounts, custody addresses, and rolling time windows are not always equivalent to the plain-language metric shown to a reader.</p>
+        </div>
+        <div className="data-definition-grid">
+          {metricDefinitions.map(([name, definition]) => (
+            <article key={name} className="data-definition-card"><h3>{name}</h3><p>{definition}</p></article>
+          ))}
+        </div>
+      </section>
+
+      <section className="data-method-section">
+        <div className="data-method-heading">
+          <span className="eyebrow">Freshness + browser state</span>
+          <h2>What is live, local, and remembered</h2>
+        </div>
+        <div className="data-info-grid data-info-grid-three">
+          <article className="data-info-card"><h3>Updated indicator</h3><p>Hero/market data is expected to be current through today. Floor/listings may legitimately be one UTC date behind because it represents the end-of-day snapshot. The indicator turns yellow when either domain is behind its expected window, and red when both have been stale for more than 30 days.</p></article>
+          <article className="data-info-card"><h3>Selected Hero</h3><p>The selected Hero and PFP background preference are stored in normal first-party browser local storage. No account, wallet connection, download permission, or browser notification permission is required.</p></article>
+          <article className="data-info-card"><h3>Since your last visit</h3><p>A compact KPI snapshot is stored locally in the browser. On a later visit, meaningful differences are calculated against the newly published data. Session storage keeps that recap stable across refreshes during the same tab session.</p></article>
+        </div>
+      </section>
+
+      <section className="data-method-section">
+        <div className="data-method-heading">
+          <span className="eyebrow">Reimplementation guide</span>
+          <h2>Adapting the architecture to another Solana collection</h2>
+          <p>
+            Most of the release machinery can stay unchanged. The collection-specific contract is concentrated in a smaller set of inputs and parsers that an implementation must replace deliberately rather than infer from the UI.
+          </p>
+        </div>
+        <div className="data-adapt-grid">
+          <article><strong>Replace collection identity</strong><p>Mint inventory, metadata and trait schema, public collection symbol, image assets, project links, and display copy.</p></article>
+          <article><strong>Replace on-chain semantics</strong><p>Program IDs, instruction discriminators, account positions, staking/custody rules, burn rules, and any collection-specific beneficial-owner resolution.</p></article>
+          <article><strong>Replace market contracts</strong><p>Supported marketplace program layouts, collection filters, sale-price parsing, royalty interpretation, and floor/listing source semantics.</p></article>
+          <article><strong>Establish a baseline</strong><p>Canonical Hero state, historical sales, rarity, mint history, checkpoints, and deterministic fixtures for the date where live incremental processing begins.</p></article>
+          <article><strong>Keep the safety boundary</strong><p>Raw durable inbox, stable batch watermark, deterministic reducers, fail-closed validation, exact-file releases, deployment proof, and acknowledgement only after proof.</p></article>
+          <article><strong>Write collection fixtures</strong><p>Use known real transactions to lock parser behavior and state transitions before production automation is enabled.</p></article>
+        </div>
+
+        <div className="data-implementation-map">
+          <h3>Repository map</h3>
+          {implementationPaths.map(([path, purpose]) => (
+            <div key={path} className="data-implementation-row"><code>{path}</code><span>{purpose}</span></div>
+          ))}
+        </div>
       </section>
 
       <section className="data-method-section pfp-method-section">
@@ -3376,7 +3567,7 @@ function DataPage({ onBack }) {
             <p>
               Every Hero from #0 through #9999 is published in the repository as a transparent 65 × 70 PNG
               with the art preserved at a 1:1 pixel scale. The files are grouped into folders of 1,000 so the
-              full set remains straightforward to browse or download directly from GitHub.
+              full set remains straightforward to browse directly from GitHub.
             </p>
           </div>
           <a
@@ -3409,7 +3600,6 @@ function DataPage({ onBack }) {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

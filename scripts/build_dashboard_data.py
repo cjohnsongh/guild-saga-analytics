@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build the public Guild Saga dashboard JSON from canonical local state.
 
-Stdlib-only by design. This script is the offline parity layer: it must reproduce
-our final Dune dashboard snapshot before any live API collector is introduced.
+Stdlib-only by design. This script is the offline parity layer: it reproduces the
+canonical migration baseline before any live API collector is introduced.
 """
 from __future__ import annotations
 

@@ -1,16 +1,16 @@
-# Phase 1 — Independent collector foundation
+# Baseline collector foundation
 
-This patch is designed to be copied into the root of the current `guild-saga-analytics` repository. It does not modify the React UI or current production JSON.
+This document records the foundational contracts established for the independent Guild Saga collector before automated production was enabled.
 
-## What Phase 1 establishes
+## What the foundation establishes
 
-- the Aug. 26, 2026 website output is frozen as an immutable cutover fixture;
-- final Dune SQL is archived as migration specification only, never as a production dependency;
-- World Mode Stake / Unstake / Quest Restart rules are encoded as deterministic Python contracts;
-- Magic Eden V2 / Tensor Marketplace / Tensor AMM sale rules are encoded from the final production SQL;
+- the Aug. 26, 2026 website output is frozen as an immutable baseline fixture;
+- canonical baseline datasets are byte-verified against the preserved source archive;
+- World Mode Stake, Unstake, and Quest Restart rules are encoded as deterministic Python contracts;
+- Magic Eden V2, Tensor Marketplace, and Tensor AMM sale rules are encoded as deterministic parser contracts;
 - raw Solana `getTransaction` normalization exists for real-transaction parity tests;
-- live validation is separated from frozen cutover validation;
-- API keys are explicitly excluded from Git.
+- live validation is separated from frozen baseline validation;
+- API keys and production secrets are excluded from Git.
 
 ## Local no-network checks
 
@@ -20,12 +20,12 @@ python scripts/validate_cutover.py
 python scripts/validate.py
 ```
 
-## First network-backed migration gate
+## Network-backed parser gate
 
 ```bash
 python scripts/capture_market_backtest.py
 ```
 
-That backtest covers all 17 existing post-baseline live sales plus four historical Tensor cases. It stores only public raw transaction fixtures; secrets are never written to fixtures.
+The captured public transaction fixtures make later parser regressions deterministic instead of depending on provider availability during every test run.
 
-Do not enable scheduled collection, webhook ingestion, or automatic production commits until this backtest passes.
+Current production scheduling, D1 ingestion, deployment proof, and recovery behavior are documented in `docs/architecture.md`.

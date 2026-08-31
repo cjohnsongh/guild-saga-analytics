@@ -34,7 +34,7 @@ class FloorListingsPipelineTests(unittest.TestCase):
             encoding="utf-8",
         )
 
-    def test_parse_snapshot_preserves_old_dune_semantics(self):
+    def test_parse_snapshot_preserves_historical_units_and_listing_semantics(self):
         floor, listed = mod.parse_snapshot(
             {"floorPrice": 78_840_000},
             {"listedCount": 435},

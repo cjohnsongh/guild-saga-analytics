@@ -1,5 +1,0 @@
-SELECT
-    57000 AS usdc_transferred,
-    150 AS sol_transferred,
-    7 AS guild_heroes_transferred,
-    4 AS other_nft_assets_transferred

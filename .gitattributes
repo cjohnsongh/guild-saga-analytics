@@ -1,7 +1,4 @@
-# Byte-stable Guild Saga migration fixtures. Preserve the exact supplied bytes;
-# three canonical CSVs are CRLF artifacts while assets.csv is LF.
+# Byte-stable Guild Saga baseline fixtures. Preserve the exact supplied bytes.
 data/baseline/*.csv -text -diff
-# These supplied query exports are CRLF byte artifacts. Disable text filtering
-# only for this immutable archive so Git stores/checks out the manifest bytes.
-docs/migration/2026-08-26/dune-final-queries/*.txt -text -diff
+# Preserved source data is normalized to LF for stable manifest hashes.
 docs/migration/2026-08-26/source-data/*.csv text eol=lf
