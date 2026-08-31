@@ -1012,18 +1012,6 @@ html { scroll-behavior: smooth; }
   border-top: 1px solid #303038;
 }
 
-.economy-context-intro {
-  padding-top: 18px;
-}
-
-.economy-context-intro p {
-  margin: 0;
-  max-width: 980px;
-  color: #bbb9c5;
-  font-size: 15px;
-  line-height: 1.65;
-}
-
 .economy-royalties-chart {
   height: 350px;
 }
@@ -1107,7 +1095,8 @@ html { scroll-behavior: smooth; }
 }
 
 .economy-copy-wide {
-  max-width: 1120px;
+  max-width: none;
+  width: 100%;
   padding: 18px 0 4px;
 }
 
@@ -1635,7 +1624,6 @@ html { scroll-behavior: smooth; }
 .intro-lead strong,
 .intro-body strong,
 .economy-copy strong,
-.economy-context-intro strong,
 .evidence-note strong {
   color: #c9c7d1;
   font-weight: 650;

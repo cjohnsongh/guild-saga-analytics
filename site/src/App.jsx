@@ -1266,6 +1266,15 @@ function installConversionLineCrosshair(chart) {
 function installMarketYAxisDrag(chart) {
   const zr = chart.getZr();
   const chartDom = chart.getDom();
+
+  // ZRender owns the actual canvas cursor and may override a cursor assigned
+  // only to the ECharts wrapper. Set both layers so the resize cursor remains
+  // visible while hovering and dragging either axis.
+  const applyCursor = (cursor = 'default') => {
+    zr.setCursorStyle?.(cursor);
+    chartDom.style.cursor = cursor === 'default' ? '' : cursor;
+  };
+
   const initial = chart.getOption().yAxis.map((axis) => ({
     min: Number(axis.min),
     max: Number(axis.max),
@@ -1319,14 +1328,14 @@ function installMarketYAxisDrag(chart) {
   const setCursor = (event) => {
     const axisIndex = hitRightAxis(event);
     if (axisIndex !== null) {
-      chartDom.style.cursor = 'ns-resize';
+      applyCursor('ns-resize');
       return;
     }
     if (hitBottomTimeAxis(event)) {
-      chartDom.style.cursor = 'ew-resize';
+      applyCursor('ew-resize');
       return;
     }
-    chartDom.style.cursor = hitPlotGrid(event) !== null ? 'grab' : '';
+    applyCursor(hitPlotGrid(event) !== null ? 'grab' : 'default');
   };
 
   const patchAxis = (axisIndex, min, max) => {
@@ -1385,7 +1394,7 @@ function installMarketYAxisDrag(chart) {
         startSpan: range.span,
         center: (range.min + range.max) / 2,
       };
-      chartDom.style.cursor = 'ns-resize';
+      applyCursor('ns-resize');
       raw?.preventDefault?.();
       return;
     }
@@ -1399,7 +1408,7 @@ function installMarketYAxisDrag(chart) {
         startSpan: zoom.span,
         center: zoom.center,
       };
-      chartDom.style.cursor = 'ew-resize';
+      applyCursor('ew-resize');
       raw?.preventDefault?.();
       return;
     }
@@ -1420,7 +1429,7 @@ function installMarketYAxisDrag(chart) {
       startSpan: range.span,
       gridHeight: rect.height,
     };
-    chartDom.style.cursor = 'grabbing';
+    applyCursor('grabbing');
   };
 
   const onMouseMove = (event) => {
@@ -1448,7 +1457,7 @@ function installMarketYAxisDrag(chart) {
       }
 
       patchAxis(drag.axisIndex, min, max);
-      chartDom.style.cursor = 'ns-resize';
+      applyCursor('ns-resize');
       event.event?.preventDefault?.();
       return;
     }
@@ -1468,7 +1477,7 @@ function installMarketYAxisDrag(chart) {
         end = 100;
       }
       patchZoom(start, end);
-      chartDom.style.cursor = 'ew-resize';
+      applyCursor('ew-resize');
       event.event?.preventDefault?.();
       return;
     }
@@ -1488,13 +1497,13 @@ function installMarketYAxisDrag(chart) {
     }
 
     patchAxis(drag.axisIndex, min, max);
-    chartDom.style.cursor = 'grabbing';
+    applyCursor('grabbing');
   };
 
   const stopDrag = (event) => {
     drag = null;
     if (event) setCursor(event);
-    else chartDom.style.cursor = '';
+    else applyCursor('default');
   };
 
   const onDoubleClick = (event) => {
@@ -1522,7 +1531,7 @@ function installMarketYAxisDrag(chart) {
     zr.off('mouseup', stopDrag);
     zr.off('globalout', stopDrag);
     zr.off('dblclick', onDoubleClick);
-    chartDom.style.cursor = '';
+    applyCursor('default');
   };
 }
 
@@ -3086,13 +3095,6 @@ function Funding({ data }) {
         <SnapshotStat label="Mint + Royalties" value={formatSol(data.summary.market.mint_plus_royalties_sol, 2)} />
       </section>
 
-      <section className="economy-context economy-context-intro">
-        <p>
-          The 9,900 public Guild Saga Heroes minted for <strong>1.5 SOL each</strong>, generating
-          <strong> 14,850 SOL</strong> in mint proceeds. Secondary-market royalties are tracked separately from the mint.
-        </p>
-      </section>
-
       <section className="domain-chart-block">
         <div className="section-bar">
           <span className="section-title">Royalties over time</span>
@@ -3420,6 +3422,7 @@ export default function App() {
   const [heroIdentityCandidate, setHeroIdentityCandidate] = useState(readHeroPreference);
   const [returnRecap, setReturnRecap] = useState(null);
   const [returnRecapExpanded, setReturnRecapExpanded] = useState(false);
+  const navScrollLockRef = useRef(null);
 
   useEffect(() => {
     Promise.all(DATA_PATHS.map(fetchJson))
@@ -3486,6 +3489,14 @@ export default function App() {
   useEffect(() => {
     if (!data || showDataPage) return undefined;
     const updateActive = () => {
+      // During a nav-initiated smooth scroll, keep the clicked destination
+      // visually selected. Without this lock the scroll spy briefly activates
+      // every intermediate section as it passes beneath the header.
+      if (navScrollLockRef.current?.id) {
+        setActiveSection(navScrollLockRef.current.id);
+        return;
+      }
+
       const marker = window.scrollY + 150;
       let current = 'overview';
       const targets = [...new Set(NAV_ITEMS.map((item) => item.target || item.id))];
@@ -3518,8 +3529,27 @@ export default function App() {
     const move = () => {
       const element = document.getElementById(id);
       if (!element) return;
-      if (NAV_ITEMS.some((item) => (item.target || item.id) === id)) setActiveSection(id);
+      const isNavTarget = NAV_ITEMS.some((item) => (item.target || item.id) === id);
       const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+      if (isNavTarget) {
+        const lock = { id };
+        navScrollLockRef.current = lock;
+        setActiveSection(id);
+
+        const releaseLock = () => {
+          if (navScrollLockRef.current === lock) navScrollLockRef.current = null;
+        };
+
+        if (!reduceMotion && 'onscrollend' in window) {
+          window.addEventListener('scrollend', releaseLock, { once: true });
+        }
+        // Firefox/Chromium smooth scrolls normally finish well before this.
+        // This also prevents a stale lock if scrollend is unsupported or the
+        // scroll is interrupted.
+        window.setTimeout(releaseLock, reduceMotion ? 0 : 1400);
+      }
+
       element.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
       if (options.highlight) {
         element.classList.remove('return-recap-highlight');
