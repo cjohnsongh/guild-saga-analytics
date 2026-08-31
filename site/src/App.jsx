@@ -235,16 +235,27 @@ function formatUpdatedUtc(value) {
   return `${datePart} · ${timePart} UTC`;
 }
 
+function localDateKey(value) {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function formatDataThrough(value) {
   if (!value) return 'Unavailable';
-  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(String(value))
-    ? `${value}T00:00:00Z`
-    : value;
-  const date = new Date(normalized);
-  if (Number.isNaN(date.getTime())) return String(value);
-  return date.toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
-  });
+  const text = String(value);
+  let date;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    const [year, month, day] = text.split('-').map(Number);
+    date = new Date(year, month - 1, day);
+  } else {
+    date = new Date(value);
+  }
+  if (Number.isNaN(date.getTime())) return text;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function toUtcDateKey(value) {
@@ -263,33 +274,42 @@ function utcDateKeyToDay(value) {
   return Math.floor(Date.UTC(year, month - 1, day) / 86400000);
 }
 
+function floorSnapshotLocalDateKey(dateKey) {
+  if (!dateKey) return null;
+  // Daily floor/listings is sampled at ~23:30 UTC. Convert that actual
+  // collection time into the visitor's local calendar date for display.
+  return localDateKey(`${dateKey}T23:30:00Z`);
+}
+
 function getFreshnessStatus(data, now = new Date()) {
-  const todayKey = now.toISOString().slice(0, 10);
-  const todayDay = utcDateKeyToDay(todayKey);
+  const todayUtcKey = now.toISOString().slice(0, 10);
+  const todayUtcDay = utcDateKeyToDay(todayUtcKey);
   const heroDate = toUtcDateKey(data?.hero?.as_of);
   const floorDate = toUtcDateKey(data?.floor?.as_of);
   const heroDay = utcDateKeyToDay(heroDate);
   const floorDay = utcDateKeyToDay(floorDate);
 
   if (heroDay == null || floorDay == null) {
-    return { tone: 'warning', displayDate: heroDate || floorDate || null };
+    const fallbackLocal = data?.hero?.as_of
+      ? localDateKey(data.hero.as_of)
+      : floorSnapshotLocalDateKey(floorDate);
+    return { tone: 'warning', displayDate: fallbackLocal };
   }
 
-  const heroAgeDays = todayDay - heroDay;
-  const floorAgeDays = todayDay - floorDay;
-
-  // Hero/market is expected to advance during the current UTC day. Floor/listings
-  // is sampled near 23:30 UTC, so yesterday's snapshot is healthy until tonight's
-  // collection window has had a chance to run.
+  const heroAgeDays = todayUtcDay - heroDay;
+  const floorAgeDays = todayUtcDay - floorDay;
   const heroIsCurrent = heroAgeDays <= 0;
   const floorIsCurrent = floorAgeDays <= 1;
 
   if (heroIsCurrent && floorIsCurrent) {
-    return { tone: 'healthy', displayDate: todayKey };
+    // A healthy site is current through the visitor's own calendar day, not
+    // whatever date UTC happens to have crossed into.
+    return { tone: 'healthy', displayDate: localDateKey(now) };
   }
 
-  const displayDay = Math.min(heroDay, floorDay);
-  const displayDate = new Date(displayDay * 86400000).toISOString().slice(0, 10);
+  const heroLocal = data?.hero?.as_of ? localDateKey(data.hero.as_of) : null;
+  const floorLocal = floorSnapshotLocalDateKey(floorDate);
+  const displayDate = heroDay <= floorDay ? heroLocal : floorLocal;
   const bothOverMonthOld = heroAgeDays > 30 && floorAgeDays > 30;
 
   return {
@@ -3328,22 +3348,6 @@ export default function App() {
           </button>
           <div className="header-actions">
             <FreshnessChip data={data} />
-            {recapChanges.length > 0 && (
-              <button
-                ref={returnRecapButtonRef}
-                type="button"
-                className="return-recap-trigger"
-                aria-expanded={returnRecapOpen}
-                aria-controls="return-recap-panel"
-                onClick={() => {
-                  setReturnRecapOpen((open) => !open);
-                  setReturnRecapExpanded(false);
-                }}
-              >
-                <span>{recapChanges.length} {recapChanges.length === 1 ? 'change' : 'changes'}</span>
-                {recapSince && <span className="return-recap-trigger-context">since {recapSince}</span>}
-              </button>
-            )}
           </div>
         </div>
         <nav className="primary-nav" aria-label="Primary">
@@ -3362,61 +3366,6 @@ export default function App() {
             ))}
           </div>
         </nav>
-        {returnRecapOpen && recapChanges.length > 0 && (
-          <section
-            id="return-recap-panel"
-            ref={returnRecapPanelRef}
-            className="return-recap-panel"
-            aria-label="Changes since your last visit"
-          >
-            <div className="return-recap-panel-head">
-              <div>
-                <strong>Since your last visit</strong>
-                {returnRecap?.previousVisitedAt && (
-                  <small>{formatRecapVisit(returnRecap.previousVisitedAt)}</small>
-                )}
-              </div>
-              <button
-                type="button"
-                className="return-recap-close"
-                aria-label="Close changes panel"
-                onClick={() => {
-                  setReturnRecapOpen(false);
-                  returnRecapButtonRef.current?.focus();
-                }}
-              >
-                <svg viewBox="0 0 20 20" aria-hidden="true">
-                  <path d="M5 5l10 10M15 5L5 15" />
-                </svg>
-              </button>
-            </div>
-            <div className="return-recap-list">
-              {visibleRecapChanges.map((change, index) => (
-                <button
-                  key={`${change.category}-${change.text}-${index}`}
-                  type="button"
-                  className="return-recap-item"
-                  onClick={() => {
-                    setReturnRecapOpen(false);
-                    scrollToSection(change.section, { highlight: true });
-                  }}
-                >
-                  <span className="return-recap-item-category">{change.category}</span>
-                  <span className="return-recap-item-text">{change.text}</span>
-                </button>
-              ))}
-            </div>
-            {hiddenRecapCount > 0 && (
-              <button
-                type="button"
-                className="return-recap-more"
-                onClick={() => setReturnRecapExpanded((expanded) => !expanded)}
-              >
-                {returnRecapExpanded ? 'Show less' : `View ${hiddenRecapCount} more`}
-              </button>
-            )}
-          </section>
-        )}
       </header>
 
       <div className="content-shell">
@@ -3424,6 +3373,28 @@ export default function App() {
           <DataPage onBack={backToAnalytics} />
         ) : (
           <>
+            {recapChanges.length > 0 && (
+              <section className="return-recap-banner" aria-label="Changes since your last visit">
+                <div className="return-recap-banner-intro">
+                  <strong>Since your last visit</strong>
+                  <span>{recapChanges.length} {recapChanges.length === 1 ? 'change' : 'changes'}{recapSince ? ` since ${recapSince}` : ''}</span>
+                </div>
+                <div className="return-recap-banner-changes">
+                  {recapChanges.slice(0, RETURN_RECAP_VISIBLE_LIMIT).map((change, index) => (
+                    <button
+                      key={`${change.category}-${change.text}-${index}`}
+                      type="button"
+                      className="return-recap-banner-item"
+                      data-category={change.category.toLowerCase()}
+                      onClick={() => scrollToSection(change.section, { highlight: true })}
+                    >
+                      <span className="return-recap-icon-placeholder" aria-hidden="true" />
+                      <span className="return-recap-banner-text">{change.text}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
             <div className="single-page">
               <section id="overview" className="scroll-section scroll-section-overview" data-nav-section>
                 <Overview data={data} onHeroIdentityCandidate={setHeroIdentityCandidate} />

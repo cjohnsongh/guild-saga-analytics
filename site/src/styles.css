@@ -2669,3 +2669,109 @@ html { scroll-behavior: smooth; }
 @media (max-width: 380px) {
   .return-recap-panel { top: 148px; }
 }
+
+/* VISUAL QA: always-visible "Since your last visit" banner. */
+.return-recap-banner {
+  margin: 0 0 28px;
+  min-height: 78px;
+  display: grid;
+  grid-template-columns: minmax(160px, .72fr) minmax(0, 3.28fr);
+  align-items: stretch;
+  border: 1px solid rgba(255,255,255,.075);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(18,19,23,.96), rgba(15,16,20,.96));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018);
+  overflow: hidden;
+}
+.return-recap-banner-intro {
+  min-width: 0;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  border-right: 1px solid rgba(255,255,255,.055);
+}
+.return-recap-banner-intro strong {
+  color: #e6e6eb;
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 650;
+}
+.return-recap-banner-intro span {
+  color: #85858f;
+  font-size: 11px;
+  line-height: 1.3;
+}
+.return-recap-banner-changes {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.return-recap-banner-item {
+  min-width: 0;
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 11px;
+  border: 0;
+  border-right: 1px solid rgba(255,255,255,.045);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background .16s ease;
+}
+.return-recap-banner-item:last-child { border-right: 0; }
+.return-recap-banner-item:hover { background: rgba(255,255,255,.026); }
+.return-recap-banner-item:focus-visible {
+  outline: 2px solid rgba(122,154,163,.58);
+  outline-offset: -2px;
+}
+.return-recap-icon-placeholder {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.065);
+  background: linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.022));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+}
+.return-recap-banner-item[data-category='market'] .return-recap-icon-placeholder { background-color: rgba(86,119,128,.055); }
+.return-recap-banner-item[data-category='collection'] .return-recap-icon-placeholder { background-color: rgba(126,91,108,.05); }
+.return-recap-banner-item[data-category='ownership'] .return-recap-icon-placeholder { background-color: rgba(101,112,151,.05); }
+.return-recap-banner-item[data-category='economy'] .return-recap-icon-placeholder { background-color: rgba(139,119,75,.05); }
+.return-recap-banner-text {
+  min-width: 0;
+  color: #d9d9df;
+  font-size: 13px;
+  line-height: 1.38;
+}
+
+@media (max-width: 1120px) {
+  .return-recap-banner { grid-template-columns: 1fr; }
+  .return-recap-banner-intro {
+    padding: 13px 16px 11px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255,255,255,.055);
+  }
+  .return-recap-banner-intro { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 16px; }
+  .return-recap-banner-changes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .return-recap-banner-item:nth-child(2) { border-right: 0; }
+  .return-recap-banner-item:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,.045); }
+}
+
+@media (max-width: 560px) {
+  .return-recap-banner { margin-bottom: 22px; border-radius: 12px; }
+  .return-recap-banner-intro { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .return-recap-banner-changes { grid-template-columns: 1fr; }
+  .return-recap-banner-item,
+  .return-recap-banner-item:nth-child(2) {
+    min-height: 58px;
+    padding: 10px 12px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255,255,255,.045);
+  }
+  .return-recap-banner-item:last-child { border-bottom: 0; }
+  .return-recap-icon-placeholder { width: 36px; height: 36px; border-radius: 9px; }
+}
