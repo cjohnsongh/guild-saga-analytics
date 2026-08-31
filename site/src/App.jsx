@@ -94,6 +94,29 @@ const NAV_ITEMS = [
   { id: 'economy', label: 'Funding', target: 'economy' },
 ];
 
+const TEAM_MEMBERS = [
+  { name: 'VultM', handle: '@vult_M', roles: 'Co-Founder · CEO · Creative Director' },
+  { name: 'SolGutz', handle: '@SolanaGuts', roles: 'Co-Founder · CTO · Lead Programmer' },
+  { name: 'Kimo', handle: '@asynkimo', roles: 'Game Developer' },
+  { name: 'FL33TFOOTED', handle: '@fl33tfooted', roles: 'Fullstack Developer · Backend / Game Systems' },
+  { name: 'Marcos', handle: '@pixelaccountant', roles: 'Lead Artist · Pixel Artist' },
+  { name: 'Goulai', handle: '@godlikeng', roles: 'Writer · Narrative' },
+  { name: 'Caruso', handle: '@caruso_cv', roles: 'Frontend · UI/UX · Community' },
+  { name: "SOL'D", handle: '@sol_huckster', roles: 'Community Team · Playtester' },
+];
+
+const TEAM_CONTRIBUTORS = [
+  { name: 'Tim de Man', handle: '@demantim', roles: 'Composer' },
+  { name: 'Kato Ayaka', handle: '@ayakato22', roles: 'Character Portrait Artist · Illustrator' },
+  { name: 'Paul Ouzounov', handle: '@alchemist_sound', roles: 'Sound Designer' },
+  { name: 'CJohnson', handle: '@ounceofcrypto', roles: 'Discord Mod · Built this fan site' },
+];
+
+const TEAM_OFFICIAL_LINKS = [
+  { label: 'GuildSaga.com', detail: 'Official Guild Saga website', href: 'https://guildsaga.com/' },
+  { label: 'Guild Saga: Vanished Worlds', detail: 'Steam', href: 'https://store.steampowered.com/app/2184350/Guild_Saga_Vanished_Worlds/' },
+];
+
 const HERO_PLATFORM_GROUPS = [
   {
     id: 'trade',
@@ -3065,6 +3088,78 @@ function Funding({ data }) {
   );
 }
 
+function TeamProfileCard({ member }) {
+  const screenName = member.handle.replace(/^@/, '');
+  const profileUrl = `https://x.com/${screenName}`;
+  const initials = member.name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
+  return (
+    <article className="team-card">
+      <a
+        className="team-avatar-link"
+        href={profileUrl}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`${member.name} on X`}
+      >
+        <span className="team-avatar-fallback" aria-hidden="true">{initials}</span>
+        <img
+          className="team-avatar"
+          src={`https://unavatar.io/x/${screenName}`}
+          alt={`${member.name} X profile picture`}
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+      <div className="team-card-copy">
+        <strong className="team-member-name">{member.name}</strong>
+        <a className="team-handle" href={profileUrl} target="_blank" rel="noreferrer">
+          {member.handle}
+        </a>
+        <p className="team-role">{member.roles}</p>
+      </div>
+    </article>
+  );
+}
+
+function Team() {
+  return (
+    <div className="page-stack team-page">
+      <SectionHeading category="team">Team</SectionHeading>
+      <p className="team-intro">Team members and contributors with public X profiles.</p>
+
+      <div className="team-grid" aria-label="Guild Saga team">
+        {TEAM_MEMBERS.map((member) => <TeamProfileCard key={member.handle} member={member} />)}
+      </div>
+
+      <section className="team-subsection">
+        <div className="section-bar"><span className="section-title">Contributors</span></div>
+        <div className="team-grid team-contributor-grid" aria-label="Guild Saga contributors">
+          {TEAM_CONTRIBUTORS.map((member) => <TeamProfileCard key={member.handle} member={member} />)}
+        </div>
+      </section>
+
+      <section className="team-subsection team-official-section">
+        <div className="section-bar"><span className="section-title">Official links</span></div>
+        <div className="team-official-links">
+          {TEAM_OFFICIAL_LINKS.map((link) => (
+            <a key={link.href} className="team-official-link" href={link.href} target="_blank" rel="noreferrer">
+              <strong>{link.label}</strong>
+              <span>{link.detail}</span>
+            </a>
+          ))}
+        </div>
+        <a className="team-avatar-credit" href="https://unavatar.io" target="_blank" rel="noreferrer">Avatars provided by Unavatar</a>
+      </section>
+    </div>
+  );
+}
+
 function SiteFooter() {
   return (
     <footer className="site-footer">
@@ -3278,7 +3373,7 @@ export default function App() {
     const updateActive = () => {
       const marker = window.scrollY + 150;
       let current = 'overview';
-      const targets = [...new Set(NAV_ITEMS.map((item) => item.target || item.id))];
+      const targets = [...new Set([...NAV_ITEMS.map((item) => item.target || item.id), 'team'])];
       for (const target of targets) {
         const element = document.getElementById(target);
         if (element && element.offsetTop <= marker) current = target;
@@ -3430,6 +3525,9 @@ export default function App() {
               </section>
               <section id="economy" className="scroll-section" data-nav-section>
                 <Funding data={data} />
+              </section>
+              <section id="team" className="scroll-section team-scroll-section" data-nav-section>
+                <Team />
               </section>
             </div>
             <SiteFooter />
