@@ -818,7 +818,7 @@ h1 {
 .chapter-facts span { color: #92919e; font-size: 13px; white-space: nowrap; }
 .chapter-facts strong { display: block; margin-bottom: 3px; color: #e5e4ed; font-size: 17px; }
 .collection-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-.collection-burn-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(320px, .75fr); gap: 30px; }
+.collection-burn-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(250px, .72fr) minmax(220px, .58fr); gap: 24px; }
 
 .proceeds-split { padding: 26px 0 8px; }
 .split-bar { height: 28px; display: flex; overflow: hidden; border: 1px solid #35353d; background: #202027; }
@@ -1589,6 +1589,33 @@ html { scroll-behavior: smooth; }
 .collection-burn-grid { align-items: stretch; }
 .burn-chart-block { padding-bottom: 0; }
 .burn-chart-block .domain-chart { height: 440px; }
+.burn-gif-block {
+  min-width: 0;
+  padding-top: 46px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+.burn-gif-frame {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #101012;
+}
+.burn-gif-frame img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: 42% center;
+}
+@media (max-width: 900px) {
+  .burn-gif-block {
+    padding-top: 0;
+    justify-content: center;
+  }
+  .burn-gif-frame { width: min(100%, 440px); }
+}
 .economy-royalties-chart { height: 440px; }
 
 /* Conversion cards stand on their own; the redundant umbrella heading/rule is gone. */

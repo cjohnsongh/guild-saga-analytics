@@ -2925,6 +2925,16 @@ function Collection({ data }) {
             <div className="section-bar"><span className="section-title">Burned by rarity</span></div>
             <div className="domain-chart"><Chart option={rarityOption} /></div>
           </div>
+          <div className="burn-gif-block">
+            <div className="burn-gif-frame">
+              <img
+                src="/images/guild-saga-fire.png"
+                alt="Guild Saga tavern engulfed in flames"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
         </div>
       </section>
     </div>
