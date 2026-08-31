@@ -649,7 +649,7 @@ function makeTradingMarketOption(displayRows, marketRows, startDate, endDate, ra
     tooltip: {
       trigger: 'axis',
       confine: true,
-      axisPointer: { type: 'cross', crossStyle: { color: '#747480', type: 'dashed' } },
+      axisPointer: { type: 'line', snap: false, lineStyle: { color: '#747480', type: 'dashed', width: 1 } },
       backgroundColor: '#17171b',
       borderColor: '#45454d',
       textStyle: { color: '#efeff3', fontSize: 13 },
@@ -680,33 +680,12 @@ function makeTradingMarketOption(displayRows, marketRows, startDate, endDate, ra
     yAxis: [
       {
         ...valueAxis(0, floorScale, formatAxisDecimal, { position: 'right' }),
-        axisPointer: {
-          show: true,
-          snap: false,
-          triggerTooltip: false,
-          lineStyle: { color: '#747480', type: 'dashed', width: 1 },
-          label: { show: true, formatter: ({ value }) => formatDecimal(value, 2) },
-        },
       },
       {
         ...valueAxis(0, volumeScale, () => '', { position: 'left', split: false, show: false }),
-        axisPointer: {
-          show: true,
-          snap: false,
-          triggerTooltip: false,
-          lineStyle: { color: '#747480', type: 'dashed', width: 1 },
-          label: { show: true, formatter: ({ value }) => formatDecimal(value, 2) },
-        },
       },
       {
         ...valueAxis(1, listingScale, (value) => formatInt(value), { position: 'right' }),
-        axisPointer: {
-          show: true,
-          snap: false,
-          triggerTooltip: false,
-          lineStyle: { color: '#747480', type: 'dashed', width: 1 },
-          label: { show: true, formatter: ({ value }) => formatInt(value) },
-        },
       },
     ],
     series: [
@@ -786,7 +765,7 @@ function axisPointerValue(axisDim, converted) {
   return converted.length > 1 ? converted[1] : converted[0];
 }
 
-function nearestSeriesValueAtX(chart, spec, point, xValue) {
+function nearestSeriesValueAtX(chart, spec, xValue) {
   const option = chart.getOption();
   const series = option.series?.[spec.seriesIndex];
   const data = Array.isArray(series?.data) ? series.data : [];
@@ -825,8 +804,19 @@ function nearestSeriesValueAtX(chart, spec, point, xValue) {
   return Number.isFinite(value) ? { dataIndex: index, value } : null;
 }
 
+/*
+ * Dune-style line-chart crosshair:
+ * - ECharts owns the ordinary tooltip + vertical axis pointer, so X follows the mouse.
+ * - This helper draws only the horizontal guide, at the nearest line-series Y value.
+ *
+ * Keeping those responsibilities separate is important. The previous version dispatched
+ * updateAxisPointer on every mousemove, which competed with ECharts' own tooltip lifecycle
+ * and is why charts such as Burn History only showed the guide after a click.
+ */
 function installSnappedLineCrosshair(chart, specs) {
   const zr = chart.getZr();
+  const lineId = 'snapped-line-horizontal';
+  const labelId = 'snapped-line-label';
 
   const pointOf = (event) => ({
     x: Number(event.offsetX ?? event.event?.offsetX ?? 0),
@@ -834,6 +824,15 @@ function installSnappedLineCrosshair(chart, specs) {
   });
 
   const gridRect = (gridIndex) => chart.getModel().getComponent('grid', gridIndex)?.coordinateSystem?.getRect?.() || null;
+
+  const hide = () => {
+    chart.setOption({
+      graphic: [
+        { id: lineId, type: 'line', invisible: true },
+        { id: labelId, type: 'text', invisible: true },
+      ],
+    }, { lazyUpdate: true, silent: true });
+  };
 
   const onMouseMove = (event) => {
     const point = pointOf(event);
@@ -843,45 +842,79 @@ function installSnappedLineCrosshair(chart, specs) {
         && point.x >= rect.x && point.x <= rect.x + rect.width
         && point.y >= rect.y && point.y <= rect.y + rect.height;
     });
-    if (!spec) return;
+
+    if (!spec) {
+      hide();
+      return;
+    }
 
     const converted = chart.convertFromPixel({ xAxisIndex: spec.xAxisIndex }, [point.x, point.y]);
     const xValue = axisPointerValue('x', converted);
-    const nearest = nearestSeriesValueAtX(chart, spec, point, xValue);
-    if (!nearest) return;
-
-    const axesInfo = (spec.linkedXAxisIndices || [spec.xAxisIndex]).map((axisIndex) => ({
-      axisDim: 'x',
-      axisIndex,
-      value: xValue,
-    }));
-    axesInfo.push({ axisDim: 'y', axisIndex: spec.yAxisIndex, value: nearest.value });
-
-    if (Array.isArray(spec.mirroredYAxisIndices) && spec.mirroredYAxisIndices.length) {
-      const yPixel = chart.convertToPixel({ yAxisIndex: spec.yAxisIndex }, nearest.value);
-      spec.mirroredYAxisIndices.forEach((axisIndex) => {
-        const mirrorConverted = chart.convertFromPixel({ yAxisIndex: axisIndex }, [point.x, yPixel]);
-        const mirrorValue = Number(axisPointerValue('y', mirrorConverted));
-        if (Number.isFinite(mirrorValue)) axesInfo.push({ axisDim: 'y', axisIndex, value: mirrorValue });
-      });
+    const nearest = nearestSeriesValueAtX(chart, spec, xValue);
+    if (!nearest) {
+      hide();
+      return;
     }
 
-    chart.dispatchAction({
-      type: 'updateAxisPointer',
-      currTrigger: 'mousemove',
-      axesInfo,
-    });
+    const rect = gridRect(spec.gridIndex);
+    const yPixel = Number(chart.convertToPixel({ yAxisIndex: spec.yAxisIndex }, nearest.value));
+    if (!rect || !Number.isFinite(yPixel)) {
+      hide();
+      return;
+    }
+
+    const option = chart.getOption();
+    const axisPosition = option.yAxis?.[spec.yAxisIndex]?.position || 'left';
+    const rightSide = axisPosition === 'right';
+    const labelText = spec.formatValue ? spec.formatValue(nearest.value) : formatDecimal(nearest.value, 2);
+
+    chart.setOption({
+      graphic: [
+        {
+          id: lineId,
+          type: 'line',
+          silent: true,
+          invisible: false,
+          z: 100,
+          shape: { x1: rect.x, y1: yPixel, x2: rect.x + rect.width, y2: yPixel },
+          style: { stroke: '#747480', lineWidth: 1, lineDash: [4, 4] },
+        },
+        {
+          id: labelId,
+          type: 'text',
+          silent: true,
+          invisible: false,
+          z: 101,
+          x: rightSide ? rect.x + rect.width + 5 : rect.x - 5,
+          y: yPixel,
+          style: {
+            text: labelText,
+            fill: '#f0f0f3',
+            font: '12px Inter, ui-sans-serif, system-ui, sans-serif',
+            align: rightSide ? 'left' : 'right',
+            verticalAlign: 'middle',
+            backgroundColor: '#66666e',
+            padding: [3, 5],
+            borderRadius: 3,
+          },
+        },
+      ],
+    }, { lazyUpdate: true, silent: true });
   };
 
   zr.on('mousemove', onMouseMove);
-  return () => zr.off('mousemove', onMouseMove);
+  zr.on('globalout', hide);
+  return () => {
+    zr.off('mousemove', onMouseMove);
+    zr.off('globalout', hide);
+  };
 }
 
 function installMarketChartInteractions(chart) {
   const cleanupDrag = installMarketYAxisDrag(chart);
   const cleanupCrosshair = installSnappedLineCrosshair(chart, [
-    { gridIndex: 0, xAxisIndex: 0, linkedXAxisIndices: [0, 1], yAxisIndex: 0, mirroredYAxisIndices: [1], seriesIndex: 0 },
-    { gridIndex: 1, xAxisIndex: 1, linkedXAxisIndices: [0, 1], yAxisIndex: 2, seriesIndex: 2 },
+    { gridIndex: 0, xAxisIndex: 0, yAxisIndex: 0, seriesIndex: 0, formatValue: (value) => formatDecimal(value, 2) },
+    { gridIndex: 1, xAxisIndex: 1, yAxisIndex: 2, seriesIndex: 2, formatValue: (value) => formatInt(value) },
   ]);
   return () => {
     cleanupCrosshair?.();
@@ -891,19 +924,19 @@ function installMarketChartInteractions(chart) {
 
 function installBurnLineCrosshair(chart) {
   return installSnappedLineCrosshair(chart, [
-    { gridIndex: 0, xAxisIndex: 0, yAxisIndex: 0, seriesIndex: 1 },
+    { gridIndex: 0, xAxisIndex: 0, yAxisIndex: 0, seriesIndex: 1, formatValue: (value) => formatInt(value) },
   ]);
 }
 
 function installRoyaltiesLineCrosshair(chart) {
   return installSnappedLineCrosshair(chart, [
-    { gridIndex: 0, xAxisIndex: 0, yAxisIndex: 0, seriesIndex: 0 },
+    { gridIndex: 0, xAxisIndex: 0, yAxisIndex: 0, seriesIndex: 0, formatValue: (value) => formatDecimal(value, 2) },
   ]);
 }
 
 function installConversionLineCrosshair(chart) {
   return installSnappedLineCrosshair(chart, [
-    { gridIndex: 0, xAxisIndex: 0, yAxisIndex: 0, seriesIndex: 0 },
+    { gridIndex: 0, xAxisIndex: 0, yAxisIndex: 0, seriesIndex: 0, formatValue: (value) => formatDecimal(value, 2) },
   ]);
 }
 
@@ -1261,7 +1294,7 @@ function makeBurnHistoryOption(rows) {
     },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'cross', crossStyle: { color: '#747480', type: 'dashed' } },
+      axisPointer: { type: 'line', snap: false, lineStyle: { color: '#747480', type: 'dashed', width: 1 } },
       backgroundColor: '#17171b',
       borderColor: '#45454d',
       textStyle: { color: '#efeff3', fontSize: 13 },
@@ -1284,13 +1317,6 @@ function makeBurnHistoryOption(rows) {
     },
     yAxis: {
       ...valueAxis(0, scale, (value) => formatInt(value), { position: 'left' }),
-      axisPointer: {
-        show: true,
-        snap: false,
-        triggerTooltip: false,
-        lineStyle: { color: '#747480', type: 'dashed', width: 1 },
-        label: { show: true, formatter: ({ value }) => formatInt(value) },
-      },
     },
     series: [
       {
@@ -1395,7 +1421,7 @@ function makeSolConversionOption(rows) {
     },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'cross', crossStyle: { color: '#747480', type: 'dashed' } },
+      axisPointer: { type: 'line', snap: false, lineStyle: { color: '#747480', type: 'dashed', width: 1 } },
       backgroundColor: '#17171b',
       borderColor: '#45454d',
       textStyle: { color: '#efeff3', fontSize: 13 },
@@ -1403,13 +1429,6 @@ function makeSolConversionOption(rows) {
     xAxis: monthAxis(rows),
     yAxis: {
       ...valueAxis(0, scale, (value) => formatInt(value), { position: 'left' }),
-      axisPointer: {
-        show: true,
-        snap: false,
-        triggerTooltip: false,
-        lineStyle: { color: '#747480', type: 'dashed', width: 1 },
-        label: { show: true, formatter: ({ value }) => formatDecimal(value, 2) },
-      },
     },
     series: [
       {
@@ -1450,7 +1469,7 @@ function makeUsdcConversionOption(rows) {
     },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'cross', crossStyle: { color: '#747480', type: 'dashed' } },
+      axisPointer: { type: 'line', snap: false, lineStyle: { color: '#747480', type: 'dashed', width: 1 } },
       backgroundColor: '#17171b',
       borderColor: '#45454d',
       textStyle: { color: '#efeff3', fontSize: 13 },
@@ -1458,13 +1477,6 @@ function makeUsdcConversionOption(rows) {
     xAxis: monthAxis(rows),
     yAxis: {
       ...valueAxis(0, scale, (value) => `$${formatInt(value)}`, { position: 'left' }),
-      axisPointer: {
-        show: true,
-        snap: false,
-        triggerTooltip: false,
-        lineStyle: { color: '#747480', type: 'dashed', width: 1 },
-        label: { show: true, formatter: ({ value }) => `$${formatDecimal(value, 2)}` },
-      },
     },
     series: [
       {
@@ -1496,7 +1508,7 @@ function makeRoyaltiesOption(rows) {
     grid: { left: 58, right: 18, top: 30, bottom: 46 },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'cross', crossStyle: { color: '#747480', type: 'dashed' } },
+      axisPointer: { type: 'line', snap: false, lineStyle: { color: '#747480', type: 'dashed', width: 1 } },
       backgroundColor: '#17171b',
       borderColor: '#45454d',
       textStyle: { color: '#efeff3', fontSize: 13 },
@@ -1508,13 +1520,6 @@ function makeRoyaltiesOption(rows) {
     xAxis: monthAxis(rows),
     yAxis: {
       ...valueAxis(0, scale, (value) => formatAxisDecimal(value), { position: 'left' }),
-      axisPointer: {
-        show: true,
-        snap: false,
-        triggerTooltip: false,
-        lineStyle: { color: '#747480', type: 'dashed', width: 1 },
-        label: { show: true, formatter: ({ value }) => formatDecimal(value, 2) },
-      },
     },
     series: [{
       name: 'Guild Saga royalties',
@@ -1992,7 +1997,7 @@ function PfpColorPopover({ color, onChange, defaultColor }) {
   );
 }
 
-function HeroShowcase({ data, onIdentityCandidate }) {
+function HeroShowcase({ onIdentityCandidate }) {
   const [initialPreference] = useState(readHeroPreference);
   const [mobileView, setMobileView] = useState('original');
   const [heroLightboxIndex, setHeroLightboxIndex] = useState(null);
@@ -2114,9 +2119,6 @@ function HeroShowcase({ data, onIdentityCandidate }) {
 
   return (
     <section className="hero-showcase" aria-labelledby="hero-showcase-title">
-      <div className="hero-freshness">
-        <FreshnessChip data={data} />
-      </div>
       <div className="hero-showcase-copy">
         <h1 id="hero-showcase-title">Guild Saga Heroes</h1>
         <p className="intro-lead">
@@ -2438,7 +2440,7 @@ function LabyrinthsShowcase() {
 function Overview({ data, onHeroIdentityCandidate }) {
   return (
     <div className="page-stack overview-page">
-      <HeroShowcase data={data} onIdentityCandidate={onHeroIdentityCandidate} />
+      <HeroShowcase onIdentityCandidate={onHeroIdentityCandidate} />
       <LabyrinthsShowcase />
     </div>
   );
@@ -3041,6 +3043,9 @@ export default function App() {
             <BrandHeroMark candidate={heroIdentityCandidate} />
             <span className="brand-copy"><strong>Guild Saga Heroes</strong><small>Analytics</small></span>
           </button>
+          <div className="header-freshness">
+            <FreshnessChip data={data} />
+          </div>
         </div>
         <nav className="primary-nav" aria-label="Primary">
           <div className="nav-inner">

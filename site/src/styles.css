@@ -53,6 +53,18 @@ strong { font-weight: 650; }
   display: flex;
   align-items: center;
 }
+.header-freshness {
+  margin-left: auto;
+  align-self: flex-start;
+  margin-top: 10px;
+  flex: 0 0 auto;
+}
+.header-freshness .freshness-chip {
+  min-height: 30px;
+  padding: 0 10px;
+  border-color: rgba(255, 255, 255, .10);
+  background: rgba(18, 18, 20, .88);
+}
 .brand {
   border: 0;
   background: transparent;
@@ -522,6 +534,8 @@ h1 {
   .nav-inner,
   .content-shell { width: calc(100vw - 28px); }
   .header-inner { height: 68px; }
+  .header-freshness { margin-top: 8px; }
+  .header-freshness .freshness-chip { font-size: 11px; gap: 6px; padding: 0 9px; }
   .brand small { display: none; }
   .nav-inner { gap: 0; }
   .primary-nav button { min-height: 44px; font-size: 14px; }
@@ -1592,22 +1606,6 @@ html { scroll-behavior: smooth; }
 }
 
 
-.hero-freshness {
-  position: absolute;
-  z-index: 5;
-  top: 6px;
-  right: 8px;
-  pointer-events: none;
-}
-
-.hero-freshness .freshness-chip {
-  min-height: 30px;
-  padding: 0 10px;
-  border-color: rgba(255, 255, 255, .10);
-  background: rgba(10, 11, 15, .84);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
 
 .hero-showcase-copy {
   min-width: 0;
@@ -2297,15 +2295,6 @@ html { scroll-behavior: smooth; }
 
 @media (max-width: 780px) {
   .hero-showcase { padding-top: 0; }
-
-  .hero-freshness {
-    position: static;
-    grid-column: 1 / -1;
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 2px;
-    pointer-events: auto;
-  }
   .hero-showcase-copy h1 { font-size: 30px; }
 
   .hero-mobile-tabs {
@@ -2367,8 +2356,18 @@ html { scroll-behavior: smooth; }
 @media (max-width: 520px) {
   .hero-showcase-copy .intro-lead { font-size: 17px; }
   .hero-showcase-copy .intro-body { font-size: 14px; }
-  .hero-link-grid { grid-template-columns: 1fr; }
-  .hero-platform-link { min-height: 54px; }
+  .hero-link-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .hero-platform-link {
+    min-height: 54px;
+    padding: 8px 9px;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .hero-platform-link-icon { width: 36px; height: 36px; border-radius: 9px; }
+  .hero-platform-link-title { font-size: 13px; }
 
   .pfp-background-control {
     width: 100%;
@@ -2520,4 +2519,19 @@ html { scroll-behavior: smooth; }
     mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
   }
   .labyrinths-carousel-item { padding-left: 4px; padding-right: 4px; }
+}
+
+@media (max-width: 380px) {
+  .header-inner {
+    height: 94px;
+    position: relative;
+    align-items: flex-start;
+    padding-top: 8px;
+  }
+  .header-freshness {
+    position: absolute;
+    right: 0;
+    bottom: 7px;
+    margin: 0;
+  }
 }
