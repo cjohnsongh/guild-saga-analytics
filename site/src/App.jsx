@@ -3385,7 +3385,7 @@ export default function App() {
                   <span>{recapChanges.length} {recapChanges.length === 1 ? 'change' : 'changes'}{recapSince ? ` since ${recapSince}` : ''}</span>
                 </div>
                 <div className="return-recap-banner-content">
-                  <div className="return-recap-banner-changes">
+                  <div className={`return-recap-banner-changes${returnRecapExpanded ? ' is-expanded' : ''}`}>
                     {recapChanges.slice(0, RETURN_RECAP_VISIBLE_LIMIT).map((change, index) => (
                       <button
                         key={`${change.category}-${change.text}-${index}`}
@@ -3413,23 +3413,19 @@ export default function App() {
                         </span>
                       </button>
                     )}
+                    {returnRecapExpanded && recapChanges.slice(RETURN_RECAP_VISIBLE_LIMIT).map((change, index) => (
+                      <button
+                        key={`more-${change.category}-${change.text}-${index}`}
+                        type="button"
+                        className="return-recap-banner-item return-recap-banner-extra-item"
+                        data-category={change.category.toLowerCase()}
+                        onClick={() => scrollToSection(change.section, { highlight: true })}
+                      >
+                        <span className="return-recap-icon-placeholder" aria-hidden="true" />
+                        <span className="return-recap-banner-text">{change.text}</span>
+                      </button>
+                    ))}
                   </div>
-                  {returnRecapExpanded && recapChanges.length > RETURN_RECAP_VISIBLE_LIMIT && (
-                    <div className="return-recap-banner-expanded">
-                      {recapChanges.slice(RETURN_RECAP_VISIBLE_LIMIT).map((change, index) => (
-                        <button
-                          key={`more-${change.category}-${change.text}-${index}`}
-                          type="button"
-                          className="return-recap-banner-item"
-                          data-category={change.category.toLowerCase()}
-                          onClick={() => scrollToSection(change.section, { highlight: true })}
-                        >
-                          <span className="return-recap-icon-placeholder" aria-hidden="true" />
-                          <span className="return-recap-banner-text">{change.text}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </section>
             )}
