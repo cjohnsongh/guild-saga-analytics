@@ -472,12 +472,6 @@ h1 {
 }
 .data-links { display: flex; flex-wrap: wrap; gap: 12px 18px; margin-top: 12px; }
 .data-links a { color: #8f8f8f; font-size: 12px; }
-.page-freshness-row {
-  display: flex;
-  justify-content: flex-end;
-  margin: -8px 0 12px;
-}
-
 .freshness-chip {
   flex: 0 0 auto;
   display: inline-flex;
@@ -584,7 +578,6 @@ h1 {
   .trading-rangebar { min-height: 52px; }
   .trading-range-control button { min-height: 44px; }
   .site-footer { margin-top: 54px; flex-direction: column; align-items: stretch; }
-  .page-freshness-row { justify-content: flex-start; margin-top: -6px; }
   .freshness-chip { align-self: flex-start; }
 }
 
@@ -1590,11 +1583,30 @@ html { scroll-behavior: smooth; }
 
 /* UX15 — top-aligned Hero viewer + controls below + seamless Labyrinths carousel */
 .hero-showcase {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(285px, .76fr) minmax(0, 2.55fr);
   gap: 26px;
   align-items: start;
   padding: 6px 0 4px;
+}
+
+
+.hero-freshness {
+  position: absolute;
+  z-index: 5;
+  top: 6px;
+  right: 8px;
+  pointer-events: none;
+}
+
+.hero-freshness .freshness-chip {
+  min-height: 30px;
+  padding: 0 10px;
+  border-color: rgba(255, 255, 255, .10);
+  background: rgba(10, 11, 15, .84);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .hero-showcase-copy {
@@ -1662,7 +1674,7 @@ html { scroll-behavior: smooth; }
   grid-template-columns: 40px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
-  border: 1px solid rgba(171, 181, 205, .13);
+  border: 1px solid rgba(190, 198, 218, .07);
   border-radius: 14px;
   background: linear-gradient(180deg, #11141c 0%, #0d1016 100%);
   color: #ecebf3;
@@ -1672,9 +1684,9 @@ html { scroll-behavior: smooth; }
 }
 
 .hero-platform-link:hover {
-  border-color: rgba(180, 193, 222, .25);
+  border-color: rgba(190, 202, 228, .16);
   background: linear-gradient(180deg, #141821 0%, #10131a 100%);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, .18), inset 0 1px 0 rgba(255, 255, 255, .045);
+  box-shadow: 0 7px 18px rgba(0, 0, 0, .16), inset 0 1px 0 rgba(255, 255, 255, .032);
   transform: translateY(-1px);
 }
 
@@ -1690,13 +1702,23 @@ html { scroll-behavior: smooth; }
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, .085);
+  border: 1px solid rgba(255, 255, 255, .055);
   border-radius: 10px;
   overflow: hidden;
   background: #1b1c22;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .025);
 }
 
+
+.hero-platform-link[data-platform='tensor'] { border-color: rgba(168, 188, 226, .075); }
+.hero-platform-link[data-platform='magiceden'] { border-color: rgba(205, 200, 221, .065); }
+.hero-platform-link[data-platform='discord'] { border-color: rgba(177, 184, 214, .070); }
+.hero-platform-link[data-platform='x'] { border-color: rgba(210, 210, 220, .060); }
+
+.hero-platform-link[data-platform='tensor']:hover { border-color: rgba(174, 196, 236, .17); }
+.hero-platform-link[data-platform='magiceden']:hover { border-color: rgba(218, 211, 231, .15); }
+.hero-platform-link[data-platform='discord']:hover { border-color: rgba(189, 198, 230, .16); }
+.hero-platform-link[data-platform='x']:hover { border-color: rgba(222, 222, 232, .14); }
 
 .hero-platform-link[data-platform='tensor'] .hero-platform-link-icon { background: #1b1c22; }
 .hero-platform-link[data-platform='magiceden'] .hero-platform-link-icon { background: #1d1e24; }
@@ -2022,7 +2044,7 @@ html { scroll-behavior: smooth; }
   min-height: 56px;
   margin-top: 8px;
   padding: 10px 12px;
-  border: 1px solid rgba(171, 181, 205, .13);
+  border: 1px solid rgba(190, 198, 218, .07);
   border-radius: 14px;
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr);
@@ -2040,7 +2062,7 @@ html { scroll-behavior: smooth; }
 }
 
 .epic-wishlist-link:hover {
-  border-color: rgba(180, 193, 222, .25);
+  border-color: rgba(190, 202, 228, .16);
   background: linear-gradient(180deg, #141821 0%, #10131a 100%);
   box-shadow: 0 10px 24px rgba(0, 0, 0, .22), inset 0 1px 0 rgba(255, 255, 255, .04);
   transform: translateY(-1px);
@@ -2057,7 +2079,7 @@ html { scroll-behavior: smooth; }
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, .085);
+  border: 1px solid rgba(255, 255, 255, .055);
   border-radius: 10px;
   background: #1b1c22;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035);
@@ -2275,6 +2297,15 @@ html { scroll-behavior: smooth; }
 
 @media (max-width: 780px) {
   .hero-showcase { padding-top: 0; }
+
+  .hero-freshness {
+    position: static;
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 2px;
+    pointer-events: auto;
+  }
   .hero-showcase-copy h1 { font-size: 30px; }
 
   .hero-mobile-tabs {

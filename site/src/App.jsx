@@ -1992,7 +1992,7 @@ function PfpColorPopover({ color, onChange, defaultColor }) {
   );
 }
 
-function HeroShowcase({ onIdentityCandidate }) {
+function HeroShowcase({ data, onIdentityCandidate }) {
   const [initialPreference] = useState(readHeroPreference);
   const [mobileView, setMobileView] = useState('original');
   const [heroLightboxIndex, setHeroLightboxIndex] = useState(null);
@@ -2114,6 +2114,9 @@ function HeroShowcase({ onIdentityCandidate }) {
 
   return (
     <section className="hero-showcase" aria-labelledby="hero-showcase-title">
+      <div className="hero-freshness">
+        <FreshnessChip data={data} />
+      </div>
       <div className="hero-showcase-copy">
         <h1 id="hero-showcase-title">Guild Saga Heroes</h1>
         <p className="intro-lead">
@@ -2270,7 +2273,7 @@ function LabyrinthsShowcase() {
     ];
   }, [LOOP_PAD, REAL_COUNT]);
 
-  const [carouselIndex, setCarouselIndex] = useState(START_INDEX);
+  const [carouselIndex, setCarouselIndex] = useState(() => START_INDEX + (window.innerWidth > 1120 ? 1 : 0));
   const [carouselPaused, setCarouselPaused] = useState(false);
   const [carouselTransition, setCarouselTransition] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState(null);
@@ -2432,10 +2435,10 @@ function LabyrinthsShowcase() {
   );
 }
 
-function Overview({ onHeroIdentityCandidate }) {
+function Overview({ data, onHeroIdentityCandidate }) {
   return (
     <div className="page-stack overview-page">
-      <HeroShowcase onIdentityCandidate={onHeroIdentityCandidate} />
+      <HeroShowcase data={data} onIdentityCandidate={onHeroIdentityCandidate} />
       <LabyrinthsShowcase />
     </div>
   );
@@ -3062,12 +3065,9 @@ export default function App() {
           <DataPage onBack={backToAnalytics} />
         ) : (
           <>
-            <div className="page-freshness-row">
-              <FreshnessChip data={data} />
-            </div>
             <div className="single-page">
               <section id="overview" className="scroll-section scroll-section-overview" data-nav-section>
-                <Overview onHeroIdentityCandidate={setHeroIdentityCandidate} />
+                <Overview data={data} onHeroIdentityCandidate={setHeroIdentityCandidate} />
               </section>
               <section id="ownership" className="scroll-section ownership-section" data-nav-section>
                 <Ownership data={data} />
