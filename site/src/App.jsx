@@ -31,6 +31,25 @@ const HERO_SOURCE_PREVIEW_IDS = Array.from({ length: 21 }, (_, index) => index);
 const HERO_SOURCE_PREVIEW_GAP = 3;
 const heroSourceImageCache = new Map();
 const HERO_PREFERENCE_STORAGE_KEY = 'guild-saga-hero-pfp-preference-v1';
+const RETURN_SNAPSHOT_STORAGE_KEY = 'guild-saga-return-snapshot-v1';
+const RETURN_RECAP_SESSION_KEY = 'guild-saga-return-recap-v1';
+const RETURN_SNAPSHOT_VERSION = 1;
+const RETURN_RECAP_VISIBLE_LIMIT = 4;
+
+// VISUAL QA ONLY: force a deterministic return-visit recap without touching
+// localStorage/sessionStorage. Remove this demo block before production.
+const RETURN_RECAP_DEMO = true;
+const RETURN_RECAP_DEMO_DATA = {
+  version: RETURN_SNAPSHOT_VERSION,
+  previousVisitedAt: '2026-08-27T20:42:00-04:00',
+  currentFingerprint: 'visual-demo',
+  changes: [
+    { category: 'Collection', section: 'collection', text: '2 Heroes burned' },
+    { category: 'Market', section: 'market', text: 'Floor 0.07 → 0.08 SOL (+14.3%)' },
+    { category: 'Market', section: 'market', text: '+6 sales · +2.43 SOL volume' },
+    { category: 'Ownership', section: 'ownership', text: '14 more Heroes staked' },
+  ],
+};
 
 function readHeroPreference() {
   const fallback = { heroId: 0, color: getHeroDefaultColor(0) };
@@ -293,6 +312,180 @@ function FreshnessChip({ data }) {
       <span>Updated {formatDataThrough(status.displayDate)}</span>
     </div>
   );
+}
+
+
+function safeStorageRead(storage, key) {
+  try {
+    const value = storage?.getItem(key);
+    return value ? JSON.parse(value) : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeStorageWrite(storage, key, value) {
+  try {
+    storage?.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function safeStorageRemove(storage, key) {
+  try {
+    storage?.removeItem(key);
+  } catch {
+    // Storage can be disabled; the recap simply stays unavailable.
+  }
+}
+
+function latestTreasuryTotals(treasury) {
+  const rows = Array.isArray(treasury?.conversion_history) ? treasury.conversion_history : [];
+  const last = rows.length ? rows[rows.length - 1] : null;
+  return {
+    totalSolSold: Number(last?.total_sol_sold ?? 0),
+    totalUsdcPurchased: Number(last?.total_usdc_purchased ?? 0),
+  };
+}
+
+function buildReturnSnapshot(data, visitedAt = new Date().toISOString()) {
+  const hero = data?.hero?.kpis || {};
+  const market = data?.market?.kpis || {};
+  const floor = data?.floor?.kpis || {};
+  const treasury = latestTreasuryTotals(data?.treasury);
+
+  return {
+    version: RETURN_SNAPSHOT_VERSION,
+    visitedAt,
+    dataAsOf: {
+      hero: data?.hero?.as_of || null,
+      market: data?.market?.as_of || null,
+      floor: data?.floor?.as_of || null,
+    },
+    metrics: {
+      activeSupply: Number(hero.active_supply ?? 0),
+      holders: Number(hero.beneficial_holders ?? 0),
+      staked: Number(hero.staked_heroes ?? 0),
+      burned: Number(hero.burned ?? 0),
+      secondarySales: Number(market.secondary_sales ?? 0),
+      secondaryVolumeSol: Number(market.secondary_volume_sol ?? 0),
+      uniqueBuyers: Number(market.unique_buyers ?? 0),
+      heroesEverSold: Number(market.heroes_ever_sold ?? 0),
+      royaltiesSol: Number(market.guild_saga_royalties_sol ?? 0),
+      floorSol: Number(floor.floor_sol ?? 0),
+      listedCount: Number(floor.listed_count ?? 0),
+      totalSolSold: treasury.totalSolSold,
+      totalUsdcPurchased: treasury.totalUsdcPurchased,
+    },
+  };
+}
+
+function returnSnapshotFingerprint(snapshot) {
+  return JSON.stringify({
+    version: snapshot?.version,
+    dataAsOf: snapshot?.dataAsOf,
+    metrics: snapshot?.metrics,
+  });
+}
+
+function signedInt(value) {
+  const n = Number(value || 0);
+  return `${n > 0 ? '+' : n < 0 ? '−' : ''}${formatInt(Math.abs(n))}`;
+}
+
+function signedDecimal(value, digits = 2) {
+  const n = Number(value || 0);
+  return `${n > 0 ? '+' : n < 0 ? '−' : ''}${formatDecimal(Math.abs(n), digits)}`;
+}
+
+function buildReturnChanges(previous, current) {
+  if (!previous || previous.version !== RETURN_SNAPSHOT_VERSION || !previous.metrics) return [];
+  const before = previous.metrics;
+  const after = current.metrics;
+  const changes = [];
+  const add = (category, section, text) => changes.push({ category, section, text });
+
+  const burnedDelta = after.burned - before.burned;
+  const supplyDelta = after.activeSupply - before.activeSupply;
+  if (burnedDelta > 0) {
+    add('Collection', 'collection', `${formatInt(burnedDelta)} ${burnedDelta === 1 ? 'Hero' : 'Heroes'} burned`);
+  }
+  if (supplyDelta !== 0 && supplyDelta !== -burnedDelta) {
+    add('Collection', 'collection', `Active supply ${signedInt(supplyDelta)}`);
+  }
+
+  if (Number.isFinite(before.floorSol) && Number.isFinite(after.floorSol) && before.floorSol !== after.floorSol) {
+    const pct = before.floorSol > 0 ? ((after.floorSol - before.floorSol) / before.floorSol) * 100 : null;
+    const pctText = Number.isFinite(pct) ? ` (${signedDecimal(pct, 1)}%)` : '';
+    add('Market', 'market', `Floor ${formatDecimal(before.floorSol, 3)} → ${formatDecimal(after.floorSol, 3)} SOL${pctText}`);
+  }
+
+  const salesDelta = after.secondarySales - before.secondarySales;
+  const volumeDelta = after.secondaryVolumeSol - before.secondaryVolumeSol;
+  if (salesDelta > 0 || volumeDelta > 0.0005) {
+    const parts = [];
+    if (salesDelta > 0) parts.push(`${formatInt(salesDelta)} ${salesDelta === 1 ? 'sale' : 'sales'}`);
+    if (volumeDelta > 0.0005) parts.push(`${formatDecimal(volumeDelta, 2)} SOL volume`);
+    add('Market', 'market', parts.join(' · '));
+  }
+
+  const listingsDelta = after.listedCount - before.listedCount;
+  if (listingsDelta !== 0) {
+    add('Market', 'market', `Listings ${formatInt(before.listedCount)} → ${formatInt(after.listedCount)} (${signedInt(listingsDelta)})`);
+  }
+
+  const stakedDelta = after.staked - before.staked;
+  if (stakedDelta !== 0) {
+    add('Ownership', 'ownership', `${formatInt(Math.abs(stakedDelta))} ${stakedDelta > 0 ? 'more' : 'fewer'} ${Math.abs(stakedDelta) === 1 ? 'Hero' : 'Heroes'} staked`);
+  }
+
+  const holdersDelta = after.holders - before.holders;
+  if (holdersDelta !== 0) add('Ownership', 'ownership', `Holders ${signedInt(holdersDelta)}`);
+
+  const firstSaleDelta = after.heroesEverSold - before.heroesEverSold;
+  if (firstSaleDelta > 0) {
+    add('Market', 'market', `${formatInt(firstSaleDelta)} ${firstSaleDelta === 1 ? 'Hero sold' : 'Heroes sold'} for the first time`);
+  }
+
+  const buyerDelta = after.uniqueBuyers - before.uniqueBuyers;
+  if (buyerDelta > 0) add('Market', 'market', `Unique buyers +${formatInt(buyerDelta)}`);
+
+  const royaltiesDelta = after.royaltiesSol - before.royaltiesSol;
+  if (royaltiesDelta > 0.0005) add('Economy', 'economy', `+${formatDecimal(royaltiesDelta, 2)} SOL royalties`);
+
+  const solSoldDelta = after.totalSolSold - before.totalSolSold;
+  const usdcDelta = after.totalUsdcPurchased - before.totalUsdcPurchased;
+  if (solSoldDelta > 0.0005 || usdcDelta > 0.005) {
+    const parts = [];
+    if (solSoldDelta > 0.0005) parts.push(`+${formatDecimal(solSoldDelta, 3)} SOL sold`);
+    if (usdcDelta > 0.005) parts.push(`+${formatDecimal(usdcDelta, 2)} USDC purchased`);
+    add('Economy', 'economy', parts.join(' · '));
+  }
+
+  return changes;
+}
+
+function formatRecapSinceShort(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const now = new Date();
+  const sameDay = date.getFullYear() === now.getFullYear()
+    && date.getMonth() === now.getMonth()
+    && date.getDate() === now.getDate();
+  if (sameDay) {
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function formatRecapVisit(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit',
+  });
 }
 
 function rangeStartDate(rangeId, endValue, earliestValue) {
@@ -2969,6 +3162,11 @@ export default function App() {
   const [activeSection, setActiveSection] = useState('overview');
   const [showDataPage, setShowDataPage] = useState(() => window.location.hash === '#data');
   const [heroIdentityCandidate, setHeroIdentityCandidate] = useState(readHeroPreference);
+  const [returnRecap, setReturnRecap] = useState(() => RETURN_RECAP_DEMO ? RETURN_RECAP_DEMO_DATA : null);
+  const [returnRecapOpen, setReturnRecapOpen] = useState(false);
+  const [returnRecapExpanded, setReturnRecapExpanded] = useState(false);
+  const returnRecapButtonRef = useRef(null);
+  const returnRecapPanelRef = useRef(null);
 
   useEffect(() => {
     Promise.all(DATA_PATHS.map(fetchJson))
@@ -2977,6 +3175,78 @@ export default function App() {
       })
       .catch(setError);
   }, []);
+
+
+  useEffect(() => {
+    if (!data) return;
+    if (RETURN_RECAP_DEMO) {
+      setReturnRecap(RETURN_RECAP_DEMO_DATA);
+      setReturnRecapOpen(false);
+      setReturnRecapExpanded(false);
+      return;
+    }
+
+    const current = buildReturnSnapshot(data);
+    const currentFingerprint = returnSnapshotFingerprint(current);
+    const sessionRecap = safeStorageRead(window.sessionStorage, RETURN_RECAP_SESSION_KEY);
+
+    if (
+      sessionRecap?.version === RETURN_SNAPSHOT_VERSION
+      && sessionRecap.currentFingerprint === currentFingerprint
+      && Array.isArray(sessionRecap.changes)
+      && sessionRecap.changes.length
+    ) {
+      setReturnRecap(sessionRecap);
+      return;
+    }
+
+    const previous = safeStorageRead(window.localStorage, RETURN_SNAPSHOT_STORAGE_KEY);
+    const previousFingerprint = previous ? returnSnapshotFingerprint(previous) : null;
+    const changes = previous && previousFingerprint !== currentFingerprint
+      ? buildReturnChanges(previous, current)
+      : [];
+
+    const nextRecap = changes.length
+      ? {
+          version: RETURN_SNAPSHOT_VERSION,
+          previousVisitedAt: previous.visitedAt,
+          currentFingerprint,
+          changes,
+        }
+      : null;
+
+    if (nextRecap) {
+      safeStorageWrite(window.sessionStorage, RETURN_RECAP_SESSION_KEY, nextRecap);
+    } else {
+      safeStorageRemove(window.sessionStorage, RETURN_RECAP_SESSION_KEY);
+    }
+
+    safeStorageWrite(window.localStorage, RETURN_SNAPSHOT_STORAGE_KEY, current);
+    setReturnRecap(nextRecap);
+    setReturnRecapOpen(false);
+    setReturnRecapExpanded(false);
+  }, [data]);
+
+  useEffect(() => {
+    if (!returnRecapOpen) return undefined;
+    const onPointerDown = (event) => {
+      if (returnRecapButtonRef.current?.contains(event.target)) return;
+      if (returnRecapPanelRef.current?.contains(event.target)) return;
+      setReturnRecapOpen(false);
+    };
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setReturnRecapOpen(false);
+        returnRecapButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [returnRecapOpen]);
 
   useEffect(() => {
     const onHashChange = () => {
@@ -3009,12 +3279,18 @@ export default function App() {
     };
   }, [data, showDataPage]);
 
-  const scrollToSection = (id) => {
+  const scrollToSection = (id, options = {}) => {
     const move = () => {
       const element = document.getElementById(id);
       if (!element) return;
       const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
       element.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      if (options.highlight) {
+        element.classList.remove('return-recap-highlight');
+        void element.offsetWidth;
+        element.classList.add('return-recap-highlight');
+        window.setTimeout(() => element.classList.remove('return-recap-highlight'), 1600);
+      }
     };
 
     if (showDataPage) {
@@ -3035,6 +3311,13 @@ export default function App() {
   if (error) return <div className="load-state">Failed to load Guild Saga data: {String(error)}</div>;
   if (!data) return <div className="load-state">Loading Guild Saga analytics…</div>;
 
+  const recapChanges = returnRecap?.changes || [];
+  const visibleRecapChanges = returnRecapExpanded
+    ? recapChanges
+    : recapChanges.slice(0, RETURN_RECAP_VISIBLE_LIMIT);
+  const hiddenRecapCount = Math.max(0, recapChanges.length - RETURN_RECAP_VISIBLE_LIMIT);
+  const recapSince = formatRecapSinceShort(returnRecap?.previousVisitedAt);
+
   return (
     <main className="app-shell">
       <header className="site-header">
@@ -3043,8 +3326,24 @@ export default function App() {
             <BrandHeroMark candidate={heroIdentityCandidate} />
             <span className="brand-copy"><strong>Guild Saga Heroes</strong><small>Analytics</small></span>
           </button>
-          <div className="header-freshness">
+          <div className="header-actions">
             <FreshnessChip data={data} />
+            {recapChanges.length > 0 && (
+              <button
+                ref={returnRecapButtonRef}
+                type="button"
+                className="return-recap-trigger"
+                aria-expanded={returnRecapOpen}
+                aria-controls="return-recap-panel"
+                onClick={() => {
+                  setReturnRecapOpen((open) => !open);
+                  setReturnRecapExpanded(false);
+                }}
+              >
+                <span>{recapChanges.length} {recapChanges.length === 1 ? 'change' : 'changes'}</span>
+                {recapSince && <span className="return-recap-trigger-context">since {recapSince}</span>}
+              </button>
+            )}
           </div>
         </div>
         <nav className="primary-nav" aria-label="Primary">
@@ -3063,6 +3362,61 @@ export default function App() {
             ))}
           </div>
         </nav>
+        {returnRecapOpen && recapChanges.length > 0 && (
+          <section
+            id="return-recap-panel"
+            ref={returnRecapPanelRef}
+            className="return-recap-panel"
+            aria-label="Changes since your last visit"
+          >
+            <div className="return-recap-panel-head">
+              <div>
+                <strong>Since your last visit</strong>
+                {returnRecap?.previousVisitedAt && (
+                  <small>{formatRecapVisit(returnRecap.previousVisitedAt)}</small>
+                )}
+              </div>
+              <button
+                type="button"
+                className="return-recap-close"
+                aria-label="Close changes panel"
+                onClick={() => {
+                  setReturnRecapOpen(false);
+                  returnRecapButtonRef.current?.focus();
+                }}
+              >
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M5 5l10 10M15 5L5 15" />
+                </svg>
+              </button>
+            </div>
+            <div className="return-recap-list">
+              {visibleRecapChanges.map((change, index) => (
+                <button
+                  key={`${change.category}-${change.text}-${index}`}
+                  type="button"
+                  className="return-recap-item"
+                  onClick={() => {
+                    setReturnRecapOpen(false);
+                    scrollToSection(change.section, { highlight: true });
+                  }}
+                >
+                  <span className="return-recap-item-category">{change.category}</span>
+                  <span className="return-recap-item-text">{change.text}</span>
+                </button>
+              ))}
+            </div>
+            {hiddenRecapCount > 0 && (
+              <button
+                type="button"
+                className="return-recap-more"
+                onClick={() => setReturnRecapExpanded((expanded) => !expanded)}
+              >
+                {returnRecapExpanded ? 'Show less' : `View ${hiddenRecapCount} more`}
+              </button>
+            )}
+          </section>
+        )}
       </header>
 
       <div className="content-shell">
