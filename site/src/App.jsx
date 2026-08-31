@@ -1587,18 +1587,19 @@ function makeBurnRarityOption(rows) {
       formatter: (p) => `${p.name}<br/><strong>${formatInt(p.value)}</strong> burned (${formatPercent(total ? Number(p.value) / total * 100 : 0)})`,
     },
     legend: {
-      orient: 'vertical',
-      right: 10,
-      top: 'middle',
+      orient: 'horizontal',
+      left: 'center',
+      bottom: 5,
       data: order,
-      textStyle: { color: COLORS.muted, fontSize: 13 },
-      itemWidth: 10,
-      itemHeight: 10,
+      textStyle: { color: COLORS.muted, fontSize: 12 },
+      itemWidth: 9,
+      itemHeight: 9,
+      itemGap: 10,
     },
     series: [{
       type: 'pie',
       radius: ['38%', '82%'],
-      center: ['42%', '52%'],
+      center: ['50%', '43%'],
       label: { show: false },
       emphasis: { scaleSize: 4 },
       data: order.map((rarity) => {
@@ -2917,21 +2918,20 @@ function Collection({ data }) {
           <div><h3>Burns</h3><p>{formatInt(hero.kpis.burned)} Heroes permanently removed from supply</p></div>
         </div>
         <div className="collection-burn-grid">
-          <div className="domain-chart-block compact-chart-block burn-chart-block">
+          <div className="domain-chart-block compact-chart-block burn-chart-block burn-history-block">
             <div className="section-bar"><span className="section-title">Burn history</span></div>
             <div className="domain-chart"><Chart option={burnOption} onInit={installBurnLineCrosshair} /></div>
           </div>
-          <div className="domain-chart-block compact-chart-block burn-chart-block">
+          <div className="domain-chart-block compact-chart-block burn-chart-block burn-rarity-block">
             <div className="section-bar"><span className="section-title">Burned by rarity</span></div>
             <div className="domain-chart"><Chart option={rarityOption} /></div>
           </div>
-          <div className="burn-gif-block">
-            <div className="burn-gif-frame">
+          <div className="burn-fire-panel">
+            <div className="burn-fire-frame">
               <img
-                src="/images/guild-saga-fire.png"
-                alt="Guild Saga tavern engulfed in flames"
+                src="https://media1.tenor.com/m/J_tVwZX-xpoAAAAd/guild-saga-fire.gif"
+                alt="Guild Saga tavern burning"
                 loading="lazy"
-                decoding="async"
               />
             </div>
           </div>

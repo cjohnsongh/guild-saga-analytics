@@ -818,7 +818,7 @@ h1 {
 .chapter-facts span { color: #92919e; font-size: 13px; white-space: nowrap; }
 .chapter-facts strong { display: block; margin-bottom: 3px; color: #e5e4ed; font-size: 17px; }
 .collection-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-.collection-burn-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(250px, .72fr) minmax(220px, .58fr); gap: 24px; }
+.collection-burn-grid { display: grid; grid-template-columns: minmax(0, 1.66fr) minmax(0, .79fr) minmax(0, 1fr); gap: 24px; }
 
 .proceeds-split { padding: 26px 0 8px; }
 .split-bar { height: 28px; display: flex; overflow: hidden; border: 1px solid #35353d; background: #202027; }
@@ -855,8 +855,7 @@ h1 {
 .evidence-details p { max-width: 850px; margin: 10px 0 0; line-height: 1.55; }
 
 @media (max-width: 900px) {
-  .collection-two-col,
-  .collection-burn-grid { grid-template-columns: 1fr; }
+  .collection-two-col { grid-template-columns: 1fr; }
   .chapter-heading { align-items: flex-start; }
   .chapter-facts { flex-wrap: wrap; justify-content: flex-end; }
   .event-row { grid-template-columns: 90px 190px minmax(0,1fr); gap: 16px; }
@@ -1584,39 +1583,41 @@ html { scroll-behavior: smooth; }
 .origin-chart-block .section-note { min-height: 28px; }
 .collection-origin-chapter { padding-bottom: 22px; }
 
-/* Give Burns and Royalties enough vertical breathing room, with consistent bottoms. */
+/* Burns is composed as one desktop row: history, rarity, then the square fire GIF. */
 .burns-chapter { padding-bottom: 22px; }
-.collection-burn-grid { align-items: stretch; }
-.burn-chart-block { padding-bottom: 0; }
+.collection-burn-grid { align-items: start; }
+.burn-chart-block { min-width: 0; padding-bottom: 0; }
 .burn-chart-block .domain-chart { height: 440px; }
-.burn-gif-block {
+.burn-fire-panel {
   min-width: 0;
-  padding-top: 46px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
+  padding-top: 46px; /* align the GIF top with the chart canvases, below their title rules */
 }
-.burn-gif-frame {
+.burn-fire-frame {
   width: 100%;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: #101012;
 }
-.burn-gif-frame img {
+.burn-fire-frame img {
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
-  object-position: 42% center;
-}
-@media (max-width: 900px) {
-  .burn-gif-block {
-    padding-top: 0;
-    justify-content: center;
-  }
-  .burn-gif-frame { width: min(100%, 440px); }
+  object-position: 42% 50%; /* retain more of the left side; trim more from the right */
 }
 .economy-royalties-chart { height: 440px; }
+
+@media (max-width: 1180px) {
+  .collection-burn-grid {
+    grid-template-columns: minmax(0, 1.45fr) minmax(300px, .75fr);
+  }
+  .burn-fire-panel {
+    grid-column: 1 / -1;
+    width: min(390px, 100%);
+    padding-top: 0;
+    justify-self: center;
+  }
+}
 
 /* Conversion cards stand on their own; the redundant umbrella heading/rule is gone. */
 .economy-conversion-clean {
@@ -1667,6 +1668,13 @@ html { scroll-behavior: smooth; }
   .ownership-snapshot .snapshot-stat:last-child { grid-column: 1 / -1; border-top: 1px solid #303030; }
   .collection-three-col { grid-template-columns: 1fr; }
   .collection-three-col .origin-chart-block:last-child { grid-column: auto; }
+  .collection-burn-grid { grid-template-columns: 1fr; gap: 24px; }
+  .burn-fire-panel {
+    grid-column: auto;
+    width: min(390px, 100%);
+    padding-top: 0;
+    justify-self: center;
+  }
   .joint-domain-chart { height: 350px; }
   .burn-chart-block .domain-chart,
   .economy-royalties-chart { height: 390px; }
