@@ -34,7 +34,7 @@ const HERO_PREFERENCE_STORAGE_KEY = 'guild-saga-hero-pfp-preference-v1';
 const RETURN_SNAPSHOT_STORAGE_KEY = 'guild-saga-return-snapshot-v1';
 const RETURN_RECAP_SESSION_KEY = 'guild-saga-return-recap-v1';
 const RETURN_SNAPSHOT_VERSION = 1;
-const RETURN_RECAP_VISIBLE_LIMIT = 4;
+const RETURN_RECAP_VISIBLE_LIMIT = 3;
 
 // VISUAL QA ONLY: force a deterministic return-visit recap without touching
 // localStorage/sessionStorage. Remove this demo block before production.
@@ -47,7 +47,12 @@ const RETURN_RECAP_DEMO_DATA = {
     { category: 'Collection', section: 'collection', text: '2 Heroes burned' },
     { category: 'Market', section: 'market', text: 'Floor 0.07 → 0.08 SOL (+14.3%)' },
     { category: 'Market', section: 'market', text: '+6 sales · +2.43 SOL volume' },
+    { category: 'Market', section: 'market', text: 'Listings −12' },
     { category: 'Ownership', section: 'ownership', text: '14 more Heroes staked' },
+    { category: 'Ownership', section: 'ownership', text: 'Holders +5' },
+    { category: 'Market', section: 'market', text: '+2 Heroes sold for the first time' },
+    { category: 'Economy', section: 'economy', text: '+0.18 SOL royalties' },
+    { category: 'Economy', section: 'economy', text: '+42.5 SOL sold · +6,380 USDC purchased' },
   ],
 };
 
@@ -3379,19 +3384,52 @@ export default function App() {
                   <strong>Since your last visit</strong>
                   <span>{recapChanges.length} {recapChanges.length === 1 ? 'change' : 'changes'}{recapSince ? ` since ${recapSince}` : ''}</span>
                 </div>
-                <div className="return-recap-banner-changes">
-                  {recapChanges.slice(0, RETURN_RECAP_VISIBLE_LIMIT).map((change, index) => (
-                    <button
-                      key={`${change.category}-${change.text}-${index}`}
-                      type="button"
-                      className="return-recap-banner-item"
-                      data-category={change.category.toLowerCase()}
-                      onClick={() => scrollToSection(change.section, { highlight: true })}
-                    >
-                      <span className="return-recap-icon-placeholder" aria-hidden="true" />
-                      <span className="return-recap-banner-text">{change.text}</span>
-                    </button>
-                  ))}
+                <div className="return-recap-banner-content">
+                  <div className="return-recap-banner-changes">
+                    {recapChanges.slice(0, RETURN_RECAP_VISIBLE_LIMIT).map((change, index) => (
+                      <button
+                        key={`${change.category}-${change.text}-${index}`}
+                        type="button"
+                        className="return-recap-banner-item"
+                        data-category={change.category.toLowerCase()}
+                        onClick={() => scrollToSection(change.section, { highlight: true })}
+                      >
+                        <span className="return-recap-icon-placeholder" aria-hidden="true" />
+                        <span className="return-recap-banner-text">{change.text}</span>
+                      </button>
+                    ))}
+                    {recapChanges.length > RETURN_RECAP_VISIBLE_LIMIT && (
+                      <button
+                        type="button"
+                        className="return-recap-banner-item return-recap-banner-more-toggle"
+                        aria-expanded={returnRecapExpanded}
+                        onClick={() => setReturnRecapExpanded((value) => !value)}
+                      >
+                        <span className="return-recap-more-icon" aria-hidden="true">
+                          <i /><i /><i />
+                        </span>
+                        <span className="return-recap-banner-text">
+                          {returnRecapExpanded ? 'Show less' : `View ${recapChanges.length - RETURN_RECAP_VISIBLE_LIMIT} more`}
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                  {returnRecapExpanded && recapChanges.length > RETURN_RECAP_VISIBLE_LIMIT && (
+                    <div className="return-recap-banner-expanded">
+                      {recapChanges.slice(RETURN_RECAP_VISIBLE_LIMIT).map((change, index) => (
+                        <button
+                          key={`more-${change.category}-${change.text}-${index}`}
+                          type="button"
+                          className="return-recap-banner-item"
+                          data-category={change.category.toLowerCase()}
+                          onClick={() => scrollToSection(change.section, { highlight: true })}
+                        >
+                          <span className="return-recap-icon-placeholder" aria-hidden="true" />
+                          <span className="return-recap-banner-text">{change.text}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </section>
             )}
