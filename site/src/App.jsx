@@ -135,6 +135,12 @@ const TEAM_OFFICIAL_LINKS = [
     icon: 'https://guildsaga.com/favicon.ico',
   },
   {
+    label: 'Guild Saga: Labyrinths',
+    detail: 'Epic Games Store',
+    href: 'https://store.epicgames.com/p/guild-saga-labyrinths-ca0f96?lang=en-US',
+    icon: 'https://store.epicgames.com/favicon.ico',
+  },
+  {
     label: 'Guild Saga: Vanished Worlds',
     detail: 'Steam',
     href: 'https://store.steampowered.com/app/2184350/Guild_Saga_Vanished_Worlds/',

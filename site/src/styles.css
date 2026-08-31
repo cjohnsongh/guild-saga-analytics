@@ -1959,6 +1959,7 @@ html { scroll-behavior: smooth; }
 }
 
 .hero-art {
+  position: relative;
   min-width: 0;
   width: 100%;
   padding: 0;
@@ -1968,6 +1969,23 @@ html { scroll-behavior: smooth; }
   overflow: visible;
 }
 
+/* Keep the pixel-art bitmap completely static on hover. Applying a CSS filter
+   to the image itself can move it onto a composited texture and introduce a
+   one-pixel sampling shift at fractional layout sizes. The highlight is an
+   independent overlay instead, so the underlying pixels never rerasterize. */
+.hero-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(255,255,255,0);
+  transition: background-color 120ms ease;
+}
+
+.hero-art:hover::after {
+  background: rgba(255,255,255,.026);
+}
+
 .hero-art img {
   width: 100%;
   height: auto;
@@ -1975,7 +1993,7 @@ html { scroll-behavior: smooth; }
   image-rendering: pixelated;
 }
 
-.hero-art:hover img { filter: brightness(1.035); }
+.hero-art:hover img { filter: none; }
 .hero-mobile-tabs { display: none; }
 
 .hero-browser-controls {
@@ -2299,12 +2317,26 @@ html { scroll-behavior: smooth; }
 }
 
 .labyrinths-carousel-item {
+  position: relative;
   flex: 0 0 25%;
   min-width: 0;
   padding: 0 5px;
   border: 0;
   background: transparent;
   cursor: zoom-in;
+}
+
+.labyrinths-carousel-item::after {
+  content: '';
+  position: absolute;
+  inset: 0 5px;
+  pointer-events: none;
+  background: rgba(255,255,255,0);
+  transition: background-color 120ms ease;
+}
+
+.labyrinths-carousel-item:hover::after {
+  background: rgba(255,255,255,.038);
 }
 
 .labyrinths-carousel-item img {
@@ -2327,7 +2359,7 @@ html { scroll-behavior: smooth; }
   }
 }
 
-.labyrinths-carousel-item:hover img { filter: brightness(1.055); }
+.labyrinths-carousel-item:hover img { filter: none; }
 
 .labyrinths-arrow {
   position: absolute;
@@ -3099,7 +3131,7 @@ html { scroll-behavior: smooth; }
 
 .team-official-links {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -3168,6 +3200,12 @@ html { scroll-behavior: smooth; }
 @media (max-width: 1020px) {
   .team-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .team-official-links {
+    grid-template-columns: 1fr;
   }
 }
 
