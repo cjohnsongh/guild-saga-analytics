@@ -4,10 +4,6 @@ Independent on-chain analytics for Guild Saga Heroes, a 10,000-piece Solana NFT 
 
 The site tracks collection supply and burns, holders and ownership concentration, World Mode staking and quest activity, secondary-market history, mint history, rarity, royalties, and project-connected wallet activity.
 
-## Production rule
-
-The public site does **not** depend on Dune. The final Dune queries are retained only as a frozen migration specification for the Aug. 26, 2026 cutover. Future production collection is designed to use direct Solana/provider data and persisted incremental state.
-
 ## Repository structure
 
 - `site/` — React website source and generated frontend data
