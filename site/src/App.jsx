@@ -105,11 +105,25 @@ const TEAM_MEMBERS = [
   { name: "SOL'D", handle: '@sol_huckster', roles: 'Community Team · Playtester' },
 ];
 
-const TEAM_CONTRIBUTORS = [
-  { name: 'Tim de Man', handle: '@demantim', roles: 'Composer' },
+const TEAM_CREDITS = [
+  {
+    name: 'Tim de Man',
+    handle: '@demantim',
+    roles: 'Composer',
+    platform: 'YouTube',
+    href: 'https://www.youtube.com/@demantim',
+    avatarSrc: 'https://f4.bcbits.com/img/0030707558_10.jpg',
+  },
   { name: 'Kato Ayaka', handle: '@ayakato22', roles: 'Character Portrait Artist · Illustrator' },
-  { name: 'Paul Ouzounov', handle: '@alchemist_sound', roles: 'Sound Designer' },
-  { name: 'CJohnson', handle: '@ounceofcrypto', roles: 'Discord Mod · Built this fan site' },
+  {
+    name: 'Paul Ouzounov',
+    handle: '@PaulOuzounov',
+    roles: 'Sound Designer',
+    platform: 'YouTube',
+    href: 'https://www.youtube.com/@PaulOuzounov',
+    avatarSrc: '/assets/team/paul-ouzounov.png',
+  },
+  { name: 'CJohnson', handle: '@ounceofcrypto', roles: 'Discord Mod · Built this website' },
 ];
 
 const TEAM_OFFICIAL_LINKS = [
@@ -3090,7 +3104,9 @@ function Funding({ data }) {
 
 function TeamProfileCard({ member }) {
   const screenName = member.handle.replace(/^@/, '');
-  const profileUrl = `https://x.com/${screenName}`;
+  const platform = member.platform || 'X';
+  const profileUrl = member.href || `https://x.com/${screenName}`;
+  const avatarSrc = member.avatarSrc || `https://unavatar.io/x/${screenName}`;
   const initials = member.name
     .split(/\s+/)
     .map((part) => part[0])
@@ -3105,20 +3121,26 @@ function TeamProfileCard({ member }) {
         href={profileUrl}
         target="_blank"
         rel="noreferrer"
-        aria-label={`${member.name} on X`}
+        aria-label={`${member.name} on ${platform}`}
       >
         <span className="team-avatar-fallback" aria-hidden="true">{initials}</span>
         <img
           className="team-avatar"
-          src={`https://unavatar.io/x/${screenName}`}
-          alt={`${member.name} X profile picture`}
+          src={avatarSrc}
+          alt={`${member.name} profile picture`}
           loading="lazy"
           decoding="async"
         />
       </a>
       <div className="team-card-copy">
         <strong className="team-member-name">{member.name}</strong>
-        <a className="team-handle" href={profileUrl} target="_blank" rel="noreferrer">
+        <a
+          className="team-handle"
+          href={profileUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`${member.handle} on ${platform}`}
+        >
           {member.handle}
         </a>
         <p className="team-role">{member.roles}</p>
@@ -3131,16 +3153,14 @@ function Team() {
   return (
     <div className="page-stack team-page">
       <SectionHeading category="team">Team</SectionHeading>
-      <p className="team-intro">Team members and contributors with public X profiles.</p>
-
       <div className="team-grid" aria-label="Guild Saga team">
         {TEAM_MEMBERS.map((member) => <TeamProfileCard key={member.handle} member={member} />)}
       </div>
 
       <section className="team-subsection">
-        <div className="section-bar"><span className="section-title">Contributors</span></div>
-        <div className="team-grid team-contributor-grid" aria-label="Guild Saga contributors">
-          {TEAM_CONTRIBUTORS.map((member) => <TeamProfileCard key={member.handle} member={member} />)}
+        <div className="section-bar"><span className="section-title">Credits</span></div>
+        <div className="team-grid team-contributor-grid" aria-label="Guild Saga credits">
+          {TEAM_CREDITS.map((member) => <TeamProfileCard key={member.handle} member={member} />)}
         </div>
       </section>
 
@@ -3154,7 +3174,6 @@ function Team() {
             </a>
           ))}
         </div>
-        <a className="team-avatar-credit" href="https://unavatar.io" target="_blank" rel="noreferrer">Avatars provided by Unavatar</a>
       </section>
     </div>
   );
@@ -3226,6 +3245,17 @@ function DataPage({ onBack }) {
             <b aria-hidden="true">↗</b>
           </a>
         ))}
+      </section>
+
+      <section className="data-method-section">
+        <div className="data-method-heading">
+          <span className="eyebrow">Site services</span>
+          <h2>Team profile images</h2>
+          <p>
+            Public X profile images in the Team section are resolved through Unavatar. Tim de Man uses his
+            Bandcamp profile image, and Paul Ouzounov uses his public YouTube profile image.
+          </p>
+        </div>
       </section>
 
       <section className="data-method-section pfp-method-section">
