@@ -1,23 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "ebddfba0ccc1ab972baef0ba2da0cd5a755f6a310d85141de6c370885011e24b",
+    "data/state/checkpoints.json": "2c26daba06fe15d7d265bec353c8ce0bc06b31b786e6b8d4083c0db62060c1f7",
     "data/state/hero_deltas.csv": "ae3548ca073080bb69c9b7419d0eb41910949afce60a08e77481f57df7a6ead3",
     "data/state/hero_event_cursors.csv": "00193cb48b4f4e4eff539849668470f753cabd933a8a3564a6181dfdb6147b90",
     "data/state/market_live_sales.csv": "703f7de7cb7bb9561257400b83dabbcaad089dbd38637c7798c090cc827cb6f9",
-    "data/state/webhook_processed_events.csv": "da0b1f1d69d696b4571b7a58ee08eec5cf83f75c09c7c1a3e285c543d6072473"
+    "data/state/webhook_processed_events.csv": "5590e940ec88f8a5f5746e367d769ddbbdba750d9bbaf73edbebbfd74bc790da"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "630fa1d36328749e8b8b622226de08cf49161ec30b9424c42cc1a12071bdd0aa",
+    "site/public/data/hero-state.json": "17c9392d07e9b4324a0005fea2a4f9d8742550d3d6b5926aec082aa93d5fde0b",
     "site/public/data/market-history.json": "3557a912cb0fe25e74f22c90b380b1eb67f1f291e0e9a8d204f24725e27450c6",
     "site/public/data/summary.json": "a981e0b93f746f8fe641d60157a685d0e8e0c87aca7086c6b776ac3236a3e2e8"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 2,
+  "signature_count": 1,
   "signatures": [
-    "4hez2uZhQdjHEg3YajsrwYEnN75Vr7HAnYPeJjTFFXZQigoSEZcUV4aAQGhkYaZxMHkybXKTkK3VYX6v5s8GyYcn",
-    "22k9bkSzvxhn8SMtTrHiyiC6TJFVMvHKSLP9UE21odByPMAHe1ogDMpQG4U2aEw9KnaJgQX7vp6M2rBSJxCSTvNC"
+    "2JBW1Rc8aPSb2adXRs64KKc9fufoGfTZXSqVFLe1e2cYHCvJPdPegYDMZSAzxRGvoAAnNh89p22QaFUzFasYcmbw"
   ],
-  "snapshot_received_at": "2026-08-31T16:30:49.386Z"
+  "snapshot_received_at": "2026-08-31T17:00:59.811Z"
 }
