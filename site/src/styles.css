@@ -252,10 +252,11 @@ strong { font-weight: 650; }
   justify-content: center;
 }
 .nav-home-icon {
-  width: .75em;
-  height: .75em;
+  width: .9em;
+  height: .9em;
   display: block;
   flex: 0 0 auto;
+  transform: translateY(1px);
 }
 .nav-category-icon { display: none; }
 .nav-label { display: inline; }
@@ -468,8 +469,38 @@ h1 {
 .overview-section { border-top: 1px solid #303030; min-width: 0; }
 .overview-chart { height: 330px; margin-top: 2px; }
 
-.range-control { display: inline-flex; gap: 3px; }
+.range-control { display: inline-flex; align-items: center; gap: 18px; }
 .range-control button,
+.interval-control button {
+  position: relative;
+  min-height: 34px;
+  min-width: 0;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: #9695a1;
+  font-size: 12px;
+  cursor: pointer;
+}
+.range-control button::after,
+.interval-control button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: transparent;
+}
+.range-control button:hover,
+.interval-control button:hover { color: #d9d8e0; background: transparent; }
+.range-control button.is-active,
+.interval-control button.is-active {
+  color: #b8d5dc;
+  background: transparent;
+}
+.range-control button.is-active::after,
+.interval-control button.is-active::after { background: var(--accent-soft); }
 .secondary-button {
   min-height: 40px;
   min-width: 48px;
@@ -480,9 +511,7 @@ h1 {
   font-size: 13px;
   cursor: pointer;
 }
-.range-control button:hover,
 .secondary-button:hover { color: #ddd; border-color: #555; }
-.range-control button.is-active { color: #f5f4ff; background: #4f4d89; border-color: #7471bc; }
 
 .trading-panel { border: 1px solid #303038; background: #101013; }
 .trading-toolbar {
@@ -507,51 +536,12 @@ h1 {
 .interval-control {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-}
-.interval-control button {
-  min-width: 42px;
-  min-height: 34px;
-  padding: 0 9px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: #9998a5;
-  font-size: 12px;
-  cursor: pointer;
-}
-.interval-control button:hover { color: #e3e2ea; background: #17171d; }
-.interval-control button.is-active {
-  color: #d8d7ff;
-  border-color: #454368;
-  background: #1a1926;
+  gap: 16px;
 }
 .trading-actions { display: flex; align-items: center; gap: 14px; }
 .trading-actions a { color: #c3c2cd; font-size: 13px; }
 .trading-chart { height: 690px; }
 .trading-chart .chart { position: relative; }
-.market-axis-drag-hint {
-  position: absolute;
-  z-index: 8;
-  width: 12px;
-  height: 18px;
-  display: block;
-  opacity: 0;
-  color: #c4c8ca;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  transition: opacity .1s ease;
-}
-.market-axis-drag-hint.is-visible { opacity: .9; }
-.market-axis-drag-hint svg {
-  width: 12px;
-  height: 18px;
-  display: block;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.35;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
 .trading-rangebar {
   min-height: 48px;
   padding: 0 14px;
@@ -562,23 +552,7 @@ h1 {
   gap: 20px;
   background: #111114;
 }
-.trading-range-control { gap: 0; }
-.trading-range-control button {
-  min-height: 36px;
-  min-width: 46px;
-  padding: 0 12px;
-  border: 0;
-  border-right: 1px solid #282831;
-  background: transparent;
-  color: #9b9aa7;
-}
-.trading-range-control button:first-child { border-left: 1px solid #282831; }
-.trading-range-control button:hover { background: #17171d; color: #dedde6; }
-.trading-range-control button.is-active {
-  color: #bab8ff;
-  background: #171622;
-  box-shadow: inset 0 -2px 0 var(--accent-soft);
-}
+.trading-range-control { gap: 18px; }
 .trading-panel:fullscreen {
   width: 100vw;
   height: 100vh;
@@ -729,7 +703,7 @@ h1 {
   .overview-chart { height: 320px; }
 
   .market-title-row { align-items: flex-end; }
-  .range-control button { min-height: 44px; min-width: 46px; padding: 0 10px; }
+  .range-control button { min-height: 40px; min-width: 0; padding: 0 2px; }
   .trading-panel { margin-left: -14px; margin-right: -14px; border-left: 0; border-right: 0; }
   .trading-toolbar { align-items: flex-start; }
   .trading-toolbar { align-items: flex-start; }
@@ -738,10 +712,10 @@ h1 {
   .trading-actions .marketplaces-label,
   .trading-actions a { display: none; }
   .secondary-button { min-height: 44px; }
-  .interval-control button { min-height: 44px; min-width: 46px; }
+  .interval-control button { min-height: 40px; min-width: 0; padding: 0 2px; }
   .trading-chart { height: 640px; }
   .trading-rangebar { min-height: 52px; }
-  .trading-range-control button { min-height: 44px; }
+  .trading-range-control button { min-height: 40px; }
   .site-footer { margin-top: 54px; flex-direction: column; align-items: stretch; }
   .freshness-chip { align-self: flex-start; }
 }
@@ -752,8 +726,8 @@ h1 {
   .simple-page-title,
   .market-title-row { min-height: 42px; }
   .market-title-row { flex-direction: column; align-items: stretch; gap: 16px; }
-  .range-control { width: 100%; }
-  .range-control button { flex: 1; }
+  .range-control { width: auto; }
+  .range-control button { flex: 0 0 auto; }
   .overview-market-stats { grid-template-columns: 1fr; }
   .overview-market-stats .snapshot-stat { border-right: 0; border-bottom: 1px solid #292929; }
   .overview-market-stats .snapshot-stat:last-child { border-bottom: 0; }
@@ -763,8 +737,8 @@ h1 {
   .trading-toolbar { padding: 10px 12px; }
   .trading-rangebar { padding: 0 10px; }
   .range-context { display: none; }
-  .trading-range-control { width: 100%; }
-  .trading-range-control button { flex: 1; padding: 0 8px; min-width: 0; }
+  .trading-range-control { width: auto; }
+  .trading-range-control button { flex: 0 0 auto; padding: 0 2px; min-width: 0; }
 }
 
 /* UX06 domain pages */
@@ -3283,6 +3257,7 @@ html { scroll-behavior: smooth; }
     width: 16.5px;
     height: 16.5px;
     color: currentColor;
+    transform: none;
   }
 
   /* The selector now lives below the artwork, so its active rule belongs on
@@ -3321,7 +3296,7 @@ html { scroll-behavior: smooth; }
 
 @media (max-width: 360px) {
   .nav-category-icon { width: 20px; height: 20px; }
-  .nav-home-icon { width: 16px; height: 16px; }
+  .nav-home-icon { width: 16px; height: 16px; transform: none; }
 }
 
 /* Slightly stronger section-heading symbols at every viewport size. */

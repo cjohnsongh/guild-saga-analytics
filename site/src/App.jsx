@@ -958,7 +958,7 @@ function makeTradingMarketOption(displayRows, marketRows, startDate, endDate, ra
     },
     axisPointer: { link: [{ xAxisIndex: [0, 1] }] },
     dataZoom: [
-      { type: 'inside', xAxisIndex: [0, 1], filterMode: 'filter', zoomOnMouseWheel: true, moveOnMouseMove: true, moveOnMouseWheel: false },
+      { type: 'inside', xAxisIndex: [0, 1], filterMode: 'filter', zoomOnMouseWheel: false, moveOnMouseMove: true, moveOnMouseWheel: false },
     ],
     xAxis: [
       commonTimeAxis(0, startDate, endDate, false),
@@ -1273,15 +1273,6 @@ function installMarketYAxisDrag(chart) {
   }));
   let drag = null;
 
-  const axisHint = document.createElement('span');
-  axisHint.className = 'market-axis-drag-hint';
-  axisHint.setAttribute('aria-hidden', 'true');
-  axisHint.innerHTML = `
-    <svg viewBox="0 0 12 18" focusable="false" aria-hidden="true">
-      <path d="M6 1.5 2.5 5M6 1.5 9.5 5M6 1.5v15M6 16.5 2.5 13M6 16.5 9.5 13" />
-    </svg>`;
-  chartDom.appendChild(axisHint);
-
   const pointOf = (event) => ({
     x: Number(event.offsetX ?? event.event?.offsetX ?? 0),
     y: Number(event.offsetY ?? event.event?.offsetY ?? 0),
@@ -1302,6 +1293,17 @@ function installMarketYAxisDrag(chart) {
     return null;
   };
 
+  // Tensor/TradingView-style time-scale manipulation lives on the visible
+  // bottom x-axis. The native ew-resize cursor is the affordance, rather than
+  // drawing a separate floating arrow over the chart.
+  const hitBottomTimeAxis = (event) => {
+    const { x, y } = pointOf(event);
+    const rect = gridRect(1);
+    if (!rect) return false;
+    const axisTop = rect.y + rect.height - 3;
+    return x >= rect.x && x <= rect.x + rect.width && y >= axisTop && y <= chart.getHeight();
+  };
+
   const hitPlotGrid = (event) => {
     const { x, y } = pointOf(event);
     for (const gridIndex of [0, 1]) {
@@ -1314,26 +1316,14 @@ function installMarketYAxisDrag(chart) {
     return null;
   };
 
-  const showAxisHint = (event, axisIndex) => {
-    if (axisIndex === null) {
-      axisHint.classList.remove('is-visible');
-      return;
-    }
-    const { y } = pointOf(event);
-    const gridIndex = axisIndex === 0 ? 0 : 1;
-    const rect = gridRect(gridIndex);
-    if (!rect) return;
-    const top = Math.max(rect.y + 9, Math.min(rect.y + rect.height - 9, y));
-    axisHint.style.left = `${Math.min(chart.getWidth() - 15, rect.x + rect.width + 43)}px`;
-    axisHint.style.top = `${top}px`;
-    axisHint.classList.add('is-visible');
-  };
-
   const setCursor = (event) => {
     const axisIndex = hitRightAxis(event);
-    showAxisHint(event, axisIndex);
     if (axisIndex !== null) {
       chartDom.style.cursor = 'ns-resize';
+      return;
+    }
+    if (hitBottomTimeAxis(event)) {
+      chartDom.style.cursor = 'ew-resize';
       return;
     }
     chartDom.style.cursor = hitPlotGrid(event) !== null ? 'grab' : '';
@@ -1359,6 +1349,24 @@ function installMarketYAxisDrag(chart) {
     return { min, max, span: max - min };
   };
 
+  const currentZoomRange = () => {
+    const zoom = chart.getOption().dataZoom?.[0] || {};
+    const start = Number.isFinite(Number(zoom.start)) ? Number(zoom.start) : 0;
+    const end = Number.isFinite(Number(zoom.end)) ? Number(zoom.end) : 100;
+    return { start, end, span: Math.max(0.5, end - start), center: (start + end) / 2 };
+  };
+
+  const patchZoom = (start, end) => {
+    let nextStart = Math.max(0, Math.min(100, start));
+    let nextEnd = Math.max(0, Math.min(100, end));
+    if (nextEnd - nextStart < 0.5) {
+      const center = (nextStart + nextEnd) / 2;
+      nextStart = Math.max(0, center - 0.25);
+      nextEnd = Math.min(100, center + 0.25);
+    }
+    chart.dispatchAction({ type: 'dataZoom', dataZoomIndex: 0, start: nextStart, end: nextEnd });
+  };
+
   const onMouseDown = (event) => {
     const raw = event.event;
     if (raw?.button !== undefined && raw.button !== 0) return;
@@ -1369,7 +1377,7 @@ function installMarketYAxisDrag(chart) {
       if (!range) return;
       const { y } = pointOf(event);
       drag = {
-        mode: 'scale',
+        mode: 'scale-y',
         axisIndex,
         startY: y,
         startMin: range.min,
@@ -1382,6 +1390,20 @@ function installMarketYAxisDrag(chart) {
       return;
     }
 
+    if (hitBottomTimeAxis(event)) {
+      const zoom = currentZoomRange();
+      const { x } = pointOf(event);
+      drag = {
+        mode: 'scale-x',
+        startX: x,
+        startSpan: zoom.span,
+        center: zoom.center,
+      };
+      chartDom.style.cursor = 'ew-resize';
+      raw?.preventDefault?.();
+      return;
+    }
+
     const gridIndex = hitPlotGrid(event);
     if (gridIndex === null) return;
     const plotAxisIndex = gridIndex === 0 ? 0 : 2;
@@ -1390,7 +1412,7 @@ function installMarketYAxisDrag(chart) {
     if (!range || !rect) return;
     const { y } = pointOf(event);
     drag = {
-      mode: 'pan',
+      mode: 'pan-y',
       axisIndex: plotAxisIndex,
       startY: y,
       startMin: range.min,
@@ -1398,7 +1420,6 @@ function installMarketYAxisDrag(chart) {
       startSpan: range.span,
       gridHeight: rect.height,
     };
-    axisHint.classList.remove('is-visible');
     chartDom.style.cursor = 'grabbing';
   };
 
@@ -1408,9 +1429,9 @@ function installMarketYAxisDrag(chart) {
       return;
     }
 
-    const { y } = pointOf(event);
+    const { x, y } = pointOf(event);
 
-    if (drag.mode === 'scale') {
+    if (drag.mode === 'scale-y') {
       const deltaY = y - drag.startY;
       const factor = Math.exp(deltaY * 0.009);
       const span = Math.min(drag.startSpan * 25, Math.max(drag.startSpan * 0.04, drag.startSpan * factor));
@@ -1428,7 +1449,26 @@ function installMarketYAxisDrag(chart) {
 
       patchAxis(drag.axisIndex, min, max);
       chartDom.style.cursor = 'ns-resize';
-      showAxisHint(event, drag.axisIndex);
+      event.event?.preventDefault?.();
+      return;
+    }
+
+    if (drag.mode === 'scale-x') {
+      const deltaX = x - drag.startX;
+      const factor = Math.exp(deltaX * 0.009);
+      const span = Math.max(2, Math.min(100, drag.startSpan * factor));
+      let start = drag.center - span / 2;
+      let end = drag.center + span / 2;
+      if (start < 0) {
+        end -= start;
+        start = 0;
+      }
+      if (end > 100) {
+        start -= end - 100;
+        end = 100;
+      }
+      patchZoom(start, end);
+      chartDom.style.cursor = 'ew-resize';
       event.event?.preventDefault?.();
       return;
     }
@@ -1454,20 +1494,20 @@ function installMarketYAxisDrag(chart) {
   const stopDrag = (event) => {
     drag = null;
     if (event) setCursor(event);
-    else {
-      axisHint.classList.remove('is-visible');
-      chartDom.style.cursor = '';
-    }
+    else chartDom.style.cursor = '';
   };
 
   const onDoubleClick = (event) => {
     const axisIndex = hitRightAxis(event);
-    if (axisIndex === null) return;
-    const axis = initial[axisIndex];
-    if (!axis || !Number.isFinite(axis.min) || !Number.isFinite(axis.max)) return;
-    const yAxis = [{}, {}, {}];
-    yAxis[axisIndex] = axis;
-    chart.setOption({ yAxis }, { lazyUpdate: true });
+    if (axisIndex !== null) {
+      const axis = initial[axisIndex];
+      if (!axis || !Number.isFinite(axis.min) || !Number.isFinite(axis.max)) return;
+      const yAxis = [{}, {}, {}];
+      yAxis[axisIndex] = axis;
+      chart.setOption({ yAxis }, { lazyUpdate: true });
+      return;
+    }
+    if (hitBottomTimeAxis(event)) patchZoom(0, 100);
   };
 
   zr.on('mousedown', onMouseDown);
@@ -1482,7 +1522,6 @@ function installMarketYAxisDrag(chart) {
     zr.off('mouseup', stopDrag);
     zr.off('globalout', stopDrag);
     zr.off('dblclick', onDoubleClick);
-    axisHint.remove();
     chartDom.style.cursor = '';
   };
 }
