@@ -36,26 +36,6 @@ const RETURN_RECAP_SESSION_KEY = 'guild-saga-return-recap-v1';
 const RETURN_SNAPSHOT_VERSION = 1;
 const RETURN_RECAP_VISIBLE_LIMIT = 3;
 
-// VISUAL QA ONLY: force a deterministic return-visit recap without touching
-// localStorage/sessionStorage. Remove this demo block before production.
-const RETURN_RECAP_DEMO = true;
-const RETURN_RECAP_DEMO_DATA = {
-  version: RETURN_SNAPSHOT_VERSION,
-  previousVisitedAt: '2026-08-27T20:42:00-04:00',
-  currentFingerprint: 'visual-demo',
-  changes: [
-    { category: 'Collection', section: 'collection', text: '2 Heroes burned' },
-    { category: 'Market', section: 'market', text: 'Floor 0.07 → 0.08 SOL (+14.3%)' },
-    { category: 'Market', section: 'market', text: '+6 sales · +2.43 SOL volume' },
-    { category: 'Market', section: 'market', text: 'Listings −12' },
-    { category: 'Ownership', section: 'ownership', text: '14 more Heroes staked' },
-    { category: 'Ownership', section: 'ownership', text: 'Holders +5' },
-    { category: 'Market', section: 'market', text: '+2 Heroes sold for the first time' },
-    { category: 'Economy', section: 'economy', text: '+0.18 SOL royalties' },
-    { category: 'Economy', section: 'economy', text: '+42.5 SOL sold · +6,380 USDC purchased' },
-  ],
-};
-
 function readHeroPreference() {
   const fallback = { heroId: 0, color: getHeroDefaultColor(0) };
   try {
@@ -111,7 +91,7 @@ const NAV_ITEMS = [
   { id: 'ownership', label: 'Ownership', target: 'ownership' },
   { id: 'market', label: 'Market', target: 'market' },
   { id: 'collection', label: 'Collection', target: 'collection' },
-  { id: 'economy', label: 'Economy', target: 'economy' },
+  { id: 'economy', label: 'Funding', target: 'economy' },
 ];
 
 const HERO_PLATFORM_GROUPS = [
@@ -147,6 +127,27 @@ function HomeIcon() {
         d="M224 5c3.296 2.577 6.444 5.282 9.586 8.043 3.145 2.757 6.393 5.305 9.726 7.832 4.932 3.742 9.767 7.586 14.563 11.5a2023 2023 0 0 0 32.137 25.692c4.442 3.484 8.81 7.051 13.168 10.64 3.117 2.535 6.277 5.01 9.445 7.48 5.306 4.14 10.512 8.387 15.688 12.688 6.43 5.338 12.992 10.465 19.656 15.507 5.153 3.911 10.129 7.977 15.07 12.153 3.293 2.741 6.646 5.392 10.024 8.028a743 743 0 0 1 15.027 12.058c3.449 2.82 6.928 5.6 10.41 8.379l3.832 3.07a772 772 0 0 0 6.93 5.485c11.17 8.858 11.17 8.858 12.738 16.445.748 6.52-.13 11.625-4 17-4.254 4.547-8.579 7.737-14.954 8.227-1.063-.01-2.126-.02-3.222-.032l-3.506-.02-3.63-.05-3.69-.027q-4.5-.036-8.998-.098l.008 3.257q.1 39.236.147 78.47c.016 12.65.037 25.299.071 37.948q.046 16.538.056 33.075c.004 5.838.013 11.675.035 17.513q.03 8.244.022 16.488.001 3.023.019 6.047c.015 2.756.01 5.511.003 8.268l.026 2.405c-.05 6.222-1.158 11.853-5.254 16.771l-2.008 1.633-1.992 1.68c-5.303 3.593-9.993 3.742-16.203 3.736l-2.741.02c-2.986.019-5.972.023-8.959.025l-6.243.02q-6.543.017-13.086.015c-5.578 0-11.156.027-16.735.061-4.299.022-8.598.026-12.897.025q-3.084.005-6.168.027c-2.881.02-5.762.014-8.643.002l-2.553.034c-6.652-.07-11.819-1.91-16.928-6.23l-1.352-1.665-1.398-1.648c-3.079-4.961-3.477-9.786-3.482-15.52l-.011-2.215q-.01-2.37-.008-4.74-.002-3.767-.03-7.535-.067-10.708-.077-21.418c-.005-4.377-.03-8.754-.065-13.131q-.015-2.484-.007-4.967c.044-14.361-1.586-27.27-11.547-38.451-9.175-8.868-20.084-12.428-32.68-12.273-11.086.913-20.637 5.394-28.351 13.375-7.26 8.705-10.11 18.209-10.127 29.407l-.015 2.24q-.016 2.398-.026 4.795a1935 1935 0 0 1-.053 7.607c-.062 7.207-.116 14.415-.15 21.622q-.032 6.623-.1 13.245a772 772 0 0 0-.026 5.029 748 748 0 0 1-.055 7.056l.009 2.07c-.101 5.93-1.438 11.44-5.293 16.07l-2.008 1.632-1.992 1.68c-5.303 3.593-9.993 3.742-16.203 3.736l-2.741.02c-2.986.019-5.972.023-8.959.025l-6.243.02q-6.543.017-13.086.015c-5.578 0-11.156.027-16.735.061-4.299.022-8.598.026-12.897.025q-3.084.005-6.168.027c-2.881.02-5.762.014-8.643.002l-2.553.034c-6.652-.07-11.819-1.91-16.928-6.23l-1.352-1.665-1.398-1.648c-3.321-5.352-3.512-10.584-3.468-16.67l-.005-2.615c-.003-2.884.008-5.767.019-8.65v-6.21c-.002-5.615.01-11.23.024-16.845.013-5.87.014-11.74.016-17.61.006-11.113.023-22.226.043-33.34.022-12.652.033-25.305.043-37.958q.032-39.04.101-78.079l-2.26.063c-3.413.084-6.826.136-10.24.187l-3.555.102c-8.11.09-13.65-.646-19.968-6.098C2.977 182.998 1.11 178.08 2 170c2.652-8.235 7.932-13.268 14.625-18.312l3.758-2.895 1.864-1.432c2.457-1.907 4.856-3.88 7.253-5.861a609 609 0 0 1 12.188-9.75A925 925 0 0 0 57 119.5a892 892 0 0 1 15-12c7.161-5.593 14.2-11.331 21.243-17.07a1008 1008 0 0 1 14.913-11.903 1306 1306 0 0 0 20.882-16.69A801 801 0 0 1 142 51.5c7.161-5.593 14.2-11.331 21.243-17.07 7.909-6.435 15.92-12.738 23.955-19.014a776 776 0 0 0 5.376-4.271L196 8.438l3.063-2.442C206.733.784 215.957.272 224 5"
       />
     </svg>
+  );
+}
+
+function CategoryIcon({ category, className = '' }) {
+  return (
+    <span
+      className={`category-icon ${className}`.trim()}
+      data-category={category}
+      aria-hidden="true"
+    />
+  );
+}
+
+function SectionHeading({ category, children, id }) {
+  return (
+    <section className="section-heading">
+      <div className="section-heading-title">
+        <CategoryIcon category={category} className="section-category-icon" />
+        <h2 id={id}>{children}</h2>
+      </div>
+    </section>
   );
 }
 
@@ -478,7 +479,7 @@ function buildReturnChanges(previous, current) {
   if (buyerDelta > 0) add('Market', 'market', `Unique buyers +${formatInt(buyerDelta)}`);
 
   const royaltiesDelta = after.royaltiesSol - before.royaltiesSol;
-  if (royaltiesDelta > 0.0005) add('Economy', 'economy', `+${formatDecimal(royaltiesDelta, 2)} SOL royalties`);
+  if (royaltiesDelta > 0.0005) add('Funding', 'economy', `+${formatDecimal(royaltiesDelta, 2)} SOL royalties`);
 
   const solSoldDelta = after.totalSolSold - before.totalSolSold;
   const usdcDelta = after.totalUsdcPurchased - before.totalUsdcPurchased;
@@ -486,7 +487,7 @@ function buildReturnChanges(previous, current) {
     const parts = [];
     if (solSoldDelta > 0.0005) parts.push(`+${formatDecimal(solSoldDelta, 3)} SOL sold`);
     if (usdcDelta > 0.005) parts.push(`+${formatDecimal(usdcDelta, 2)} USDC purchased`);
-    add('Economy', 'economy', parts.join(' · '));
+    add('Funding', 'economy', parts.join(' · '));
   }
 
   return changes;
@@ -2721,9 +2722,7 @@ function Market({ data }) {
 
   return (
     <div className="page-stack market-page">
-      <section className="section-heading">
-        <h2>Market</h2>
-      </section>
+      <SectionHeading category="market">Market</SectionHeading>
 
       <section className="snapshot-strip market-snapshot" aria-label="Market statistics">
         <SnapshotStat label="Floor" value={formatSol(data.summary.floor.floor_sol, 3)} />
@@ -2804,9 +2803,7 @@ function Ownership({ data }) {
 
   return (
     <div className="page-stack ownership-page">
-      <section className="section-heading ownership-main-heading">
-        <h2 id="ownership-title">Ownership</h2>
-      </section>
+      <SectionHeading category="ownership" id="ownership-title">Ownership</SectionHeading>
 
       <div className="ownership-layout">
         <section className="snapshot-strip joint-snapshot ownership-snapshot ownership-stats" aria-label="Ownership statistics">
@@ -2864,7 +2861,7 @@ function Collection({ data }) {
 
   return (
     <div className="page-stack domain-page collection-page">
-      <section className="section-heading"><h2>Collection</h2></section>
+      <SectionHeading category="collection">Collection</SectionHeading>
 
       <section className="snapshot-strip snapshot-strip-four">
         <SnapshotStat label="Original Supply" value="10,000" />
@@ -2920,7 +2917,7 @@ function Collection({ data }) {
   );
 }
 
-function Economy({ data }) {
+function Funding({ data }) {
   const treasury = data.treasury;
   const solOption = useMemo(() => makeSolConversionOption(treasury.conversion_history), [treasury.conversion_history]);
   const usdcOption = useMemo(() => makeUsdcConversionOption(treasury.conversion_history), [treasury.conversion_history]);
@@ -2929,7 +2926,7 @@ function Economy({ data }) {
 
   return (
     <div className="page-stack domain-page economy-page">
-      <section className="section-heading"><h2>Economy</h2></section>
+      <SectionHeading category="funding">Funding</SectionHeading>
 
       <section className="snapshot-strip snapshot-strip-three">
         <SnapshotStat label="Public Mint Proceeds" value={formatSol(data.summary.launch.public_mint_proceeds_sol, 0)} />
@@ -3187,11 +3184,8 @@ export default function App() {
   const [activeSection, setActiveSection] = useState('overview');
   const [showDataPage, setShowDataPage] = useState(() => window.location.hash === '#data');
   const [heroIdentityCandidate, setHeroIdentityCandidate] = useState(readHeroPreference);
-  const [returnRecap, setReturnRecap] = useState(() => RETURN_RECAP_DEMO ? RETURN_RECAP_DEMO_DATA : null);
-  const [returnRecapOpen, setReturnRecapOpen] = useState(false);
+  const [returnRecap, setReturnRecap] = useState(null);
   const [returnRecapExpanded, setReturnRecapExpanded] = useState(false);
-  const returnRecapButtonRef = useRef(null);
-  const returnRecapPanelRef = useRef(null);
 
   useEffect(() => {
     Promise.all(DATA_PATHS.map(fetchJson))
@@ -3204,13 +3198,6 @@ export default function App() {
 
   useEffect(() => {
     if (!data) return;
-    if (RETURN_RECAP_DEMO) {
-      setReturnRecap(RETURN_RECAP_DEMO_DATA);
-      setReturnRecapOpen(false);
-      setReturnRecapExpanded(false);
-      return;
-    }
-
     const current = buildReturnSnapshot(data);
     const currentFingerprint = returnSnapshotFingerprint(current);
     const sessionRecap = safeStorageRead(window.sessionStorage, RETURN_RECAP_SESSION_KEY);
@@ -3248,30 +3235,9 @@ export default function App() {
 
     safeStorageWrite(window.localStorage, RETURN_SNAPSHOT_STORAGE_KEY, current);
     setReturnRecap(nextRecap);
-    setReturnRecapOpen(false);
     setReturnRecapExpanded(false);
   }, [data]);
 
-  useEffect(() => {
-    if (!returnRecapOpen) return undefined;
-    const onPointerDown = (event) => {
-      if (returnRecapButtonRef.current?.contains(event.target)) return;
-      if (returnRecapPanelRef.current?.contains(event.target)) return;
-      setReturnRecapOpen(false);
-    };
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setReturnRecapOpen(false);
-        returnRecapButtonRef.current?.focus();
-      }
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [returnRecapOpen]);
 
   useEffect(() => {
     const onHashChange = () => {
@@ -3337,10 +3303,6 @@ export default function App() {
   if (!data) return <div className="load-state">Loading Guild Saga analytics…</div>;
 
   const recapChanges = returnRecap?.changes || [];
-  const visibleRecapChanges = returnRecapExpanded
-    ? recapChanges
-    : recapChanges.slice(0, RETURN_RECAP_VISIBLE_LIMIT);
-  const hiddenRecapCount = Math.max(0, recapChanges.length - RETURN_RECAP_VISIBLE_LIMIT);
   const recapSince = formatRecapSinceShort(returnRecap?.previousVisitedAt);
 
   return (
@@ -3394,7 +3356,7 @@ export default function App() {
                         data-category={change.category.toLowerCase()}
                         onClick={() => scrollToSection(change.section, { highlight: true })}
                       >
-                        <span className="return-recap-icon-placeholder" aria-hidden="true" />
+                        <CategoryIcon category={change.category.toLowerCase()} className="return-recap-category-icon" />
                         <span className="return-recap-banner-text">{change.text}</span>
                       </button>
                     ))}
@@ -3421,7 +3383,7 @@ export default function App() {
                         data-category={change.category.toLowerCase()}
                         onClick={() => scrollToSection(change.section, { highlight: true })}
                       >
-                        <span className="return-recap-icon-placeholder" aria-hidden="true" />
+                        <CategoryIcon category={change.category.toLowerCase()} className="return-recap-category-icon" />
                         <span className="return-recap-banner-text">{change.text}</span>
                       </button>
                     ))}
@@ -3443,7 +3405,7 @@ export default function App() {
                 <Collection data={data} />
               </section>
               <section id="economy" className="scroll-section" data-nav-section>
-                <Economy data={data} />
+                <Funding data={data} />
               </section>
             </div>
             <SiteFooter />

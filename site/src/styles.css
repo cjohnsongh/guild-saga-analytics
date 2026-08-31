@@ -2670,7 +2670,69 @@ html { scroll-behavior: smooth; }
   .return-recap-panel { top: 148px; }
 }
 
-/* VISUAL QA V14 — one coherent responsive return-visit banner system. */
+/* Filled category icon system — shared by section headings and return recap. */
+.category-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: #e8e8ee;
+}
+.category-icon::before {
+  content: '';
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: currentColor;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+.category-icon[data-category='ownership']::before {
+  -webkit-mask-image: url('/assets/category-icons/ownership.svg');
+  mask-image: url('/assets/category-icons/ownership.svg');
+}
+.category-icon[data-category='market']::before {
+  -webkit-mask-image: url('/assets/category-icons/market.svg');
+  mask-image: url('/assets/category-icons/market.svg');
+}
+.category-icon[data-category='collection']::before {
+  -webkit-mask-image: url('/assets/category-icons/collection.svg');
+  mask-image: url('/assets/category-icons/collection.svg');
+}
+.category-icon[data-category='funding']::before {
+  -webkit-mask-image: url('/assets/category-icons/funding.svg');
+  mask-image: url('/assets/category-icons/funding.svg');
+}
+.section-heading-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.section-category-icon {
+  width: 27px;
+  height: 27px;
+  color: #e8e8ee;
+}
+.return-recap-category-icon {
+  width: 26px;
+  height: 26px;
+  padding: 5px;
+  box-sizing: border-box;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,.055);
+  background: linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,255,255,.014));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018);
+  color: #d9d9df;
+}
+.return-recap-category-icon::before { width: 100%; height: 100%; }
+
+/* Production return-visit banner — compact desktop and 2x2 stacked layout. */
 .return-recap-banner {
   margin: -3px 0 19px;
   display: grid;
@@ -2735,7 +2797,6 @@ html { scroll-behavior: smooth; }
   outline: 2px solid rgba(122,154,163,.58);
   outline-offset: -2px;
 }
-.return-recap-icon-placeholder,
 .return-recap-more-icon {
   width: 26px;
   height: 26px;
@@ -2744,10 +2805,10 @@ html { scroll-behavior: smooth; }
   background: linear-gradient(145deg, rgba(255,255,255,.05), rgba(255,255,255,.018));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
 }
-.return-recap-banner-item[data-category='market'] .return-recap-icon-placeholder { background-color: rgba(86,119,128,.045); }
-.return-recap-banner-item[data-category='collection'] .return-recap-icon-placeholder { background-color: rgba(126,91,108,.04); }
-.return-recap-banner-item[data-category='ownership'] .return-recap-icon-placeholder { background-color: rgba(101,112,151,.04); }
-.return-recap-banner-item[data-category='economy'] .return-recap-icon-placeholder { background-color: rgba(139,119,75,.04); }
+.return-recap-banner-item[data-category='market'] .return-recap-category-icon { background-color: rgba(86,119,128,.05); }
+.return-recap-banner-item[data-category='collection'] .return-recap-category-icon { background-color: rgba(126,91,108,.045); }
+.return-recap-banner-item[data-category='ownership'] .return-recap-category-icon { background-color: rgba(101,112,151,.045); }
+.return-recap-banner-item[data-category='funding'] .return-recap-category-icon { background-color: rgba(139,119,75,.045); }
 .return-recap-banner-text {
   min-width: 0;
   color: #d9d9df;
@@ -2798,8 +2859,9 @@ html { scroll-behavior: smooth; }
   .return-recap-banner-item:nth-child(4n) { border-right: 1px solid rgba(255,255,255,.04); }
   .return-recap-banner-item:nth-child(even) { border-right: 0; }
   .return-recap-banner-item:nth-child(n+3) { border-top: 1px solid rgba(255,255,255,.04); }
-  .return-recap-icon-placeholder,
+  .return-recap-category-icon,
   .return-recap-more-icon { width: 24px; height: 24px; border-radius: 7px; }
+  .return-recap-category-icon { padding: 4.5px; }
   .return-recap-banner-text { font-size: 11.75px; line-height: 1.28; }
 }
 
@@ -2827,7 +2889,13 @@ html { scroll-behavior: smooth; }
     grid-template-columns: 22px minmax(0, 1fr);
     gap: 6px;
   }
-  .return-recap-icon-placeholder,
+  .return-recap-category-icon,
   .return-recap-more-icon { width: 22px; height: 22px; border-radius: 6px; }
+  .return-recap-category-icon { padding: 4px; }
   .return-recap-banner-text { font-size: 11px; }
+}
+
+@media (max-width: 560px) {
+  .section-heading-title { gap: 8px; }
+  .section-category-icon { width: 23px; height: 23px; }
 }
