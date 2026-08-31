@@ -88,10 +88,11 @@ const GRANULARITY_OPTIONS = [
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', target: 'overview', icon: 'home' },
-  { id: 'ownership', label: 'Ownership', target: 'ownership' },
-  { id: 'market', label: 'Market', target: 'market' },
-  { id: 'collection', label: 'Collection', target: 'collection' },
-  { id: 'economy', label: 'Funding', target: 'economy' },
+  { id: 'ownership', label: 'Ownership', target: 'ownership', category: 'ownership' },
+  { id: 'market', label: 'Market', target: 'market', category: 'market' },
+  { id: 'collection', label: 'Collection', target: 'collection', category: 'collection' },
+  { id: 'economy', label: 'Funding', target: 'economy', category: 'funding' },
+  { id: 'team', label: 'Team', target: 'team', category: 'team' },
 ];
 
 const TEAM_MEMBERS = [
@@ -127,8 +128,18 @@ const TEAM_CREDITS = [
 ];
 
 const TEAM_OFFICIAL_LINKS = [
-  { label: 'GuildSaga.com', detail: 'Official Guild Saga website', href: 'https://guildsaga.com/' },
-  { label: 'Guild Saga: Vanished Worlds', detail: 'Steam', href: 'https://store.steampowered.com/app/2184350/Guild_Saga_Vanished_Worlds/' },
+  {
+    label: 'GuildSaga.com',
+    detail: 'Official Guild Saga website',
+    href: 'https://guildsaga.com/',
+    icon: 'https://guildsaga.com/favicon.ico',
+  },
+  {
+    label: 'Guild Saga: Vanished Worlds',
+    detail: 'Steam',
+    href: 'https://store.steampowered.com/app/2184350/Guild_Saga_Vanished_Worlds/',
+    icon: 'https://store.steampowered.com/favicon.ico',
+  },
 ];
 
 const HERO_PLATFORM_GROUPS = [
@@ -3169,8 +3180,13 @@ function Team() {
         <div className="team-official-links">
           {TEAM_OFFICIAL_LINKS.map((link) => (
             <a key={link.href} className="team-official-link" href={link.href} target="_blank" rel="noreferrer">
-              <strong>{link.label}</strong>
-              <span>{link.detail}</span>
+              <span className="team-official-link-icon" aria-hidden="true">
+                <img src={link.icon} alt="" />
+              </span>
+              <span className="team-official-link-copy">
+                <strong>{link.label}</strong>
+                <span>{link.detail}</span>
+              </span>
             </a>
           ))}
         </div>
@@ -3245,17 +3261,6 @@ function DataPage({ onBack }) {
             <b aria-hidden="true">↗</b>
           </a>
         ))}
-      </section>
-
-      <section className="data-method-section">
-        <div className="data-method-heading">
-          <span className="eyebrow">Site services</span>
-          <h2>Team profile images</h2>
-          <p>
-            Public X profile images in the Team section are resolved through Unavatar. Tim de Man uses his
-            Bandcamp profile image, and Paul Ouzounov uses his public YouTube profile image.
-          </p>
-        </div>
       </section>
 
       <section className="data-method-section pfp-method-section">
@@ -3473,11 +3478,18 @@ export default function App() {
                 key={item.id}
                 type="button"
                 className={`${item.icon === 'home' ? 'nav-home-button ' : ''}${!showDataPage && activeSection === (item.target || item.id) ? 'is-active' : ''}`.trim()}
-                aria-label={item.icon === 'home' ? item.label : undefined}
-                title={item.icon === 'home' ? item.label : undefined}
+                aria-label={item.label}
+                title={item.label}
                 onClick={() => scrollToSection(item.target || item.id)}
               >
-                {item.icon === 'home' ? <HomeIcon /> : item.label}
+                {item.icon === 'home' ? (
+                  <HomeIcon />
+                ) : (
+                  <>
+                    <CategoryIcon category={item.category} className="nav-category-icon" />
+                    <span className="nav-label">{item.label}</span>
+                  </>
+                )}
               </button>
             ))}
           </div>
