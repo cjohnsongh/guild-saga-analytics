@@ -138,7 +138,7 @@ const TEAM_OFFICIAL_LINKS = [
     label: 'Guild Saga: Labyrinths',
     detail: 'Epic Games Store',
     href: 'https://store.epicgames.com/p/guild-saga-labyrinths-ca0f96?lang=en-US',
-    icon: 'https://store.epicgames.com/favicon.ico',
+    icon: 'epic',
   },
   {
     label: 'Guild Saga: Vanished Worlds',
@@ -3222,7 +3222,7 @@ function Team() {
           {TEAM_OFFICIAL_LINKS.map((link) => (
             <a key={link.href} className="team-official-link" href={link.href} target="_blank" rel="noreferrer">
               <span className="team-official-link-icon" aria-hidden="true">
-                <img src={link.icon} alt="" />
+                {link.icon === 'epic' ? <EpicGamesIcon /> : <img src={link.icon} alt="" />}
               </span>
               <span className="team-official-link-copy">
                 <strong>{link.label}</strong>
@@ -3449,11 +3449,21 @@ export default function App() {
     const updateActive = () => {
       const marker = window.scrollY + 150;
       let current = 'overview';
-      const targets = [...new Set([...NAV_ITEMS.map((item) => item.target || item.id), 'team'])];
+      const targets = [...new Set(NAV_ITEMS.map((item) => item.target || item.id))];
+
       for (const target of targets) {
         const element = document.getElementById(target);
-        if (element && element.offsetTop <= marker) current = target;
+        if (!element) continue;
+        const documentTop = element.getBoundingClientRect().top + window.scrollY;
+        if (documentTop <= marker) current = target;
       }
+
+      // The final section can be too close to the bottom of the document to
+      // ever cross the normal marker. Treat reaching the page bottom as the
+      // final nav section so Team cannot remain visually stuck on Funding.
+      const atDocumentBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4;
+      if (atDocumentBottom && targets.length) current = targets[targets.length - 1];
+
       setActiveSection(current);
     };
     updateActive();
@@ -3469,6 +3479,7 @@ export default function App() {
     const move = () => {
       const element = document.getElementById(id);
       if (!element) return;
+      if (NAV_ITEMS.some((item) => (item.target || item.id) === id)) setActiveSection(id);
       const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
       element.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
       if (options.highlight) {

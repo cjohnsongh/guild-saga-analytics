@@ -3264,3 +3264,82 @@ html { scroll-behavior: smooth; }
   .nav-category-icon { width: 18px; height: 18px; }
   .nav-home-icon { width: 17px; height: 17px; }
 }
+
+/* V26 mobile/nav polish */
+@media (max-width: 780px) {
+  /* Optically normalize the mixed home glyph with the filled category set.
+     All icons inherit the exact same nav-button color. */
+  .primary-nav button {
+    color: #969696;
+  }
+  .primary-nav button:hover:not(:disabled) { color: #ddd; }
+  .primary-nav button.is-active { color: #f1f1f5; }
+  .nav-category-icon {
+    width: 21px;
+    height: 21px;
+    color: currentColor;
+  }
+  .nav-home-icon {
+    width: 16.5px;
+    height: 16.5px;
+    color: currentColor;
+  }
+
+  /* The selector now lives below the artwork, so its active rule belongs on
+     the top edge rather than visually hanging below the control. */
+  .hero-mobile-tabs button.is-active {
+    box-shadow: inset 0 2px #789aa3;
+  }
+
+  /* There is enough mobile width for both controls. Keep them on one row. */
+  .hero-browser-controls {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px 16px;
+  }
+  .hero-control-group {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .hero-browser-controls {
+    gap: 8px 12px;
+  }
+  .hero-control-label {
+    font-size: 12.5px;
+  }
+  .hero-number-input-wrap {
+    min-width: 72px;
+  }
+  .pfp-background-control {
+    width: auto;
+    flex-wrap: nowrap;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav-category-icon { width: 20px; height: 20px; }
+  .nav-home-icon { width: 16px; height: 16px; }
+}
+
+/* Slightly stronger section-heading symbols at every viewport size. */
+.section-category-icon {
+  width: 30px;
+  height: 30px;
+}
+
+@media (max-width: 560px) {
+  .section-category-icon {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* The Official Links reuse the same Epic glyph as the wishlist button. */
+.team-official-link-icon .epic-games-icon {
+  width: 24px;
+  height: 24px;
+  color: #f0f0f3;
+}
