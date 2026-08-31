@@ -818,7 +818,7 @@ h1 {
 .chapter-facts span { color: #92919e; font-size: 13px; white-space: nowrap; }
 .chapter-facts strong { display: block; margin-bottom: 3px; color: #e5e4ed; font-size: 17px; }
 .collection-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-.collection-burn-grid { display: grid; grid-template-columns: minmax(0, 1.66fr) minmax(0, .79fr) minmax(0, 1fr); gap: 24px; }
+.collection-burn-grid { display: grid; grid-template-columns: minmax(0, 1.66fr) minmax(0, .85fr) minmax(0, .94fr); gap: 24px; }
 
 .proceeds-split { padding: 26px 0 8px; }
 .split-bar { height: 28px; display: flex; overflow: hidden; border: 1px solid #35353d; background: #202027; }

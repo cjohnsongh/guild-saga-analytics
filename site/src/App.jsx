@@ -1589,7 +1589,7 @@ function makeBurnRarityOption(rows) {
     legend: {
       orient: 'horizontal',
       left: 'center',
-      bottom: 5,
+      bottom: 24,
       data: order,
       textStyle: { color: COLORS.muted, fontSize: 12 },
       itemWidth: 9,
