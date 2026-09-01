@@ -1,22 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "64c00f2a202527933d845991d24e148fbf6b28d832e58b62a16ebb412a7b1202",
+    "data/state/checkpoints.json": "ca46981d662fac8ff4c89df5a3cb8c0419caf3cfa776311b463aeb9b53d74357",
     "data/state/hero_deltas.csv": "878873cafb20f3b3ecc93a91a6e20ff5564d7f22b3d49118289d5845f958537a",
     "data/state/hero_event_cursors.csv": "00193cb48b4f4e4eff539849668470f753cabd933a8a3564a6181dfdb6147b90",
     "data/state/market_live_sales.csv": "703f7de7cb7bb9561257400b83dabbcaad089dbd38637c7798c090cc827cb6f9",
-    "data/state/webhook_processed_events.csv": "1b51aabe97f9fe6378ffd05b60c7e1e00f67706c0b109f3e6a10060e8b1cd7ce"
+    "data/state/webhook_processed_events.csv": "8f8b35434af4e0730ea7de2edd0dfa0931ee8f259434d82749ab0b27722ec64c"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "c1d991b2eb58234e61fa2509525839b6116b0ac6bf4b06c453297215ee95e7d1",
+    "site/public/data/hero-state.json": "4f3cccf130852a37e7903e9bc44db624035613ce362e3dfb85ee76e14bb7b65d",
     "site/public/data/market-history.json": "89b555f29c8e479c0b85a91cc3e5c960316cf7d1dbb942736a7940c6aae815ec",
     "site/public/data/summary.json": "393e8051b87f53d82eb66d6485bb9529d9a027873ab5aa1f8ed815ca96435a0e"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 4,
   "signatures": [
-    "PEp6cu24uYLwAZAhaZ8ioLhCpT4Su3DTkeKmCsW81td9dgXhie2dhn8nmh62zUdkqSTa7wfarD1VD8GRxR7A5z1"
+    "3QhE1iAQZgX9TacLmv2Dfa12S2gGGwkhrn2kYZeAJqZEB8JYqtS69bhRBuUk6BNoRhiVSNLxAYsuy5qEmfzkGSFn",
+    "5LZBedrP7NXrUhCZXLHGeb7bhFT44HS7Znsi8arLB4sEJYCBoQcPXQztSkqZnwhhWYNiQvKaZKy8YPqZSuDcFXBf",
+    "3HKYLgdAwkGCb7238uhdVFP8uCA9JJnECKib3XNXzVYfkskV4SPdkB57tRkvD8pKRX3wqhNnoxbCU61HQZ1WUvzW",
+    "zCuTcdvvVpYG7wKqgUgBCKYdnzTNB1HzQcCR8sp86cuotwz1wWxT5gvmu18uNEiQZ3S4KiKMZ7PJXuDvvTHvdpC"
   ],
-  "snapshot_received_at": "2026-09-01T17:30:49.827Z"
+  "snapshot_received_at": "2026-09-01T18:00:56.253Z"
 }
