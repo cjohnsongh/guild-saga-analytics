@@ -36,6 +36,23 @@ const RETURN_SNAPSHOT_STORAGE_KEY = 'guild-saga-return-snapshot-v1';
 const RETURN_RECAP_SESSION_KEY = 'guild-saga-return-recap-v1';
 const RETURN_SNAPSHOT_VERSION = 1;
 const RETURN_RECAP_VISIBLE_LIMIT = 3;
+
+// Visual showcase only. This build deliberately bypasses the real return-visit
+// storage logic so it can demonstrate the finished banner without changing
+// the visitor's actual localStorage/sessionStorage baseline.
+const RETURN_RECAP_SHOWCASE = true;
+const RETURN_RECAP_SHOWCASE_SINCE = 'Aug 27';
+const RETURN_RECAP_SHOWCASE_CHANGES = [
+  { category: 'Collection', section: 'collection', text: '2 Heroes burned' },
+  { category: 'Market', section: 'market', text: 'Floor 0.07 → 0.08 SOL (+14.3%)' },
+  { category: 'Market', section: 'market', text: '6 sales · 2.43 SOL volume' },
+  { category: 'Market', section: 'market', text: 'Listings 432 → 418 (−14)' },
+  { category: 'Ownership', section: 'ownership', text: '14 more Heroes staked' },
+  { category: 'Ownership', section: 'ownership', text: 'Holders +7' },
+  { category: 'Market', section: 'market', text: '3 Heroes sold for the first time' },
+  { category: 'Market', section: 'market', text: 'Unique buyers +5' },
+  { category: 'Funding', section: 'economy', text: '+0.18 SOL royalties' },
+];
 const DATA_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 const HERO_ROLLOVER_GRACE_MINUTES = 15;
 const FLOOR_ROLLOVER_GRACE_MINUTES = 30;
@@ -3699,7 +3716,7 @@ export default function App() {
 
 
   useEffect(() => {
-    if (!data) return;
+    if (!data || RETURN_RECAP_SHOWCASE) return;
     const current = buildReturnSnapshot(data);
 
     // Auto-refreshing the site's public JSON must not turn same-session changes
@@ -3853,8 +3870,12 @@ export default function App() {
   if (error) return <div className="load-state">Failed to load Guild Saga data: {String(error)}</div>;
   if (!data) return <div className="load-state">Loading Guild Saga analytics…</div>;
 
-  const recapChanges = returnRecap?.changes || [];
-  const recapSince = formatRecapSinceShort(returnRecap?.previousVisitedAt);
+  const recapChanges = RETURN_RECAP_SHOWCASE
+    ? RETURN_RECAP_SHOWCASE_CHANGES
+    : (returnRecap?.changes || []);
+  const recapSince = RETURN_RECAP_SHOWCASE
+    ? RETURN_RECAP_SHOWCASE_SINCE
+    : formatRecapSinceShort(returnRecap?.previousVisitedAt);
 
   return (
     <main className="app-shell">
