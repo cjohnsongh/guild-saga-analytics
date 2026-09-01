@@ -202,15 +202,18 @@ The browser loads static JSON from `site/public/data/`:
 
 The public site therefore stays available when a provider is temporarily unavailable. A production outage makes published data stale rather than making the page depend on a failing live API request.
 
+An open tab revalidates the complete JSON set every five minutes while visible. A tab that was hidden for at least one refresh interval checks again as soon as it becomes visible. The browser uses cache revalidation rather than blindly trusting a previously cached response, while still allowing unchanged bodies to be reused efficiently. A background refresh replaces the visible dataset only when every required JSON request succeeds; otherwise the last fully verified snapshot remains on screen.
+
 ## Freshness behavior
 
-The UI evaluates Hero/market freshness and floor/listings freshness independently.
+The UI evaluates Hero/market freshness and floor/listings freshness independently, using the timestamp of the last successful complete browser refresh rather than the current wall clock on every React render. This prevents an already-open tab from turning yellow merely because UTC crossed midnight before the browser had checked the newly published files.
 
-- Hero/market is expected through the current UTC date.
-- Floor/listings is considered current when it is no more than one UTC date behind because it represents an end-of-day observation.
-- When both are current, the header status is green and displays the visitor's local calendar date.
-- If either domain is outside its expected window, the status is yellow and displays the oldest successful date represented by the required domains.
+- Hero/market is expected through the current UTC date, with a short 15-minute rollover grace period immediately after midnight UTC.
+- Floor/listings is considered current when it is no more than one UTC date behind because it represents an end-of-day observation; a 30-minute rollover grace period covers the 23:30/23:50 UTC publication window and deployment propagation.
+- When both are current at the last successful verification, the header status is green and displays the visitor's local calendar date at that verification time.
+- If a complete refresh succeeds and either domain is outside its expected window after the grace period, the status is yellow and displays the oldest successful date represented by the required domains.
 - If both domains are more than 30 days stale, the status is red.
+- A transient browser/network refresh failure does not itself downgrade the indicator because it is not proof that the published source data is stale.
 
 The status is presentation logic. It does not modify or fabricate source data.
 

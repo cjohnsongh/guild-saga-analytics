@@ -36,6 +36,9 @@ const RETURN_SNAPSHOT_STORAGE_KEY = 'guild-saga-return-snapshot-v1';
 const RETURN_RECAP_SESSION_KEY = 'guild-saga-return-recap-v1';
 const RETURN_SNAPSHOT_VERSION = 1;
 const RETURN_RECAP_VISIBLE_LIMIT = 3;
+const DATA_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+const HERO_ROLLOVER_GRACE_MINUTES = 15;
+const FLOOR_ROLLOVER_GRACE_MINUTES = 30;
 
 function readHeroPreference() {
   const fallback = { heroId: 0, color: getHeroDefaultColor(0) };
@@ -253,10 +256,19 @@ const ECONOMY_COLORS = {
 };
 
 function fetchJson(path) {
-  return fetch(path).then((response) => {
+  // Revalidate published JSON rather than trusting a potentially stale browser
+  // cache. Unchanged files can still reuse their cached body after validation.
+  return fetch(path, { cache: 'no-cache' }).then((response) => {
     if (!response.ok) throw new Error(`${path}: ${response.status}`);
     return response.json();
   });
+}
+
+function loadPublishedData() {
+  return Promise.all(DATA_PATHS.map(fetchJson))
+    .then(([summary, hero, launch, market, floor, treasury, dailyMarket]) => ({
+      summary, hero, launch, market, floor, treasury, dailyMarket,
+    }));
 }
 
 function formatInt(value) {
@@ -356,9 +368,20 @@ function floorSnapshotLocalDateKey(dateKey) {
   return localDateKey(`${dateKey}T23:30:00Z`);
 }
 
-function getFreshnessStatus(data, now = new Date()) {
-  const todayUtcKey = now.toISOString().slice(0, 10);
+function getFreshnessStatus(data, verifiedAt = new Date()) {
+  // Freshness is evaluated against the time of the last *successful complete*
+  // JSON refresh, not the wall clock on every React render. This prevents a UTC
+  // date rollover from making an already-open tab look stale before the browser
+  // has actually checked the newly published files.
+  const checkedAt = verifiedAt == null
+    ? new Date()
+    : verifiedAt instanceof Date
+      ? verifiedAt
+      : new Date(verifiedAt);
+  const safeCheckedAt = Number.isNaN(checkedAt.getTime()) ? new Date() : checkedAt;
+  const todayUtcKey = safeCheckedAt.toISOString().slice(0, 10);
   const todayUtcDay = utcDateKeyToDay(todayUtcKey);
+  const utcMinutes = safeCheckedAt.getUTCHours() * 60 + safeCheckedAt.getUTCMinutes();
   const heroDate = toUtcDateKey(data?.hero?.as_of);
   const floorDate = toUtcDateKey(data?.floor?.as_of);
   const heroDay = utcDateKeyToDay(heroDate);
@@ -373,13 +396,15 @@ function getFreshnessStatus(data, now = new Date()) {
 
   const heroAgeDays = todayUtcDay - heroDay;
   const floorAgeDays = todayUtcDay - floorDay;
-  const heroIsCurrent = heroAgeDays <= 0;
-  const floorIsCurrent = floorAgeDays <= 1;
+  const heroRolloverGrace = heroAgeDays === 1 && utcMinutes < HERO_ROLLOVER_GRACE_MINUTES;
+  const floorRolloverGrace = floorAgeDays === 2 && utcMinutes < FLOOR_ROLLOVER_GRACE_MINUTES;
+  const heroIsCurrent = heroAgeDays <= 0 || heroRolloverGrace;
+  const floorIsCurrent = floorAgeDays <= 1 || floorRolloverGrace;
 
   if (heroIsCurrent && floorIsCurrent) {
-    // A healthy site is current through the visitor's own calendar day, not
-    // whatever date UTC happens to have crossed into.
-    return { tone: 'healthy', displayDate: localDateKey(now) };
+    // A healthy site is current through the visitor's own calendar day at the
+    // time the published JSON was successfully checked.
+    return { tone: 'healthy', displayDate: localDateKey(safeCheckedAt) };
   }
 
   const heroLocal = data?.hero?.as_of ? localDateKey(data.hero.as_of) : null;
@@ -393,8 +418,8 @@ function getFreshnessStatus(data, now = new Date()) {
   };
 }
 
-function FreshnessChip({ data }) {
-  const status = getFreshnessStatus(data);
+function FreshnessChip({ data, verifiedAt }) {
+  const status = getFreshnessStatus(data, verifiedAt);
   const toneLabel = status.tone === 'healthy'
     ? 'Current'
     : status.tone === 'critical'
@@ -3505,7 +3530,7 @@ function DataPage({ onBack }) {
           <h2>What is live, local, and remembered</h2>
         </div>
         <div className="data-info-grid data-info-grid-three">
-          <article className="data-info-card"><h3>Updated indicator</h3><p>Hero/market data is expected to be current through today. Floor/listings may legitimately be one UTC date behind because it represents the end-of-day snapshot. The indicator turns yellow when either domain is behind its expected window, and red when both have been stale for more than 30 days.</p></article>
+          <article className="data-info-card"><h3>Updated indicator</h3><p>The browser revalidates the published JSON every five minutes while the tab is active and checks again when a long-idle tab becomes visible. Freshness is judged only after a complete refresh succeeds, so a UTC date rollover or transient network failure cannot falsely downgrade an already verified green state. Hero/market data is expected through today; floor/listings may be one UTC date behind because it represents the end-of-day snapshot. Short rollover grace windows cover the scheduled publication boundary. Confirmed lag turns the indicator yellow, and both domains more than 30 days stale turns it red.</p></article>
           <article className="data-info-card"><h3>Selected Hero</h3><p>The selected Hero and PFP background preference are stored in normal first-party browser local storage. No account, wallet connection, download permission, or browser notification permission is required.</p></article>
           <article className="data-info-card"><h3>Since your last visit</h3><p>A compact KPI snapshot is stored locally in the browser. On a later visit, meaningful differences are calculated against the newly published data. Session storage keeps that recap stable across refreshes during the same tab session.</p></article>
         </div>
@@ -3606,6 +3631,7 @@ function DataPage({ onBack }) {
 
 export default function App() {
   const [data, setData] = useState(null);
+  const [dataVerifiedAt, setDataVerifiedAt] = useState(null);
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState('overview');
   const [showDataPage, setShowDataPage] = useState(() => window.location.hash === '#data');
@@ -3613,29 +3639,89 @@ export default function App() {
   const [returnRecap, setReturnRecap] = useState(null);
   const [returnRecapExpanded, setReturnRecapExpanded] = useState(false);
   const navScrollLockRef = useRef(null);
+  const dataRefreshInFlightRef = useRef(false);
+  const lastDataRefreshAtRef = useRef(0);
+  const hasLoadedDataRef = useRef(false);
+  const returnRecapInitializedRef = useRef(false);
 
   useEffect(() => {
-    Promise.all(DATA_PATHS.map(fetchJson))
-      .then(([summary, hero, launch, market, floor, treasury, dailyMarket]) => {
-        setData({ summary, hero, launch, market, floor, treasury, dailyMarket });
-      })
-      .catch(setError);
+    let cancelled = false;
+
+    const refreshPublishedData = async () => {
+      if (dataRefreshInFlightRef.current) return;
+      dataRefreshInFlightRef.current = true;
+
+      try {
+        const nextData = await loadPublishedData();
+        if (cancelled) return;
+        const verifiedAt = Date.now();
+        setData(nextData);
+        setDataVerifiedAt(verifiedAt);
+        lastDataRefreshAtRef.current = verifiedAt;
+        hasLoadedDataRef.current = true;
+        setError(null);
+      } catch (refreshError) {
+        if (cancelled) return;
+        if (!hasLoadedDataRef.current) {
+          setError(refreshError);
+        } else {
+          // Keep the last fully verified snapshot visible. A transient refresh
+          // failure is not evidence that the published data itself is stale.
+          console.warn('Background data refresh failed; keeping last verified snapshot.', refreshError);
+        }
+      } finally {
+        dataRefreshInFlightRef.current = false;
+      }
+    };
+
+    refreshPublishedData();
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') refreshPublishedData();
+    }, DATA_REFRESH_INTERVAL_MS);
+
+    const onVisibilityChange = () => {
+      if (
+        document.visibilityState === 'visible'
+        && Date.now() - lastDataRefreshAtRef.current >= DATA_REFRESH_INTERVAL_MS
+      ) {
+        refreshPublishedData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, []);
 
 
   useEffect(() => {
     if (!data) return;
     const current = buildReturnSnapshot(data);
+
+    // Auto-refreshing the site's public JSON must not turn same-session changes
+    // into a new "since your last visit" recap. Establish that recap once per
+    // page session, keep it stable, but continually advance the local baseline
+    // so the next genuinely new visit starts from the latest data the user saw.
+    if (returnRecapInitializedRef.current) {
+      safeStorageWrite(window.localStorage, RETURN_SNAPSHOT_STORAGE_KEY, current);
+      return;
+    }
+    returnRecapInitializedRef.current = true;
+
     const currentFingerprint = returnSnapshotFingerprint(current);
     const sessionRecap = safeStorageRead(window.sessionStorage, RETURN_RECAP_SESSION_KEY);
 
     if (
       sessionRecap?.version === RETURN_SNAPSHOT_VERSION
-      && sessionRecap.currentFingerprint === currentFingerprint
       && Array.isArray(sessionRecap.changes)
       && sessionRecap.changes.length
     ) {
       setReturnRecap(sessionRecap);
+      safeStorageWrite(window.localStorage, RETURN_SNAPSHOT_STORAGE_KEY, current);
       return;
     }
 
@@ -3779,7 +3865,7 @@ export default function App() {
             <span className="brand-copy"><strong>Guild Saga Heroes</strong><small>Analytics</small></span>
           </button>
           <div className="header-actions">
-            <FreshnessChip data={data} />
+            <FreshnessChip data={data} verifiedAt={dataVerifiedAt} />
           </div>
         </div>
         <nav className="primary-nav" aria-label="Primary">
