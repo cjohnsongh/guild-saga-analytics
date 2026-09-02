@@ -1,22 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "749c15f2c77c83420b6475c8f3691af239a9a790a3dfe60051b207248eabab85",
+    "data/state/checkpoints.json": "53eb103d09f7b700148f367ad190b6bf689b5937b6d41e4c6449a42d220d7b84",
     "data/state/hero_deltas.csv": "878873cafb20f3b3ecc93a91a6e20ff5564d7f22b3d49118289d5845f958537a",
     "data/state/hero_event_cursors.csv": "00193cb48b4f4e4eff539849668470f753cabd933a8a3564a6181dfdb6147b90",
     "data/state/market_live_sales.csv": "703f7de7cb7bb9561257400b83dabbcaad089dbd38637c7798c090cc827cb6f9",
-    "data/state/webhook_processed_events.csv": "1657a8d8aee59d9cb5a51889c6ffde0463ec390475d159c4ca2f6186eb73d28d"
+    "data/state/webhook_processed_events.csv": "0123ccd3536180c6768e790c4ecc0ee3135b7f46263179b2b2530dafa3030ad9"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "e2693757fc8d47ed15c41aef1cc66179d9d120a5b0c98add6163a24d10118b45",
+    "site/public/data/hero-state.json": "aef5ead062e5d1c7f97ee99aa2167e9625a15273c12118b5a5f5037fa2cbd375",
     "site/public/data/market-history.json": "5f65646b716fcf7f62c55c705ca0c2a84a1bf97861dfcbd4e5a0834ad0333929",
     "site/public/data/summary.json": "393e8051b87f53d82eb66d6485bb9529d9a027873ab5aa1f8ed815ca96435a0e"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 4,
   "signatures": [
-    "4x8svaMyGsAbw7HfBw7XwZS5RmQq5hBAkSckq3DM7BjV9kD2qhPxMXL2vjkUSxSwTqrCjjsWVDngYFhwinNmpdTN"
+    "3cNRQHgWR8vXufmiBSsXo5knT5Q22PLdZbRESqewCJorPSnXanqQ1KWhSdkc1815HJvXKgfnhwatthZ57XLKs4rj",
+    "4h2CmD546DhwL9ZnVMzWBmEiEaVYkbbQYnYzzdMAt4oSYZ626WCwRJjF6xXG6uQmLJ7tjxhQxhJzaYVSbsDUpTLE",
+    "3fTGG3U5xT4rTjqMhYT6w4LHPsB9fcpcPLQ1geukj2mzxx7EBonpzoiayc7DrhMcvdHL1LfJWEBFKhP5RsoDJu1F",
+    "43QfBqXDgdWNBYTL6d4QeRPftWrcGYgfuPrbH9HnmLektgZcbSCnYjcaa7j42AGBEruLm2vdFNsQb7phE9VveNJc"
   ],
-  "snapshot_received_at": "2026-09-02T03:30:42.378Z"
+  "snapshot_received_at": "2026-09-02T04:00:40.276Z"
 }
