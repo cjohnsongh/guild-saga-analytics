@@ -64,6 +64,9 @@ class ProductionPipelineTests(unittest.TestCase):
         self.assertIn("contents: write", production)
         self.assertIn("--mode production", production)
         self.assertIn("HELIUS_WEBHOOK_AUTH", production)
+        self.assertIn("Record successful production heartbeat", production)
+        self.assertIn('{"pipeline":"production"}', production)
+        self.assertIn("/internal/heartbeat", production)
         for secret in (
             "HELIUS_API_KEY",
             "ALCHEMY_API_KEY",

@@ -74,6 +74,8 @@ D1 is the durable handoff between webhook delivery and repository processing. Th
 
 The first pending page freezes a `snapshot_received_at` watermark. Every later page in the same run carries that watermark. Events received after the watermark are outside the selected batch and stay pending for a future run.
 
+The same `inbox_meta` table stores two operational heartbeat timestamps: the most recent successful live production check and the most recent successful floor/listings check. GitHub Actions writes these only after the corresponding production job succeeds, including valid no-op runs. The public `/freshness` endpoint exposes only those timestamps plus the Worker check time.
+
 ### Cron Triggers
 
 `cloudflare/webhook-inbox/wrangler.jsonc`
@@ -206,16 +208,20 @@ An open tab revalidates the complete JSON set every five minutes while visible. 
 
 ## Freshness behavior
 
-The UI evaluates Hero/market freshness and floor/listings freshness independently, using the timestamp of the last successful complete browser refresh rather than the current wall clock on every React render. This prevents an already-open tab from turning yellow merely because UTC crossed midnight before the browser had checked the newly published files.
+The header freshness indicator is based on successful pipeline heartbeats rather than on the timestamp of the newest Guild Saga transaction. This distinction matters when the collection is quiet: a production run that finds nothing new is still a successful check and should keep the site green.
 
-- Hero/market is expected through the current UTC date, with a short 15-minute rollover grace period immediately after midnight UTC.
-- Floor/listings is considered current when it is no more than one UTC date behind because it represents an end-of-day observation; a 30-minute rollover grace period covers the 23:30/23:50 UTC publication window and deployment propagation.
-- When both are current at the last successful verification, the header status is green and displays the visitor's local calendar date at that verification time.
-- If a complete refresh succeeds and either domain is outside its expected window after the grace period, the status is yellow and displays the oldest successful date represented by the required domains.
-- If both domains are more than 30 days stale, the status is red.
-- A transient browser/network refresh failure does not itself downgrade the indicator because it is not proof that the published source data is stale.
+The browser revalidates both the published JSON and the Worker's public `/freshness` response every five minutes while visible, and checks again when a long-idle tab becomes visible. The Worker response includes its own UTC `checked_at` timestamp, so heartbeat age does not depend on the visitor's computer clock.
 
-The status is presentation logic. It does not modify or fabricate source data.
+- The twice-hourly live production pipeline records `production_last_success_at` after every successful production job, including no-op runs. It is considered healthy for six hours after the last successful heartbeat.
+- The daily floor/listings pipeline records `floor_listings_last_success_at` after a successful 23:30/23:50 UTC run. Because this pipeline runs once per day, it is allowed roughly 24 hours plus six hours of lateness, represented by a 30-hour heartbeat window.
+- Missing or temporarily unreachable heartbeat information does not downgrade the UI. The browser keeps the last verified state, or stays green before the first heartbeat is available, until a successful freshness response actually proves that a pipeline is late.
+- A confirmed late heartbeat turns the status yellow.
+- If both published data domains themselves are more than 30 days stale, the status turns red regardless of heartbeat presentation.
+- The visible `Updated` date follows the live production heartbeat in the visitor's local calendar. Hovering the colored status dot shows the exact local date/time of the live pipeline heartbeat and the daily floor/listings heartbeat separately.
+
+A background JSON refresh still replaces the visible dataset only when every required public JSON request succeeds. A transient browser/network failure does not itself downgrade the indicator.
+
+The status is presentation and operational-health logic. It does not modify or fabricate source data.
 
 ## Browser-only persistence
 

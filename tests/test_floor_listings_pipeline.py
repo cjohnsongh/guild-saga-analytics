@@ -133,6 +133,10 @@ class FloorListingsPipelineTests(unittest.TestCase):
         self.assertIn("--mode dry-run", text)
         self.assertIn("--mode production", text)
         self.assertIn("group: guild-saga-production-pipeline", text)
+        self.assertIn("Record successful floor/listings heartbeat", text)
+        self.assertIn('{"pipeline":"floor_listings"}', text)
+        self.assertIn("secrets.PIPELINE_TOKEN", text)
+        self.assertIn("/internal/heartbeat", text)
         self.assertNotIn("schedule:", text)
 
     def test_worker_config_has_floor_retry_cron(self):

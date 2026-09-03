@@ -9,11 +9,13 @@ The Worker authenticates, deduplicates by transaction signature, stores the raw 
 ## Endpoints
 
 - `GET /health` - public liveness only.
+- `GET /freshness` - public, non-sensitive timestamps for the last successful live and floor/listings pipeline checks.
 - `POST /webhooks/helius` - raw Helius webhook receiver; requires exact `Authorization` value stored in Worker secret `HELIUS_WEBHOOK_AUTH`.
 - `GET /internal/pending?limit=100` - pending raw deliveries; requires `Authorization: Bearer <PIPELINE_TOKEN>`.
 - `POST /internal/ack` - mark a batch processed after the canonical pipeline succeeds.
 - `POST /internal/fail` - record a processing error while leaving an event pending.
 - `GET /internal/stats` - inbox counts + activation metadata.
+- `POST /internal/heartbeat` - records a successful `production` or `floor_listings` pipeline completion in D1; requires `Authorization: Bearer <PIPELINE_TOKEN>`.
 - `POST /internal/activation` - stores the successful webhook activation boundary.
 
 ## Secrets
@@ -28,7 +30,7 @@ Never commit values. Configure these as Cloudflare Worker secrets:
 
 Apply `schema.sql` to the bound D1 database before enabling the Helius webhook.
 
-The `signature` primary key makes duplicate Helius deliveries harmless.
+The `signature` primary key makes duplicate Helius deliveries harmless. `inbox_meta` also stores lightweight operational heartbeats so the public site can distinguish a quiet collection from a pipeline that has actually stopped running.
 
 ## Scheduled dispatches
 

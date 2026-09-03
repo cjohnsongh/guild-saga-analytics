@@ -6,6 +6,15 @@ import {
 } from "./lib.js";
 
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
+const PUBLIC_JSON_HEADERS = {
+  ...JSON_HEADERS,
+  "access-control-allow-origin": "*",
+  "cache-control": "no-store",
+};
+const HEARTBEAT_META_KEYS = new Map([
+  ["production", "production_last_success_at"],
+  ["floor_listings", "floor_listings_last_success_at"],
+]);
 
 const GITHUB_DISPATCH_URL = "https://api.github.com/repos/cjohnsongh/guild-saga-analytics/dispatches";
 const GITHUB_API_VERSION = "2026-03-10";
@@ -78,8 +87,8 @@ async function dispatchScheduledCron(controller, env) {
 }
 
 
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), { status, headers: JSON_HEADERS });
+function json(data, status = 200, headers = JSON_HEADERS) {
+  return new Response(JSON.stringify(data), { status, headers });
 }
 
 async function parseJson(request) {
@@ -249,6 +258,49 @@ async function stats(request, env) {
   return json({ ok: true, counts: counts.results ?? [], meta: meta.results ?? [] });
 }
 
+
+async function recordHeartbeat(request, env) {
+  if (!pipelineAuthorization(request, env.PIPELINE_TOKEN)) {
+    return json({ ok: false, error: "unauthorized" }, 401);
+  }
+
+  const body = await parseJson(request);
+  const pipeline = typeof body?.pipeline === "string" ? body.pipeline : "";
+  const metaKey = HEARTBEAT_META_KEYS.get(pipeline);
+  if (!metaKey) return json({ ok: false, error: "invalid_pipeline" }, 400);
+
+  const now = new Date().toISOString();
+  await env.DB.prepare(
+    `INSERT INTO inbox_meta(key, value, updated_at)
+     VALUES (?, ?, ?)
+     ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at`
+  ).bind(metaKey, now, now).run();
+
+  return json({ ok: true, pipeline, last_success_at: now });
+}
+
+async function publicFreshness(env) {
+  const keys = [...HEARTBEAT_META_KEYS.values()];
+  const result = await env.DB.prepare(
+    `SELECT key, value FROM inbox_meta WHERE key IN (?, ?)`
+  ).bind(...keys).all();
+  const values = Object.fromEntries((result.results ?? []).map((row) => [row.key, row.value]));
+
+  const production = validIso(values.production_last_success_at)
+    ? values.production_last_success_at
+    : null;
+  const floorListings = validIso(values.floor_listings_last_success_at)
+    ? values.floor_listings_last_success_at
+    : null;
+
+  return json({
+    ok: true,
+    checked_at: new Date().toISOString(),
+    production_last_success_at: production,
+    floor_listings_last_success_at: floorListings,
+  }, 200, PUBLIC_JSON_HEADERS);
+}
+
 async function setActivation(request, env) {
   if (!pipelineAuthorization(request, env.PIPELINE_TOKEN)) {
     return json({ ok: false, error: "unauthorized" }, 401);
@@ -283,6 +335,10 @@ export default {
       return json({ ok: true, service: "guild-saga-webhook-inbox" });
     }
 
+    if (request.method === "GET" && url.pathname === "/freshness") {
+      return publicFreshness(env);
+    }
+
     if (request.method === "POST" && url.pathname === "/webhooks/helius") {
       return receiveHelius(request, env);
     }
@@ -301,6 +357,10 @@ export default {
 
     if (request.method === "GET" && url.pathname === "/internal/stats") {
       return stats(request, env);
+    }
+
+    if (request.method === "POST" && url.pathname === "/internal/heartbeat") {
+      return recordHeartbeat(request, env);
     }
 
     if (request.method === "POST" && url.pathname === "/internal/activation") {

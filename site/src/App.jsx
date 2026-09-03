@@ -37,8 +37,9 @@ const RETURN_RECAP_SESSION_KEY = 'guild-saga-return-recap-v1';
 const RETURN_SNAPSHOT_VERSION = 1;
 const RETURN_RECAP_VISIBLE_LIMIT = 3;
 const DATA_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
-const HERO_ROLLOVER_GRACE_MINUTES = 15;
-const FLOOR_ROLLOVER_GRACE_MINUTES = 30;
+const PIPELINE_FRESHNESS_URL = 'https://guild-saga-webhook-inbox.cjohnson80.workers.dev/freshness';
+const PRODUCTION_HEARTBEAT_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+const FLOOR_HEARTBEAT_MAX_AGE_MS = 30 * 60 * 60 * 1000;
 
 function readHeroPreference() {
   const fallback = { heroId: 0, color: getHeroDefaultColor(0) };
@@ -271,6 +272,14 @@ function loadPublishedData() {
     }));
 }
 
+async function loadPipelineFreshness() {
+  const response = await fetch(PIPELINE_FRESHNESS_URL, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Pipeline freshness: ${response.status}`);
+  const payload = await response.json();
+  if (!payload || payload.ok !== true) throw new Error('Pipeline freshness returned an invalid response.');
+  return payload;
+}
+
 function formatInt(value) {
   return Number(value ?? 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
@@ -361,74 +370,100 @@ function utcDateKeyToDay(value) {
   return Math.floor(Date.UTC(year, month - 1, day) / 86400000);
 }
 
-function floorSnapshotLocalDateKey(dateKey) {
-  if (!dateKey) return null;
-  // Daily floor/listings is sampled at ~23:30 UTC. Convert that actual
-  // collection time into the visitor's local calendar date for display.
-  return localDateKey(`${dateKey}T23:30:00Z`);
+function formatLocalDateTime(value) {
+  if (!value) return 'Awaiting first verified check';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZoneName: 'short',
+  });
 }
 
-function getFreshnessStatus(data, verifiedAt = new Date()) {
-  // Freshness is evaluated against the time of the last *successful complete*
-  // JSON refresh, not the wall clock on every React render. This prevents a UTC
-  // date rollover from making an already-open tab look stale before the browser
-  // has actually checked the newly published files.
-  const checkedAt = verifiedAt == null
+function heartbeatAgeMs(now, value) {
+  if (!value) return null;
+  const then = new Date(value);
+  if (Number.isNaN(then.getTime())) return null;
+  return Math.max(0, now.getTime() - then.getTime());
+}
+
+function floorSnapshotFallbackTimestamp(value) {
+  const dateKey = toUtcDateKey(value);
+  return dateKey ? `${dateKey}T23:30:00Z` : null;
+}
+
+function getFreshnessStatus(data, verifiedAt = new Date(), pipelineFreshness = null) {
+  const fallbackCheckedAt = verifiedAt == null
     ? new Date()
     : verifiedAt instanceof Date
       ? verifiedAt
       : new Date(verifiedAt);
-  const safeCheckedAt = Number.isNaN(checkedAt.getTime()) ? new Date() : checkedAt;
-  const todayUtcKey = safeCheckedAt.toISOString().slice(0, 10);
-  const todayUtcDay = utcDateKeyToDay(todayUtcKey);
-  const utcMinutes = safeCheckedAt.getUTCHours() * 60 + safeCheckedAt.getUTCMinutes();
-  const heroDate = toUtcDateKey(data?.hero?.as_of);
-  const floorDate = toUtcDateKey(data?.floor?.as_of);
-  const heroDay = utcDateKeyToDay(heroDate);
-  const floorDay = utcDateKeyToDay(floorDate);
+  const safeFallbackCheckedAt = Number.isNaN(fallbackCheckedAt.getTime()) ? new Date() : fallbackCheckedAt;
+  const serverCheckedAt = pipelineFreshness?.checked_at ? new Date(pipelineFreshness.checked_at) : null;
+  const checkedAt = serverCheckedAt && !Number.isNaN(serverCheckedAt.getTime())
+    ? serverCheckedAt
+    : safeFallbackCheckedAt;
 
-  if (heroDay == null || floorDay == null) {
-    const fallbackLocal = data?.hero?.as_of
+  const todayUtcDay = utcDateKeyToDay(checkedAt.toISOString().slice(0, 10));
+  const heroDay = utcDateKeyToDay(toUtcDateKey(data?.hero?.as_of));
+  const floorDay = utcDateKeyToDay(toUtcDateKey(data?.floor?.as_of));
+  const heroAgeDays = heroDay == null || todayUtcDay == null ? null : todayUtcDay - heroDay;
+  const floorAgeDays = floorDay == null || todayUtcDay == null ? null : todayUtcDay - floorDay;
+  const bothOverMonthOld = heroAgeDays != null && floorAgeDays != null
+    && heroAgeDays > 30 && floorAgeDays > 30;
+
+  const productionHeartbeat = pipelineFreshness?.production_last_success_at || null;
+  const floorHeartbeat = pipelineFreshness?.floor_listings_last_success_at || null;
+  const productionAge = heartbeatAgeMs(checkedAt, productionHeartbeat);
+  const floorHeartbeatAge = heartbeatAgeMs(checkedAt, floorHeartbeat);
+
+  // Missing/unreachable heartbeat information is intentionally not treated as a
+  // failure. The UI stays green until a successful public freshness response
+  // gives us enough evidence to prove that a pipeline is actually late.
+  const productionLate = productionAge != null && productionAge > PRODUCTION_HEARTBEAT_MAX_AGE_MS;
+  const floorLate = floorHeartbeatAge != null && floorHeartbeatAge > FLOOR_HEARTBEAT_MAX_AGE_MS;
+  const tone = bothOverMonthOld
+    ? 'critical'
+    : productionLate || floorLate
+      ? 'warning'
+      : 'healthy';
+
+  const displayDate = productionHeartbeat
+    ? localDateKey(productionHeartbeat)
+    : data?.hero?.as_of
       ? localDateKey(data.hero.as_of)
-      : floorSnapshotLocalDateKey(floorDate);
-    return { tone: 'warning', displayDate: fallbackLocal };
-  }
-
-  const heroAgeDays = todayUtcDay - heroDay;
-  const floorAgeDays = todayUtcDay - floorDay;
-  const heroRolloverGrace = heroAgeDays === 1 && utcMinutes < HERO_ROLLOVER_GRACE_MINUTES;
-  const floorRolloverGrace = floorAgeDays === 2 && utcMinutes < FLOOR_ROLLOVER_GRACE_MINUTES;
-  const heroIsCurrent = heroAgeDays <= 0 || heroRolloverGrace;
-  const floorIsCurrent = floorAgeDays <= 1 || floorRolloverGrace;
-
-  if (heroIsCurrent && floorIsCurrent) {
-    // A healthy site is current through the visitor's own calendar day at the
-    // time the published JSON was successfully checked.
-    return { tone: 'healthy', displayDate: localDateKey(safeCheckedAt) };
-  }
-
-  const heroLocal = data?.hero?.as_of ? localDateKey(data.hero.as_of) : null;
-  const floorLocal = floorSnapshotLocalDateKey(floorDate);
-  const displayDate = heroDay <= floorDay ? heroLocal : floorLocal;
-  const bothOverMonthOld = heroAgeDays > 30 && floorAgeDays > 30;
+      : localDateKey(safeFallbackCheckedAt);
 
   return {
-    tone: bothOverMonthOld ? 'critical' : 'warning',
+    tone,
     displayDate,
+    productionHeartbeat,
+    floorHeartbeat,
+    productionLate,
+    floorLate,
   };
 }
 
-function FreshnessChip({ data, verifiedAt }) {
-  const status = getFreshnessStatus(data, verifiedAt);
+function FreshnessChip({ data, verifiedAt, pipelineFreshness }) {
+  const status = getFreshnessStatus(data, verifiedAt, pipelineFreshness);
   const toneLabel = status.tone === 'healthy'
     ? 'Current'
     : status.tone === 'critical'
       ? 'Data is over a month out of date'
       : 'One or more data sources are behind schedule';
+  const heartbeatTooltip = [
+    `Most stats: ${formatLocalDateTime(status.productionHeartbeat || data?.hero?.as_of)}`,
+    `Daily floor/listings: ${formatLocalDateTime(status.floorHeartbeat || floorSnapshotFallbackTimestamp(data?.floor?.as_of))}`,
+  ].join('\n');
 
   return (
-    <div className={`freshness-chip is-${status.tone}`} title={toneLabel} aria-label={`${toneLabel}. Updated ${formatFreshnessDate(status.displayDate)}.`}>
-      <i aria-hidden="true" />
+    <div className={`freshness-chip is-${status.tone}`} aria-label={`${toneLabel}. Updated ${formatFreshnessDate(status.displayDate)}. ${heartbeatTooltip.replace('\n', '. ')}`}>
+      <i aria-hidden="true" title={heartbeatTooltip} />
       <span>Updated {formatFreshnessDate(status.displayDate)}</span>
     </div>
   );
@@ -3530,7 +3565,7 @@ function DataPage({ onBack }) {
           <h2>What is live, local, and remembered</h2>
         </div>
         <div className="data-info-grid data-info-grid-three">
-          <article className="data-info-card"><h3>Updated indicator</h3><p>The browser revalidates the published JSON every five minutes while the tab is active and checks again when a long-idle tab becomes visible. Freshness is judged only after a complete refresh succeeds, so a UTC date rollover or transient network failure cannot falsely downgrade an already verified green state. Hero/market data is expected through today; floor/listings may be one UTC date behind because it represents the end-of-day snapshot. Short rollover grace windows cover the scheduled publication boundary. Confirmed lag turns the indicator yellow, and both domains more than 30 days stale turns it red.</p></article>
+          <article className="data-info-card"><h3>Updated indicator</h3><p>The site checks both the published JSON and a small public Cloudflare freshness endpoint every five minutes while the tab is active. Successful production jobs write heartbeat timestamps even when there is no new Guild Saga activity, so a quiet collection is not mistaken for a broken pipeline. The live pipeline gets a six-hour tolerance; the once-daily floor/listings pipeline gets its normal daily interval plus roughly six hours. Failed browser requests do not downgrade a previously verified state. Hover the colored status dot to see the last successful live and floor/listings checks in your local time. Confirmed lag turns the indicator yellow, and both published data domains more than 30 days stale turns it red.</p></article>
           <article className="data-info-card"><h3>Selected Hero</h3><p>The selected Hero and PFP background preference are stored in normal first-party browser local storage. No account, wallet connection, download permission, or browser notification permission is required.</p></article>
           <article className="data-info-card"><h3>Since your last visit</h3><p>A compact KPI snapshot is stored locally in the browser. On a later visit, meaningful differences are calculated against the newly published data. Session storage keeps that recap stable across refreshes during the same tab session.</p></article>
         </div>
@@ -3632,6 +3667,7 @@ function DataPage({ onBack }) {
 export default function App() {
   const [data, setData] = useState(null);
   const [dataVerifiedAt, setDataVerifiedAt] = useState(null);
+  const [pipelineFreshness, setPipelineFreshness] = useState(null);
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState('overview');
   const [showDataPage, setShowDataPage] = useState(() => window.location.hash === '#data');
@@ -3652,22 +3688,35 @@ export default function App() {
       dataRefreshInFlightRef.current = true;
 
       try {
-        const nextData = await loadPublishedData();
+        const [dataResult, freshnessResult] = await Promise.allSettled([
+          loadPublishedData(),
+          loadPipelineFreshness(),
+        ]);
         if (cancelled) return;
+
         const verifiedAt = Date.now();
-        setData(nextData);
-        setDataVerifiedAt(verifiedAt);
         lastDataRefreshAtRef.current = verifiedAt;
-        hasLoadedDataRef.current = true;
-        setError(null);
-      } catch (refreshError) {
-        if (cancelled) return;
-        if (!hasLoadedDataRef.current) {
-          setError(refreshError);
+
+        if (dataResult.status === 'fulfilled') {
+          setData(dataResult.value);
+          setDataVerifiedAt(verifiedAt);
+          hasLoadedDataRef.current = true;
+          setError(null);
+        } else if (!hasLoadedDataRef.current) {
+          setError(dataResult.reason);
         } else {
           // Keep the last fully verified snapshot visible. A transient refresh
           // failure is not evidence that the published data itself is stale.
-          console.warn('Background data refresh failed; keeping last verified snapshot.', refreshError);
+          console.warn('Background data refresh failed; keeping last verified snapshot.', dataResult.reason);
+        }
+
+        if (freshnessResult.status === 'fulfilled') {
+          setPipelineFreshness(freshnessResult.value);
+        } else {
+          // Operational freshness is deliberately fail-soft in the browser. If
+          // Cloudflare cannot be reached, retain the last verified heartbeat
+          // state rather than presenting an outage that has not been proven.
+          console.warn('Pipeline freshness check failed; keeping last verified status.', freshnessResult.reason);
         }
       } finally {
         dataRefreshInFlightRef.current = false;
@@ -3865,7 +3914,7 @@ export default function App() {
             <span className="brand-copy"><strong>Guild Saga Heroes</strong><small>Analytics</small></span>
           </button>
           <div className="header-actions">
-            <FreshnessChip data={data} verifiedAt={dataVerifiedAt} />
+            <FreshnessChip data={data} verifiedAt={dataVerifiedAt} pipelineFreshness={pipelineFreshness} />
           </div>
         </div>
         <nav className="primary-nav" aria-label="Primary">
