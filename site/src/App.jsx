@@ -2549,6 +2549,16 @@ function HeroShowcase({ onIdentityCandidate }) {
     }
   };
 
+  const handleRandomHero = () => {
+    // Pick uniformly from every Hero except the one already selected, so the
+    // random button always produces a visible change.
+    const candidate = Math.floor(Math.random() * 9999);
+    const nextHeroId = candidate >= heroId ? candidate + 1 : candidate;
+    setHeroInput(String(nextHeroId));
+    setHeroId(nextHeroId);
+    setPfpColor(getHeroDefaultColor(nextHeroId));
+  };
+
   return (
     <section className="hero-showcase" aria-labelledby="hero-showcase-title">
       <div className="hero-showcase-copy">
@@ -2613,8 +2623,8 @@ function HeroShowcase({ onIdentityCandidate }) {
         </div>
 
         <div className="hero-browser-controls" aria-label="Hero and PFP controls">
-          <label className="hero-control-group hero-selector" htmlFor="hero-number-preview">
-            <span className="hero-control-label">Select Hero</span>
+          <div className="hero-control-group hero-selector">
+            <label className="hero-control-label" htmlFor="hero-number-preview">Hero</label>
             <span className="hero-number-input-wrap">
               <span aria-hidden="true">#</span>
               <input
@@ -2627,7 +2637,16 @@ function HeroShowcase({ onIdentityCandidate }) {
                 aria-label="Hero number from 0 to 9999"
               />
             </span>
-          </label>
+            <button
+              type="button"
+              className="hero-random-button"
+              onClick={handleRandomHero}
+              aria-label="Choose a random Hero"
+              title="Random Hero"
+            >
+              <img src="/assets/icons/random-hero.png" alt="" aria-hidden="true" />
+            </button>
+          </div>
 
           <div className="hero-control-group pfp-background-control">
             <span className="hero-control-label">PFP Background</span>

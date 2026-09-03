@@ -2275,6 +2275,41 @@ html { scroll-behavior: smooth; }
   cursor: text;
 }
 
+.hero-random-button {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hero-random-button img {
+  width: auto;
+  height: 32px;
+  display: block;
+  image-rendering: auto;
+  transition: filter 120ms ease, transform 80ms ease;
+}
+
+.hero-random-button:hover img {
+  filter: brightness(1.12);
+}
+
+.hero-random-button:active img {
+  transform: translateY(1px);
+}
+
+.hero-random-button:focus-visible {
+  outline: 1px solid #6d7f85;
+  outline-offset: 2px;
+}
+
 .pfp-background-control { gap: 8px; }
 
 .pfp-color-popover {
@@ -3605,5 +3640,16 @@ html { scroll-behavior: smooth; }
   .hero-art.is-mobile-active img {
     width: 100%;
     height: auto;
+  }
+}
+
+/* V29 — random-Hero control. Keep the dice on the same 32px control line and
+   slightly tighten only the smallest phone widths so both control groups fit. */
+@media (max-width: 360px) {
+  .hero-browser-controls { gap: 8px; }
+  .hero-selector { gap: 7px; }
+  .hero-random-button {
+    flex-basis: 30px;
+    width: 30px;
   }
 }
