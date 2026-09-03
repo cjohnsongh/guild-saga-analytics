@@ -3581,3 +3581,29 @@ html { scroll-behavior: smooth; }
   select,
   textarea { font-size: 16px; }
 }
+
+/* V28 — keep the mobile Hero artwork viewport stable when switching NFT/Body/Face. */
+@media (max-width: 780px) {
+  .hero-art-grid {
+    display: flex;
+    width: min(100%, 430px);
+    aspect-ratio: 400 / 443;
+    margin: 0 auto;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-art.is-mobile-active {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-art.is-mobile-active img {
+    width: 100%;
+    height: auto;
+  }
+}
