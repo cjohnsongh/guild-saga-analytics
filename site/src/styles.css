@@ -3561,3 +3561,23 @@ html { scroll-behavior: smooth; }
   height: 24px;
   color: #f0f0f3;
 }
+
+/* V27 responsive alignment + iPhone input polish. */
+@media (max-width: 780px) {
+  /* Once KPI strips become multi-row grids, every cell uses the same inset. */
+  .snapshot-stat:first-child { padding-left: 12px; }
+  .snapshot-stat:last-child { padding-right: 12px; }
+  .joint-snapshot .snapshot-stat:first-child { padding-left: 10px; }
+  .joint-snapshot .snapshot-stat:last-child { padding-right: 10px; }
+
+  /* iOS zooms focused form controls below 16px. Keep controls at the native
+     threshold and suppress double-tap page zoom without disabling pinch zoom. */
+  html {
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  input,
+  select,
+  textarea { font-size: 16px; }
+}

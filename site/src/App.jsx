@@ -845,7 +845,7 @@ function makeMiniFloorOption(rows) {
   };
 }
 
-function makeOwnershipOption(tiers) {
+function makeOwnershipOption(tiers, roundSupplyLabels = false) {
   const totalHolders = tiers.reduce((sum, row) => sum + Number(row.holder_count || 0), 0);
   const labels = tiers.map((row) => row.tier);
   const holderShare = tiers.map((row) => ({
@@ -922,7 +922,7 @@ function makeOwnershipOption(tiers) {
           position: 'top',
           color: '#c6c5d0',
           fontSize: 13,
-          formatter: (p) => formatPercent(p.value),
+          formatter: (p) => formatPercent(p.value, roundSupplyLabels ? 0 : 1),
         },
       },
     ],
@@ -3003,7 +3003,20 @@ function Ownership({ data }) {
   const large = tiers.filter((row) => ['50-99', '100+'].includes(row.tier));
   const largeHolders = large.reduce((sum, row) => sum + Number(row.holder_count || 0), 0);
   const largeSupply = large.reduce((sum, row) => sum + Number(row.supply_pct || 0), 0);
-  const ownershipOption = useMemo(() => makeOwnershipOption(tiers), [tiers]);
+  const [ownershipWidgetsStacked, setOwnershipWidgetsStacked] = useState(() => window.matchMedia('(max-width: 780px)').matches);
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 780px)');
+    const syncLayout = () => setOwnershipWidgetsStacked(media.matches);
+    syncLayout();
+    media.addEventListener('change', syncLayout);
+    return () => media.removeEventListener('change', syncLayout);
+  }, []);
+
+  const ownershipOption = useMemo(
+    () => makeOwnershipOption(tiers, ownershipWidgetsStacked),
+    [tiers, ownershipWidgetsStacked],
+  );
 
   const rows = data.hero.quest_activity;
   const active7 = Number(rows.find((row) => row.bucket === 'Active 0–7d')?.heroes || 0);
