@@ -2225,7 +2225,7 @@ html { scroll-behavior: smooth; }
 .hero-control-group {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 7px;
 }
 
 .hero-control-label {
@@ -2238,7 +2238,8 @@ html { scroll-behavior: smooth; }
 .hero-selector { color: #d7d7dc; }
 
 .hero-number-input-wrap {
-  min-width: 78px;
+  width: 62px;
+  min-width: 62px;
   height: 32px;
   padding: 0 8px;
   display: inline-flex;
@@ -2266,7 +2267,7 @@ html { scroll-behavior: smooth; }
 }
 
 .hero-number-input-wrap input {
-  width: 46px;
+  width: 34px;
   min-width: 0;
   padding: 0;
   border: 0;
@@ -2287,6 +2288,8 @@ html { scroll-behavior: smooth; }
   border-radius: 5px;
   background: transparent;
   cursor: pointer;
+  transition: transform 80ms ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .hero-random-button img {
@@ -2294,15 +2297,20 @@ html { scroll-behavior: smooth; }
   height: 32px;
   display: block;
   image-rendering: auto;
-  transition: filter 120ms ease, transform 80ms ease;
+  transform: none;
+  transition: filter 120ms ease;
 }
 
 .hero-random-button:hover img {
   filter: brightness(1.12);
 }
 
+.hero-random-button:active {
+  transform: translateY(2px);
+}
+
 .hero-random-button:active img {
-  transform: translateY(1px);
+  transform: none;
 }
 
 .hero-random-button:focus-visible {
@@ -3564,7 +3572,8 @@ html { scroll-behavior: smooth; }
     font-size: 12.5px;
   }
   .hero-number-input-wrap {
-    min-width: 72px;
+    width: 66px;
+    min-width: 66px;
   }
   .pfp-background-control {
     width: auto;
@@ -3615,6 +3624,13 @@ html { scroll-behavior: smooth; }
   input,
   select,
   textarea { font-size: 16px; }
+
+  /* Four 16px digits plus the # prefix, with matching left/right inset. */
+  .hero-number-input-wrap {
+    width: 66px;
+    min-width: 66px;
+  }
+  .hero-number-input-wrap input { width: 38px; }
 }
 
 /* V28 — keep the mobile Hero artwork viewport stable when switching NFT/Body/Face. */
@@ -3647,7 +3663,7 @@ html { scroll-behavior: smooth; }
    slightly tighten only the smallest phone widths so both control groups fit. */
 @media (max-width: 360px) {
   .hero-browser-controls { gap: 8px; }
-  .hero-selector { gap: 7px; }
+  .hero-selector { gap: 6px; }
   .hero-random-button {
     flex-basis: 30px;
     width: 30px;
