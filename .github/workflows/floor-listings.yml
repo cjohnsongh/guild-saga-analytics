@@ -66,3 +66,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/floor_listings_pipeline.py --mode production
+      - name: Record successful floor/listings heartbeat
+        env:
+          PIPELINE_TOKEN: ${{ secrets.PIPELINE_TOKEN }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --retry 3 --retry-delay 2 --retry-all-errors \
+            -X POST \
+            -H "Authorization: Bearer $PIPELINE_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"pipeline":"floor_listings"}' \
+            https://guild-saga-webhook-inbox.cjohnson80.workers.dev/internal/heartbeat
