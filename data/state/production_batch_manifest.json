@@ -1,22 +1,26 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "e3b2bdee86f405d790b873ea0f6d03cf1ff2d47cd4271c4c834f28ba8b57a5d1",
-    "data/state/hero_deltas.csv": "307de41cc8fac66de72211770f958d1a32da73391cf5631f20c931f457af8951",
+    "data/state/checkpoints.json": "cc1f4f11f88df22e83b8604455034eacdabc9cf475c70ab251bf6568af2f5429",
+    "data/state/hero_deltas.csv": "974986378c577c7723d82cc01c1d2df0396cac36e19d202f9e0c0fa166012175",
     "data/state/hero_event_cursors.csv": "00193cb48b4f4e4eff539849668470f753cabd933a8a3564a6181dfdb6147b90",
     "data/state/market_live_sales.csv": "703f7de7cb7bb9561257400b83dabbcaad089dbd38637c7798c090cc827cb6f9",
-    "data/state/webhook_processed_events.csv": "a726c912e067ec8910df89ab6b3c44858641e9b42b93f5ff9b42b23e47f6b121"
+    "data/state/webhook_processed_events.csv": "b12c4fac1e5b78f1caf731eb17821c62f848fa0465069bb406327dffb23e65bf"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "8c1cad323dd0e8730610aaf732b715d1933778e75ba47ce88b063555bbefc96d",
+    "site/public/data/hero-state.json": "93421f5c0afc16c13129c80d18fd00e761d364f4e709443d9b03a31772dc6998",
     "site/public/data/market-history.json": "934854ba99a58ff4769edc27b65d92000fbead5af7164f4b143b64689a23af3c",
     "site/public/data/summary.json": "f4da814f7eb671e02080ed51ea1af3ff50cd16ed3dabab6b216d069d32e39c6a"
   },
-  "reducer_counts": {},
+  "reducer_counts": {
+    "QUEST_HERO_UPDATES": 20,
+    "WORLD_QUEST_RESTART": 2
+  },
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 2,
   "signatures": [
-    "5CEDFbwWNBbj2nsioH6Yfot9Zxg1mADeYV9nE7VMSEBNPDFsE7Gc9dqNtRZVEXcChDQ9HzvzsKMJFH3dr9YWDoEE"
+    "3nn2Pt9nfFAagMfLN6t6MwRdZqpwvjFiaQbr4Czdige1ZnmYmYd7vvdsUXcoEZJVP5DFscdcxyDjQRUcPAHZHAP5",
+    "3hJdLGsvJEA2CzmwsQV79EGUsQu8tJujgNsFAgirDawiYG6LDnEHVjw6Wih7R2grgxuYmdYtsXeFxE8xpZCL7Mtp"
   ],
-  "snapshot_received_at": "2026-09-04T21:01:08.784Z"
+  "snapshot_received_at": "2026-09-04T21:31:14.272Z"
 }
