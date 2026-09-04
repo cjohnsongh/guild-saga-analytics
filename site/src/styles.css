@@ -10,10 +10,17 @@
   --text: #ededf2;
   --muted: #a6a5b1;
   --faint: #777682;
-  --accent: #6664a9;
-  --accent-soft: #7a78b9;
-  --accent-faint: #4f4d89;
+  --accent: #668a95;
+  --accent-soft: #789aa3;
+  --accent-faint: #45636b;
   --max: 1480px;
+  --page-gutter: clamp(14px, 2.2vw, 32px);
+  --line: rgba(255, 255, 255, .075);
+  --line-strong: rgba(255, 255, 255, .115);
+  --focus-ring: #88a8b1;
+  --radius-sm: 7px;
+  --radius-md: 10px;
+  --radius-lg: 13px;
 }
 
 * { box-sizing: border-box; }
@@ -391,7 +398,7 @@ h1 {
   cursor: pointer;
 }
 .intro-gallery-thumbs button:hover { border-color: #4a4a4a; color: #ddd; }
-.intro-gallery-thumbs button.is-active { border-color: #6664a9; color: #eeeef5; background: #16151f; }
+.intro-gallery-thumbs button.is-active { border-color: var(--accent); color: #eeeef5; background: #13191b; }
 .intro-gallery-thumbs img {
   width: 58px;
   height: 48px;
@@ -420,7 +427,7 @@ h1 {
   cursor: pointer;
 }
 .text-action:hover { color: #fff; }
-.intro-actions a:hover, .trading-actions a:hover { color: #aaa8e3; }
+.intro-actions a:hover, .trading-actions a:hover { color: #c4d2d6; }
 
 .overview-market { border-top: 1px solid #303030; }
 .overview-market-grid {
@@ -1102,7 +1109,7 @@ html { scroll-behavior: smooth; }
 
 .evidence-note {
   padding: 13px 15px;
-  border-left: 3px solid #6664a9;
+  border-left: 3px solid var(--accent);
   background: #131319;
 }
 
@@ -2092,7 +2099,7 @@ html { scroll-behavior: smooth; }
 }
 
 .hero-platform-link:focus-visible {
-  outline: 2px solid #6a87d6;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -2531,7 +2538,7 @@ html { scroll-behavior: smooth; }
 }
 
 .epic-wishlist-link:focus-visible {
-  outline: 2px solid #6a87d6;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -3667,5 +3674,379 @@ html { scroll-behavior: smooth; }
   .hero-random-button {
     flex-basis: 30px;
     width: 30px;
+  }
+}
+
+
+/* V30 — professional design-system pass.
+   Keep the site data-dense and recognizably Guild Saga, but make spacing,
+   hierarchy, focus behavior and panel treatment consistent across sections. */
+html {
+  color-scheme: dark;
+  background: var(--bg);
+}
+
+
+.header-inner,
+.nav-inner,
+.content-shell {
+  width: min(var(--max), calc(100vw - var(--page-gutter) - var(--page-gutter)));
+}
+
+/* Keyboard users should be able to bypass the persistent two-row header. */
+.skip-link {
+  position: fixed;
+  z-index: 200;
+  top: 10px;
+  left: var(--page-gutter);
+  padding: 9px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: #1a1b1f;
+  color: #f2f2f5;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+  transform: translateY(-180%);
+  transition: transform 120ms ease;
+}
+.skip-link:focus { transform: translateY(0); }
+
+/* A single visible focus language across buttons, links and disclosure controls. */
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+button[class]:focus-visible,
+a[class]:focus-visible,
+summary[class]:focus-visible,
+select[class]:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.brand:focus-visible { border-radius: 2px; }
+.hero-number-input-wrap:focus-within,
+.pfp-color-trigger:focus-visible,
+.pfp-color-hex:focus-visible {
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 2px rgba(136, 168, 177, .16);
+  outline: 0;
+}
+.hero-number-input-wrap input:focus-visible,
+.pfp-color-hex:focus-visible { outline: 0; }
+
+/* The fixed chrome should feel quieter than the content it frames. */
+.site-header {
+  background: rgba(13, 13, 15, .945);
+  border-bottom-color: var(--line);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .08);
+}
+.header-inner { height: 68px; }
+.primary-nav { border-top-color: rgba(255,255,255,.055); }
+.primary-nav button {
+  height: 44px;
+  padding-inline: 14px;
+  transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+.primary-nav button:hover:not(:disabled) { background: rgba(255,255,255,.022); }
+.primary-nav button.is-active { color: #f4f4f6; }
+.freshness-chip,
+.header-actions .freshness-chip {
+  border-color: var(--line);
+  background: rgba(18, 18, 21, .86);
+}
+
+.content-shell { padding-top: 30px; }
+
+/* Major domains use one unmistakable hierarchy: icon + title + extending rule.
+   Removing the old text underline avoids making headings look like links. */
+.scroll-section {
+  margin-top: 66px;
+  padding-top: 0;
+  border-top: 0;
+}
+.scroll-section-overview { margin-top: 0; }
+.section-heading {
+  min-height: 42px;
+  gap: 16px;
+  align-items: center;
+  border: 0;
+}
+.section-heading::after {
+  content: '';
+  flex: 1 1 auto;
+  min-width: 24px;
+  height: 1px;
+  margin-top: 5px;
+  background: var(--line-strong);
+}
+.section-heading-title { gap: 10px; }
+.section-heading h2 {
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #f1f1f4;
+  font-size: clamp(27px, 2vw, 32px);
+  line-height: 1.05;
+  letter-spacing: -.03em;
+  font-weight: 640;
+  text-decoration: none;
+}
+.section-category-icon {
+  width: 28px;
+  height: 28px;
+  color: #e9e9ed;
+}
+
+/* Numeric hierarchy: consistent lining/tabular figures keep live values stable. */
+.snapshot-stat > strong,
+.snapshot-stat > small,
+.ownership-staked-fill,
+.chapter-facts strong,
+.tier-row,
+.freshness-chip,
+.return-recap-banner-text {
+  font-variant-numeric: tabular-nums;
+}
+.snapshot-strip {
+  border-top-color: var(--line-strong);
+  border-bottom-color: var(--line-strong);
+  background: linear-gradient(180deg, rgba(255,255,255,.012), rgba(255,255,255,0));
+}
+.snapshot-stat { border-right-color: var(--line); }
+.snapshot-stat > span { color: #aaaab2; }
+.snapshot-stat > strong {
+  color: #f1f1f3;
+  font-weight: 660;
+  letter-spacing: -.02em;
+}
+.snapshot-stat > small { color: #9797a1; }
+
+/* Hero: keep the pixel art dominant, while tightening the surrounding product UI. */
+.hero-showcase {
+  gap: 30px;
+  padding-top: 8px;
+}
+.hero-showcase-copy { padding-right: 16px; }
+.hero-showcase-copy h1,
+.labyrinths-copy h2 {
+  color: #f1f1f4;
+  font-size: clamp(24px, 1.9vw, 30px);
+  font-weight: 630;
+}
+.hero-showcase-copy .intro-lead { color: #dedee3; }
+.hero-showcase-copy .intro-body,
+.labyrinths-copy p { color: #aaaab2; }
+.hero-platform-link,
+.epic-wishlist-link {
+  border-color: rgba(255,255,255,.075);
+  border-radius: 11px;
+  background: linear-gradient(180deg, #12151c 0%, #0f1117 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+}
+.hero-platform-link-icon,
+.epic-wishlist-icon {
+  border-radius: 8px;
+  border-color: rgba(255,255,255,.06);
+}
+.hero-art {
+  box-shadow: 0 0 0 1px rgba(255,255,255,.07);
+}
+.hero-browser-controls { margin-top: 10px; }
+.hero-number-input-wrap,
+.pfp-color-trigger {
+  border-color: rgba(255,255,255,.20);
+  background: #151519;
+}
+.hero-number-input-wrap:hover,
+.pfp-color-trigger:hover { border-color: rgba(136,168,177,.65); }
+.labyrinths-showcase {
+  margin-top: 2px;
+  padding-top: 22px;
+  border-top-color: var(--line-strong);
+  gap: 30px;
+}
+.labyrinths-carousel-item img {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.055);
+}
+
+/* Reusable data surfaces: square enough to feel analytical, rounded enough to
+   belong to the rest of the interface. */
+.section-bar {
+  min-height: 48px;
+  border-bottom-color: var(--line);
+}
+.section-title {
+  color: #ececf0;
+  font-size: 16px;
+  font-weight: 650;
+}
+.section-note { color: #94949e; }
+.trading-panel,
+.economy-chart-card {
+  overflow: hidden;
+  border-color: var(--line-strong);
+  border-radius: var(--radius-md);
+  background: #101014;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.012);
+}
+.trading-panel:fullscreen {
+  border-radius: 0;
+  box-shadow: none;
+}
+.trading-toolbar,
+.trading-rangebar,
+.economy-chart-head { border-color: var(--line); }
+.trading-toolbar,
+.economy-chart-head { background: rgba(255,255,255,.008); }
+.secondary-button {
+  border-color: rgba(255,255,255,.14);
+  border-radius: var(--radius-sm);
+  background: #16161a;
+  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
+}
+.secondary-button:hover {
+  border-color: rgba(136,168,177,.46);
+  background: #1a1b1f;
+  color: #eeeeF2;
+}
+.range-control button,
+.interval-control button {
+  transition: color 120ms ease;
+}
+.range-control button.is-active,
+.interval-control button.is-active { color: #c9dadd; }
+.trading-actions a:hover,
+.intro-actions a:hover { color: #c9dadd; }
+
+.ownership-staked-track {
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: #28282e;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.ownership-staked-fill {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  background: #668a95;
+}
+
+/* Collection/Funding explanatory material should read as editorial context,
+   not as another field of cards. */
+.chapter-heading,
+.domain-chart-block,
+.economy-section,
+.economy-events,
+.collection-chapter,
+.tier-table-wrap,
+.economy-context,
+.economy-conversion-section {
+  border-color: var(--line);
+}
+.evidence-note {
+  border-left-color: var(--accent);
+  background: rgba(102,138,149,.055);
+}
+.economy-copy,
+.evidence-note { color: #b7b7c0; }
+.economy-copy code {
+  border: 1px solid rgba(255,255,255,.055);
+  background: #151519;
+}
+
+/* Cards in Team and documentation now share the same quiet surface language. */
+.team-card,
+.team-official-link,
+.data-summary-card,
+.data-info-card,
+.data-definition-card,
+.data-adapt-grid article,
+.data-flow-card {
+  border-color: var(--line);
+  background: linear-gradient(145deg, rgba(255,255,255,.026), rgba(255,255,255,.008));
+}
+.team-avatar-link { box-shadow: inset 0 0 0 1px rgba(255,255,255,.09); }
+.team-handle { color: #91aab2; }
+.site-footer { border-top-color: var(--line); }
+
+/* Mouse-only hover motion prevents sticky hover states on touchscreens. */
+@media (hover: hover) and (pointer: fine) {
+  .hero-platform-link:hover,
+  .epic-wishlist-link:hover,
+  .team-official-link:hover {
+    transform: translateY(-1px);
+  }
+}
+@media (hover: none) {
+  .hero-platform-link:hover,
+  .epic-wishlist-link:hover,
+  .team-official-link:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .header-inner,
+  .nav-inner,
+  .content-shell {
+    width: min(var(--max), calc(100vw - var(--page-gutter) - var(--page-gutter)));
+  }
+  .hero-showcase,
+  .labyrinths-showcase { gap: 12px; }
+  .hero-showcase-copy,
+  .labyrinths-copy { padding-right: 0; }
+}
+
+@media (max-width: 780px) {
+  .header-inner,
+  .nav-inner,
+  .content-shell { width: calc(100vw - var(--page-gutter) - var(--page-gutter)); }
+  .header-inner { height: 68px; }
+  .content-shell { padding-top: 22px; }
+  .scroll-section {
+    margin-top: 54px;
+    padding-top: 0;
+  }
+  .section-heading { gap: 12px; }
+  .section-heading h2 { font-size: clamp(25px, 7.2vw, 29px); }
+  .section-category-icon { width: 26px; height: 26px; }
+  .snapshot-strip { background: transparent; }
+  .snapshot-stat,
+  .snapshot-stat:first-child,
+  .snapshot-stat:last-child { border-color: var(--line); }
+  .trading-panel {
+    border-radius: 0;
+  }
+  .hero-showcase-copy h1,
+  .labyrinths-copy h2 { font-size: 25px; }
+  .hero-mobile-tabs {
+    border-color: var(--line-strong);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .hero-mobile-tabs button { border-right-color: var(--line); }
+  .hero-browser-controls { margin-top: 9px; }
+  .ownership-staked-track { height: 32px; }
+}
+
+@media (max-width: 520px) {
+  .section-heading { gap: 10px; }
+  .section-heading::after { min-width: 16px; }
+  .section-heading h2 { font-size: 26px; }
+  .hero-platform-link,
+  .epic-wishlist-link { border-radius: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
   }
 }

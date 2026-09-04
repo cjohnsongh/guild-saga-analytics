@@ -201,12 +201,12 @@ function CategoryIcon({ category, className = '' }) {
 
 function SectionHeading({ category, children, id }) {
   return (
-    <section className="section-heading">
+    <header className="section-heading">
       <div className="section-heading-title">
         <CategoryIcon category={category} className="section-category-icon" />
         <h2 id={id}>{children}</h2>
       </div>
-    </section>
+    </header>
   );
 }
 
@@ -2058,27 +2058,70 @@ function LightboxIcon({ type }) {
 }
 
 function ImageLightbox({ items, index, onClose, onChange, label }) {
+  const dialogRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const indexRef = useRef(index);
+  const onCloseRef = useRef(onClose);
+  const onChangeRef = useRef(onChange);
+  indexRef.current = index;
+  onCloseRef.current = onClose;
+  onChangeRef.current = onChange;
+
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
+    const previousPaddingRight = document.body.style.paddingRight;
+    const previouslyFocused = document.activeElement;
+    const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+
     document.body.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
+    window.requestAnimationFrame(() => closeButtonRef.current?.focus());
 
     const onKeyDown = (event) => {
-      if (event.key === 'Escape') onClose();
-      if (event.key === 'ArrowLeft') onChange((index - 1 + items.length) % items.length);
-      if (event.key === 'ArrowRight') onChange((index + 1) % items.length);
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        onChangeRef.current((indexRef.current - 1 + items.length) % items.length);
+        return;
+      }
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        onChangeRef.current((indexRef.current + 1) % items.length);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      const focusable = Array.from(dialogRef.current?.querySelectorAll('button:not([disabled])') || []);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
+      document.body.style.paddingRight = previousPaddingRight;
       window.removeEventListener('keydown', onKeyDown);
+      previouslyFocused?.focus?.();
     };
-  }, [index, items.length, onChange, onClose]);
+  }, [items.length]);
 
   const item = items[index];
 
   return (
     <div
+      ref={dialogRef}
       className="image-lightbox"
       role="dialog"
       aria-modal="true"
@@ -2087,7 +2130,7 @@ function ImageLightbox({ items, index, onClose, onChange, label }) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <button type="button" className="image-lightbox-close" aria-label="Close image viewer" onClick={onClose}><LightboxIcon type="close" /></button>
+      <button ref={closeButtonRef} type="button" className="image-lightbox-close" aria-label="Close image viewer" onClick={onClose}><LightboxIcon type="close" /></button>
       {items.length > 1 && (
         <button
           type="button"
@@ -3938,10 +3981,11 @@ export default function App() {
   const recapSince = formatRecapSinceShort(returnRecap?.previousVisitedAt);
 
   return (
-    <main className="app-shell">
+    <div className="app-shell">
+      <a className="skip-link" href="#main-content">Skip to analytics</a>
       <header className="site-header">
         <div className="header-inner">
-          <button className="brand" type="button" onClick={() => scrollToSection('overview')}>
+          <button className="brand" type="button" aria-label="Go to Overview" onClick={() => scrollToSection('overview')}>
             <BrandHeroMark candidate={heroIdentityCandidate} />
             <span className="brand-copy"><strong>Guild Saga Heroes</strong><small>Analytics</small></span>
           </button>
@@ -3957,6 +4001,7 @@ export default function App() {
                 type="button"
                 className={`${item.icon === 'home' ? 'nav-home-button ' : ''}${!showDataPage && activeSection === (item.target || item.id) ? 'is-active' : ''}`.trim()}
                 aria-label={item.label}
+                aria-current={!showDataPage && activeSection === (item.target || item.id) ? 'location' : undefined}
                 title={item.label}
                 onClick={() => scrollToSection(item.target || item.id)}
               >
@@ -3974,7 +4019,7 @@ export default function App() {
         </nav>
       </header>
 
-      <div className="content-shell">
+      <main id="main-content" className="content-shell" tabIndex="-1">
         {showDataPage ? (
           <DataPage onBack={backToAnalytics} />
         ) : (
@@ -4053,7 +4098,7 @@ export default function App() {
             <SiteFooter />
           </>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
