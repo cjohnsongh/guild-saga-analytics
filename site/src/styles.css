@@ -4359,3 +4359,17 @@ select[class]:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .analytics-section-placeholder { transition: none; }
 }
+
+/* V31 — never flash Hero #0 while a saved Hero's generated PFPs are preparing.
+   The placeholder uses the final PFP's own geometry, so desktop and mobile
+   keep exactly the same layout before and after the generated bitmap arrives. */
+.hero-art-placeholder {
+  display: block;
+  width: 100%;
+}
+
+.hero-art-body .hero-art-placeholder { aspect-ratio: 325 / 350; }
+.hero-art-face .hero-art-placeholder { aspect-ratio: 1; }
+
+.hero-art.is-preparing { cursor: default; }
+.hero-art.is-preparing::after { display: none; }

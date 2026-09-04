@@ -2405,14 +2405,24 @@ function BrandHeroMark({ candidate }) {
 }
 
 function HeroImageCard({ item, mobileActive, onOpen }) {
+  const ready = Boolean(item.src);
   return (
     <button
       type="button"
-      className={`hero-art hero-art-${item.id} ${mobileActive ? 'is-mobile-active' : ''}`}
-      onClick={onOpen}
-      aria-label={`Open ${item.alt}`}
+      className={`hero-art hero-art-${item.id} ${mobileActive ? 'is-mobile-active' : ''} ${ready ? 'is-ready' : 'is-preparing'}`}
+      onClick={ready ? onOpen : undefined}
+      aria-label={ready ? `Open ${item.alt}` : `${item.alt} is preparing`}
+      aria-disabled={!ready}
     >
-      <img src={item.src} alt={item.alt} />
+      {ready ? (
+        <img src={item.src} alt={item.alt} />
+      ) : item.placeholderColor ? (
+        <span
+          className="hero-art-placeholder"
+          style={{ backgroundColor: item.placeholderColor }}
+          aria-hidden="true"
+        />
+      ) : null}
     </button>
   );
 }
@@ -2488,12 +2498,16 @@ function HeroShowcase({ onIdentityCandidate }) {
   const [heroInput, setHeroInput] = useState(() => String(initialPreference.heroId));
   const [heroId, setHeroId] = useState(initialPreference.heroId);
   const [pfpColor, setPfpColor] = useState(initialPreference.color);
-  const [visibleHeroSet, setVisibleHeroSet] = useState(() => ({
-    heroId: initialPreference.heroId,
-    original: getHeroOriginalUrl(initialPreference.heroId),
-    body: HERO_ZERO_BODY_PFP,
-    face: HERO_ZERO_FACE_PFP,
-  }));
+  const [visibleHeroSet, setVisibleHeroSet] = useState(() => {
+    const canUseStaticHeroZero = initialPreference.heroId === 0
+      && initialPreference.color === getHeroDefaultColor(0);
+    return {
+      heroId: initialPreference.heroId,
+      original: getHeroOriginalUrl(initialPreference.heroId),
+      body: canUseStaticHeroZero ? HERO_ZERO_BODY_PFP : null,
+      face: canUseStaticHeroZero ? HERO_ZERO_FACE_PFP : null,
+    };
+  });
   const generationIdRef = useRef(0);
   const activeBlobUrlsRef = useRef([]);
 
@@ -2572,15 +2586,17 @@ function HeroShowcase({ onIdentityCandidate }) {
       id: 'body',
       label: 'Body PFP',
       src: visibleHeroSet.body,
+      placeholderColor: pfpColor,
       alt: `Guild Saga Hero #${visibleHeroSet.heroId} body profile picture`,
     },
     {
       id: 'face',
       label: 'Face PFP',
       src: visibleHeroSet.face,
+      placeholderColor: pfpColor,
       alt: `Guild Saga Hero #${visibleHeroSet.heroId} face profile picture`,
     },
-  ], [visibleHeroSet]);
+  ], [visibleHeroSet, pfpColor]);
 
   const handleHeroInput = (event) => {
     const raw = String(event.target.value || '');
