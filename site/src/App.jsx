@@ -37,6 +37,7 @@ const RETURN_RECAP_SESSION_KEY = 'guild-saga-return-recap-v1';
 const RETURN_SNAPSHOT_VERSION = 1;
 const RETURN_RECAP_VISIBLE_LIMIT = 3;
 const DATA_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+const INITIAL_DATA_PLACEHOLDER_DELAY_MS = 260;
 const PIPELINE_FRESHNESS_URL = 'https://guild-saga-webhook-inbox.cjohnson80.workers.dev/freshness';
 const PRODUCTION_HEARTBEAT_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 const FLOOR_HEARTBEAT_MAX_AGE_MS = 30 * 60 * 60 * 1000;
@@ -2142,7 +2143,13 @@ function ImageLightbox({ items, index, onClose, onChange, label }) {
         ><LightboxIcon type="prev" /></button>
       )}
       <div className="image-lightbox-image-wrap">
-        <img src={item.src} alt={item.alt} />
+        <img
+        src={item.src}
+        alt={item.alt}
+        loading="eager"
+        decoding="async"
+        fetchPriority={item.id === 'original' ? 'high' : 'auto'}
+      />
       </div>
       {items.length > 1 && (
         <button
@@ -2933,7 +2940,7 @@ function LabyrinthsShowcase() {
   );
 }
 
-function Overview({ data, onHeroIdentityCandidate }) {
+function Overview({ onHeroIdentityCandidate }) {
   return (
     <div className="page-stack overview-page">
       <HeroShowcase onIdentityCandidate={onHeroIdentityCandidate} />
@@ -3737,6 +3744,86 @@ function DataPage({ onBack }) {
   );
 }
 
+function SkeletonStatCell() {
+  return (
+    <span className="analytics-skeleton-stat" aria-hidden="true">
+      <i className="analytics-skeleton-line is-label" />
+      <i className="analytics-skeleton-line is-value" />
+      <i className="analytics-skeleton-line is-detail" />
+    </span>
+  );
+}
+
+function AnalyticsSectionPlaceholder({ category, title, kind, visible }) {
+  const statCount = kind === 'funding' ? 3 : 4;
+  return (
+    <div
+      className={`page-stack analytics-section-placeholder analytics-section-placeholder-${kind}${visible ? ' is-visible' : ''}`}
+      aria-hidden="true"
+    >
+      <SectionHeading category={category}>{title}</SectionHeading>
+      <div className={`analytics-skeleton-stats is-${statCount}`}>
+        {Array.from({ length: statCount }, (_, index) => <SkeletonStatCell key={index} />)}
+      </div>
+      {kind === 'ownership' && (
+        <>
+          <div className="analytics-skeleton-meter" />
+          <div className="analytics-skeleton-grid is-two">
+            <div className="analytics-skeleton-chart" />
+            <div className="analytics-skeleton-chart" />
+          </div>
+        </>
+      )}
+      {kind === 'market' && <div className="analytics-skeleton-chart is-market" />}
+      {kind === 'collection' && (
+        <>
+          <div className="analytics-skeleton-grid is-three">
+            <div className="analytics-skeleton-chart is-compact" />
+            <div className="analytics-skeleton-chart is-compact" />
+            <div className="analytics-skeleton-chart is-compact" />
+          </div>
+          <div className="analytics-skeleton-grid is-three collection-skeleton-lower">
+            <div className="analytics-skeleton-chart" />
+            <div className="analytics-skeleton-chart" />
+            <div className="analytics-skeleton-image" />
+          </div>
+        </>
+      )}
+      {kind === 'funding' && (
+        <>
+          <div className="analytics-skeleton-chart" />
+          <div className="analytics-skeleton-grid is-two">
+            <div className="analytics-skeleton-chart is-compact" />
+            <div className="analytics-skeleton-copy" />
+          </div>
+          <div className="analytics-skeleton-grid is-two">
+            <div className="analytics-skeleton-chart" />
+            <div className="analytics-skeleton-chart" />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function AnalyticsUnavailableSection({ category, title }) {
+  return (
+    <div className="page-stack analytics-unavailable-section">
+      <SectionHeading category={category}>{title}</SectionHeading>
+      <div className="analytics-unavailable-line">Data unavailable</div>
+    </div>
+  );
+}
+
+function AnalyticsDataError() {
+  return (
+    <div className="analytics-data-error" role="status">
+      <strong>Live analytics are temporarily unavailable.</strong>
+      <span>The Hero tools and site information are still available. Refresh the page to try the data again.</span>
+    </div>
+  );
+}
+
 export default function App() {
   const [data, setData] = useState(null);
   const [dataVerifiedAt, setDataVerifiedAt] = useState(null);
@@ -3745,10 +3832,19 @@ export default function App() {
   const [activeSection, setActiveSection] = useState('overview');
   const [showDataPage, setShowDataPage] = useState(() => window.location.hash === '#data');
   const [heroIdentityCandidate, setHeroIdentityCandidate] = useState(readHeroPreference);
-  const [returnRecap, setReturnRecap] = useState(null);
+  const [returnRecap, setReturnRecap] = useState(() => {
+    const sessionRecap = safeStorageRead(window.sessionStorage, RETURN_RECAP_SESSION_KEY);
+    return sessionRecap?.version === RETURN_SNAPSHOT_VERSION
+      && Array.isArray(sessionRecap.changes)
+      && sessionRecap.changes.length
+      ? sessionRecap
+      : null;
+  });
   const [returnRecapExpanded, setReturnRecapExpanded] = useState(false);
+  const [showInitialDataPlaceholders, setShowInitialDataPlaceholders] = useState(false);
   const navScrollLockRef = useRef(null);
   const dataRefreshInFlightRef = useRef(false);
+  const freshnessRefreshInFlightRef = useRef(false);
   const lastDataRefreshAtRef = useRef(0);
   const hasLoadedDataRef = useRef(false);
   const returnRecapInitializedRef = useRef(false);
@@ -3756,40 +3852,55 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
 
+    const refreshPipelineFreshness = async () => {
+      if (freshnessRefreshInFlightRef.current) return;
+      freshnessRefreshInFlightRef.current = true;
+
+      try {
+        const nextFreshness = await loadPipelineFreshness();
+        if (!cancelled) setPipelineFreshness(nextFreshness);
+      } catch (freshnessError) {
+        if (!cancelled) {
+          // Operational freshness is deliberately fail-soft in the browser. If
+          // Cloudflare cannot be reached, retain the last verified heartbeat
+          // state rather than presenting an outage that has not been proven.
+          console.warn('Pipeline freshness check failed; keeping last verified status.', freshnessError);
+        }
+      } finally {
+        freshnessRefreshInFlightRef.current = false;
+      }
+    };
+
     const refreshPublishedData = async () => {
       if (dataRefreshInFlightRef.current) return;
       dataRefreshInFlightRef.current = true;
 
+      // Freshness is useful metadata, but it must never hold the analytics UI
+      // behind an unrelated network request. Start it in parallel and let the
+      // coherent seven-file data snapshot render as soon as it verifies.
+      void refreshPipelineFreshness();
+
       try {
-        const [dataResult, freshnessResult] = await Promise.allSettled([
-          loadPublishedData(),
-          loadPipelineFreshness(),
-        ]);
+        const nextData = await loadPublishedData();
         if (cancelled) return;
 
         const verifiedAt = Date.now();
         lastDataRefreshAtRef.current = verifiedAt;
+        setData(nextData);
+        setDataVerifiedAt(verifiedAt);
+        hasLoadedDataRef.current = true;
+        setError(null);
+      } catch (dataError) {
+        if (cancelled) return;
+        lastDataRefreshAtRef.current = Date.now();
 
-        if (dataResult.status === 'fulfilled') {
-          setData(dataResult.value);
-          setDataVerifiedAt(verifiedAt);
-          hasLoadedDataRef.current = true;
-          setError(null);
-        } else if (!hasLoadedDataRef.current) {
-          setError(dataResult.reason);
+        if (!hasLoadedDataRef.current) {
+          console.error('Initial analytics data load failed.', dataError);
+          setError(dataError);
         } else {
           // Keep the last fully verified snapshot visible. A transient refresh
           // failure is not evidence that the published data itself is stale.
-          console.warn('Background data refresh failed; keeping last verified snapshot.', dataResult.reason);
-        }
-
-        if (freshnessResult.status === 'fulfilled') {
-          setPipelineFreshness(freshnessResult.value);
-        } else {
-          // Operational freshness is deliberately fail-soft in the browser. If
-          // Cloudflare cannot be reached, retain the last verified heartbeat
-          // state rather than presenting an outage that has not been proven.
-          console.warn('Pipeline freshness check failed; keeping last verified status.', freshnessResult.reason);
+          console.warn('Background data refresh failed; keeping last verified snapshot.', dataError);
         }
       } finally {
         dataRefreshInFlightRef.current = false;
@@ -3819,6 +3930,19 @@ export default function App() {
     };
   }, []);
 
+
+  useEffect(() => {
+    if (data || error) {
+      setShowInitialDataPlaceholders(false);
+      return undefined;
+    }
+
+    const timerId = window.setTimeout(() => {
+      setShowInitialDataPlaceholders(true);
+    }, INITIAL_DATA_PLACEHOLDER_DELAY_MS);
+
+    return () => window.clearTimeout(timerId);
+  }, [data, error]);
 
   useEffect(() => {
     if (!data) return;
@@ -3885,7 +4009,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!data || showDataPage) return undefined;
+    if (showDataPage) return undefined;
     const updateActive = () => {
       // During a nav-initiated smooth scroll, keep the clicked destination
       // visually selected. Without this lock the scroll spy briefly activates
@@ -3972,9 +4096,6 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
-  if (error) return <div className="load-state">Failed to load Guild Saga data: {String(error)}</div>;
-  if (!data) return <div className="load-state">Loading Guild Saga analytics…</div>;
-
   const recapChanges = returnRecap?.changes || [];
   const recapSince = formatRecapSinceShort(returnRecap?.previousVisitedAt);
 
@@ -3988,7 +4109,7 @@ export default function App() {
             <span className="brand-copy"><strong>Guild Saga Heroes</strong><small>Analytics</small></span>
           </button>
           <div className="header-actions">
-            <FreshnessChip data={data} verifiedAt={dataVerifiedAt} pipelineFreshness={pipelineFreshness} />
+            {data && <FreshnessChip data={data} verifiedAt={dataVerifiedAt} pipelineFreshness={pipelineFreshness} />}
           </div>
         </div>
         <nav className="primary-nav" aria-label="Primary">
@@ -4073,21 +4194,51 @@ export default function App() {
                 </div>
               </section>
             )}
-            <div className="single-page">
+            <div className="single-page" aria-busy={!data && !error}>
               <section id="overview" className="scroll-section scroll-section-overview" data-nav-section>
-                <Overview data={data} onHeroIdentityCandidate={setHeroIdentityCandidate} />
+                <Overview onHeroIdentityCandidate={setHeroIdentityCandidate} />
               </section>
+
+              {error && !data && <AnalyticsDataError />}
+              {!data && !error && (
+                <span className="sr-only" role="status">Loading live analytics data.</span>
+              )}
+
               <section id="ownership" className="scroll-section ownership-section" data-nav-section>
-                <Ownership data={data} />
+                {data ? (
+                  <Ownership data={data} />
+                ) : error ? (
+                  <AnalyticsUnavailableSection category="ownership" title="Ownership" />
+                ) : (
+                  <AnalyticsSectionPlaceholder category="ownership" title="Ownership" kind="ownership" visible={showInitialDataPlaceholders} />
+                )}
               </section>
               <section id="market" className="scroll-section" data-nav-section>
-                <Market data={data} />
+                {data ? (
+                  <Market data={data} />
+                ) : error ? (
+                  <AnalyticsUnavailableSection category="market" title="Market" />
+                ) : (
+                  <AnalyticsSectionPlaceholder category="market" title="Market" kind="market" visible={showInitialDataPlaceholders} />
+                )}
               </section>
               <section id="collection" className="scroll-section" data-nav-section>
-                <Collection data={data} />
+                {data ? (
+                  <Collection data={data} />
+                ) : error ? (
+                  <AnalyticsUnavailableSection category="collection" title="Collection" />
+                ) : (
+                  <AnalyticsSectionPlaceholder category="collection" title="Collection" kind="collection" visible={showInitialDataPlaceholders} />
+                )}
               </section>
               <section id="economy" className="scroll-section" data-nav-section>
-                <Funding data={data} />
+                {data ? (
+                  <Funding data={data} />
+                ) : error ? (
+                  <AnalyticsUnavailableSection category="funding" title="Funding" />
+                ) : (
+                  <AnalyticsSectionPlaceholder category="funding" title="Funding" kind="funding" visible={showInitialDataPlaceholders} />
+                )}
               </section>
               <section id="team" className="scroll-section team-scroll-section" data-nav-section>
                 <Team />

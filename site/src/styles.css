@@ -4176,3 +4176,186 @@ select[class]:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* PR01 — progressive first render.
+   The app shell and Overview are usable immediately; analytics placeholders are
+   layout reservations that only become visible if the initial data fetch takes
+   long enough to be perceptible. */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.analytics-section-placeholder {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.analytics-section-placeholder.is-visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.analytics-skeleton-stats {
+  display: grid;
+  border-block: 1px solid var(--line-strong);
+}
+
+.analytics-skeleton-stats.is-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.analytics-skeleton-stats.is-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.analytics-skeleton-stat {
+  min-width: 0;
+  min-height: 92px;
+  padding: 14px 20px;
+  border-inline-end: 1px solid var(--line);
+  display: grid;
+  grid-template-rows: 14px 28px 14px;
+  align-content: center;
+  gap: 2px;
+}
+.analytics-skeleton-stat:last-child { border-inline-end: 0; }
+
+.analytics-skeleton-line {
+  display: block;
+  align-self: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .065);
+}
+.analytics-skeleton-line.is-label { width: 38%; height: 7px; }
+.analytics-skeleton-line.is-value { width: 52%; height: 15px; background: rgba(255, 255, 255, .09); }
+.analytics-skeleton-line.is-detail { width: 64%; height: 6px; background: rgba(255, 255, 255, .045); }
+
+.analytics-skeleton-meter {
+  height: 34px;
+  border-radius: 7px;
+  background:
+    linear-gradient(90deg, rgba(102, 138, 149, .18) 0 58%, rgba(255, 255, 255, .045) 58% 100%);
+}
+
+.analytics-skeleton-grid {
+  display: grid;
+  gap: 30px;
+  min-width: 0;
+}
+.analytics-skeleton-grid.is-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.analytics-skeleton-grid.is-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.analytics-skeleton-chart,
+.analytics-skeleton-image,
+.analytics-skeleton-copy {
+  min-width: 0;
+  border-top: 1px solid var(--line-strong);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .022), rgba(255, 255, 255, .006));
+}
+
+.analytics-skeleton-chart {
+  height: 330px;
+  position: relative;
+}
+.analytics-skeleton-chart::after {
+  content: '';
+  position: absolute;
+  inset: 54px 14px 32px 52px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 58px,
+      rgba(255, 255, 255, .04) 59px,
+      transparent 60px
+    );
+}
+.analytics-skeleton-chart.is-compact { height: 260px; }
+.analytics-skeleton-chart.is-market {
+  height: 620px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: rgba(17, 17, 20, .38);
+}
+.analytics-skeleton-chart.is-market::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 62px;
+  height: 1px;
+  background: var(--line);
+}
+.analytics-skeleton-image { height: 330px; }
+.analytics-skeleton-copy {
+  height: 260px;
+  background:
+    linear-gradient(rgba(255,255,255,.065), rgba(255,255,255,.065)) 0 24px / 44% 8px no-repeat,
+    linear-gradient(rgba(255,255,255,.04), rgba(255,255,255,.04)) 0 52px / 92% 7px no-repeat,
+    linear-gradient(rgba(255,255,255,.04), rgba(255,255,255,.04)) 0 74px / 84% 7px no-repeat,
+    linear-gradient(rgba(255,255,255,.04), rgba(255,255,255,.04)) 0 96px / 68% 7px no-repeat;
+}
+
+.collection-skeleton-lower { margin-top: 10px; }
+
+.analytics-data-error {
+  margin: 34px 0 0;
+  padding: 14px 16px;
+  border-block: 1px solid rgba(239, 123, 125, .22);
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.analytics-data-error strong { color: #ededf2; }
+.analytics-unavailable-section { gap: 18px; }
+.analytics-unavailable-line {
+  min-height: 64px;
+  border-block: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding-inline: 20px;
+  color: var(--faint);
+  font-size: 12px;
+}
+
+@media (max-width: 780px) {
+  .analytics-skeleton-stats.is-4,
+  .analytics-skeleton-stats.is-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .analytics-skeleton-stats.is-4 .analytics-skeleton-stat:nth-child(2n),
+  .analytics-skeleton-stats.is-3 .analytics-skeleton-stat:nth-child(2n) {
+    border-inline-end: 0;
+  }
+  .analytics-skeleton-stats.is-4 .analytics-skeleton-stat:nth-child(n+3),
+  .analytics-skeleton-stats.is-3 .analytics-skeleton-stat:nth-child(n+3) {
+    border-top: 1px solid var(--line);
+  }
+  .analytics-skeleton-grid.is-two,
+  .analytics-skeleton-grid.is-three { grid-template-columns: 1fr; }
+  .analytics-skeleton-chart { height: 310px; }
+  .analytics-skeleton-chart.is-market { height: 520px; }
+  .analytics-skeleton-chart.is-compact,
+  .analytics-skeleton-copy { height: 240px; }
+  .analytics-skeleton-image { height: min(88vw, 430px); }
+}
+
+@media (max-width: 340px) {
+  .analytics-section-placeholder-funding .analytics-skeleton-stats.is-3 { grid-template-columns: 1fr; }
+  .analytics-section-placeholder-funding .analytics-skeleton-stat { border-inline-end: 0; }
+  .analytics-section-placeholder-funding .analytics-skeleton-stat + .analytics-skeleton-stat { border-top: 1px solid var(--line); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analytics-section-placeholder { transition: none; }
+}
