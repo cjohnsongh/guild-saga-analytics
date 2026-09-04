@@ -2018,9 +2018,11 @@ function makeTreasurySplitOption(rows) {
 function SnapshotStat({ label, value, sub }) {
   return (
     <div className="snapshot-stat">
-      <span>{label}</span>
-      <strong>{value}</strong>
-      {sub && <small>{sub}</small>}
+      <span className="snapshot-stat-label">{label}</span>
+      <strong className="snapshot-stat-value">{value}</strong>
+      <small className={`snapshot-stat-detail${sub ? '' : ' is-empty'}`} aria-hidden={sub ? undefined : true}>
+        {sub || '\u00A0'}
+      </small>
     </div>
   );
 }
@@ -3266,18 +3268,14 @@ function Funding({ data }) {
 
       <section className="economy-conversion-section economy-conversion-clean">
         <div className="economy-two-charts">
-          <div className="economy-chart-card">
-            <div className="economy-chart-head">
-              <strong>SOL Converted to USDC</strong>
-              <span>Monthly SOL sold and cumulative SOL sold</span>
-            </div>
+          <div className="domain-chart-block compact-chart-block economy-conversion-block">
+            <div className="section-bar"><span className="section-title">SOL Converted to USDC</span></div>
+            <div className="section-note">Monthly SOL sold and cumulative SOL sold</div>
             <div className="domain-chart economy-conversion-chart"><Chart option={solOption} onInit={installConversionLineCrosshair} /></div>
           </div>
-          <div className="economy-chart-card">
-            <div className="economy-chart-head">
-              <strong>USDC Purchased</strong>
-              <span>Monthly USDC received and cumulative USDC purchased</span>
-            </div>
+          <div className="domain-chart-block compact-chart-block economy-conversion-block">
+            <div className="section-bar"><span className="section-title">USDC Purchased</span></div>
+            <div className="section-note">Monthly USDC received and cumulative USDC purchased</div>
             <div className="domain-chart economy-conversion-chart"><Chart option={usdcOption} onInit={installConversionLineCrosshair} /></div>
           </div>
         </div>

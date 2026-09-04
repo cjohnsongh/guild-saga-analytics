@@ -1065,41 +1065,14 @@ html { scroll-behavior: smooth; }
 
 .economy-two-charts {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
   padding-top: 18px;
 }
 
-.economy-chart-card {
-  min-width: 0;
-  border: 1px solid #303038;
-  background: #101013;
-}
-
-.economy-chart-head {
-  min-height: 64px;
-  padding: 12px 14px;
-  border-bottom: 1px solid #2c2c33;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-}
-
-.economy-chart-head strong {
-  color: #f0eff7;
-  font-size: 15px;
-  font-weight: 650;
-}
-
-.economy-chart-head span {
-  color: #9b9aa6;
-  font-size: 13px;
-}
-
-.economy-conversion-chart {
-  height: 390px;
-}
+.economy-conversion-block { min-width: 0; }
+.economy-conversion-block .section-note { padding-top: 9px; }
+.economy-conversion-chart { height: 370px; }
 
 .economy-copy-wide {
   max-width: none;
@@ -1717,9 +1690,6 @@ html { scroll-behavior: smooth; }
     height: 340px;
   }
 
-  .economy-chart-head {
-    min-height: 60px;
-  }
 }
 
 /* UX08 refinements */
@@ -3803,9 +3773,10 @@ select[class]:focus-visible {
   color: #e9e9ed;
 }
 
-/* Numeric hierarchy: consistent lining/tabular figures keep live values stable. */
-.snapshot-stat > strong,
-.snapshot-stat > small,
+/* Canonical statistic rail. Every primary KPI strip uses the same label/value/detail
+   rhythm and numeric treatment; only the column count changes by section. */
+.snapshot-stat-value,
+.snapshot-stat-detail,
 .ownership-staked-fill,
 .chapter-facts strong,
 .tier-row,
@@ -3814,18 +3785,64 @@ select[class]:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 .snapshot-strip {
-  border-top-color: var(--line-strong);
-  border-bottom-color: var(--line-strong);
-  background: linear-gradient(180deg, rgba(255,255,255,.012), rgba(255,255,255,0));
+  --stat-cell-min-height: 92px;
+  --stat-cell-padding-inline: 20px;
+  display: grid;
+  border-block: 1px solid var(--line-strong);
+  background: transparent;
 }
-.snapshot-stat { border-right-color: var(--line); }
-.snapshot-stat > span { color: #aaaab2; }
-.snapshot-stat > strong {
+.snapshot-stat,
+.joint-snapshot .snapshot-stat {
+  min-width: 0;
+  min-height: var(--stat-cell-min-height);
+  padding: 14px var(--stat-cell-padding-inline);
+  border: 0;
+  border-inline-end: 1px solid var(--line);
+  display: grid;
+  grid-template-rows: 14px 28px 14px;
+  align-content: center;
+  justify-content: stretch;
+  justify-items: start;
+  row-gap: 4px;
+}
+.snapshot-stat:first-child,
+.joint-snapshot .snapshot-stat:first-child { padding-inline-start: 0; }
+.snapshot-stat:last-child,
+.joint-snapshot .snapshot-stat:last-child {
+  padding-inline-end: 0;
+  border-inline-end: 0;
+}
+.snapshot-strip .snapshot-stat > .snapshot-stat-label {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  color: #a7a7b0;
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.snapshot-strip .snapshot-stat > .snapshot-stat-value {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
   color: #f1f1f3;
+  font-size: 25px;
+  line-height: 28px;
   font-weight: 660;
   letter-spacing: -.02em;
+  white-space: nowrap;
 }
-.snapshot-stat > small { color: #9797a1; }
+.snapshot-strip .snapshot-stat > .snapshot-stat-detail {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  color: #9797a1;
+  font-size: 12px;
+  line-height: 14px;
+  white-space: nowrap;
+}
+.snapshot-strip .snapshot-stat > .snapshot-stat-detail.is-empty { visibility: hidden; }
 
 /* Hero: keep the pixel art dominant, while tightening the surrounding product UI. */
 .hero-showcase {
@@ -3887,8 +3904,7 @@ select[class]:focus-visible {
   font-weight: 650;
 }
 .section-note { color: #94949e; }
-.trading-panel,
-.economy-chart-card {
+.trading-panel {
   overflow: hidden;
   border-color: var(--line-strong);
   border-radius: var(--radius-md);
@@ -3900,10 +3916,8 @@ select[class]:focus-visible {
   box-shadow: none;
 }
 .trading-toolbar,
-.trading-rangebar,
-.economy-chart-head { border-color: var(--line); }
-.trading-toolbar,
-.economy-chart-head { background: rgba(255,255,255,.008); }
+.trading-rangebar { border-color: var(--line); }
+.trading-toolbar { background: rgba(255,255,255,.008); }
 .secondary-button {
   border-color: rgba(255,255,255,.14);
   border-radius: var(--radius-sm);
@@ -4039,6 +4053,118 @@ select[class]:focus-visible {
   .section-heading h2 { font-size: 26px; }
   .hero-platform-link,
   .epic-wishlist-link { border-radius: 10px; }
+}
+
+
+
+/* DS01 — unified KPI rails across Ownership, Market, Collection and Funding.
+   These rules intentionally sit after the historical UX layers: this is the one
+   responsive contract all SnapshotStat instances now share. */
+.snapshot-strip-four,
+.market-snapshot,
+.ownership-snapshot,
+.staking-snapshot { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.snapshot-strip-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+@media (max-width: 1320px) and (min-width: 781px) {
+  /* At this width four KPIs inside each half-column become cramped before the
+     charts do. Give both stat rails the full content width while keeping the
+     two analytical charts side by side. */
+  .ownership-layout {
+    grid-template-areas:
+      "ownership-stats ownership-stats"
+      "staking-stats staking-stats"
+      "staked-meter staked-meter"
+      "ownership-chart staking-chart";
+    row-gap: 18px;
+  }
+}
+
+@media (max-width: 780px) {
+  .snapshot-strip {
+    --stat-cell-min-height: 84px;
+    --stat-cell-padding-inline: 12px;
+  }
+  .snapshot-strip-four,
+  .market-snapshot,
+  .ownership-snapshot,
+  .staking-snapshot { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .snapshot-stat,
+  .snapshot-stat:first-child,
+  .snapshot-stat:last-child,
+  .joint-snapshot .snapshot-stat,
+  .joint-snapshot .snapshot-stat:first-child,
+  .joint-snapshot .snapshot-stat:last-child {
+    min-height: var(--stat-cell-min-height);
+    padding: 12px var(--stat-cell-padding-inline);
+    border: 0;
+    border-inline-end: 1px solid var(--line);
+    border-block-end: 0;
+    grid-template-rows: 14px 25px 14px;
+    row-gap: 3px;
+  }
+  .snapshot-strip .snapshot-stat > .snapshot-stat-value {
+    font-size: 22px;
+    line-height: 25px;
+  }
+
+  .snapshot-strip-four > .snapshot-stat:nth-child(odd),
+  .market-snapshot > .snapshot-stat:nth-child(odd),
+  .ownership-snapshot > .snapshot-stat:nth-child(odd),
+  .staking-snapshot > .snapshot-stat:nth-child(odd) { border-inline-end: 1px solid var(--line); }
+  .snapshot-strip-four > .snapshot-stat:nth-child(even),
+  .market-snapshot > .snapshot-stat:nth-child(even),
+  .ownership-snapshot > .snapshot-stat:nth-child(even),
+  .staking-snapshot > .snapshot-stat:nth-child(even) { border-inline-end: 0; }
+  .snapshot-strip-four > .snapshot-stat:nth-child(-n+2),
+  .market-snapshot > .snapshot-stat:nth-child(-n+2),
+  .ownership-snapshot > .snapshot-stat:nth-child(-n+2),
+  .staking-snapshot > .snapshot-stat:nth-child(-n+2) { border-block-end: 1px solid var(--line); }
+}
+
+@media (max-width: 640px) {
+  .snapshot-strip-three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .snapshot-strip-three > .snapshot-stat:nth-child(1) {
+    border-inline-end: 1px solid var(--line);
+    border-block-end: 1px solid var(--line);
+  }
+  .snapshot-strip-three > .snapshot-stat:nth-child(2) {
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--line);
+  }
+  .snapshot-strip-three > .snapshot-stat:nth-child(3) {
+    grid-column: 1 / -1;
+    border-inline-end: 0;
+  }
+}
+
+@media (max-width: 340px) {
+  /* The three-value Funding rail is the only KPI set whose real labels and SOL
+     values stop fitting comfortably in two columns at the 320px floor. */
+  .snapshot-strip-three { grid-template-columns: 1fr; }
+  .snapshot-strip-three > .snapshot-stat:nth-child(1),
+  .snapshot-strip-three > .snapshot-stat:nth-child(2),
+  .snapshot-strip-three > .snapshot-stat:nth-child(3) {
+    grid-column: auto;
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--line);
+  }
+  .snapshot-strip-three > .snapshot-stat:last-child { border-block-end: 0; }
+}
+
+/* Funding conversions use the same minimal chart grammar as the other domain
+   charts; the Floor & Listings explorer remains the sole large widget surface. */
+.economy-conversion-block {
+  min-width: 0;
+  border-top: 0;
+  background: transparent;
+}
+.economy-conversion-block .section-bar { min-height: 48px; }
+.economy-conversion-block .section-note { padding-top: 9px; }
+
+@media (max-width: 980px) {
+  .economy-two-charts { gap: 30px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
