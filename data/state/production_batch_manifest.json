@@ -1,25 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "bd61ab91987dbcb10827aac06d61cb88876ff3bad196b3076791a14d7f42f644",
+    "data/state/checkpoints.json": "bf0e1b3588e58c498acb355e4f3659ea018c2d06f61763d41006c95e25209974",
     "data/state/hero_deltas.csv": "adae8acf663467e1341b3ffffe18546366a5c3dcbf8aaaf02a4f13f1dad68bd8",
     "data/state/hero_event_cursors.csv": "a4640411c15cdab215ec6b43695b4566d7a8e4a2731433277e6318e63eccdf16",
     "data/state/market_live_sales.csv": "703f7de7cb7bb9561257400b83dabbcaad089dbd38637c7798c090cc827cb6f9",
-    "data/state/webhook_processed_events.csv": "eb8ed73f6ea4e81b9db3324c2ce348e7725ddca7c64e2b322027cf0742389be8"
+    "data/state/webhook_processed_events.csv": "e4e9ee3c01bf109caec48ecf9540e04e52a2e90b397b3769f610cf341b7d5add"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "97f7f6f8ca8d4ca567c76f7c662420b6240ed79740bd3b4d4a3bd00b0c7424ad",
+    "site/public/data/hero-state.json": "fbc5c38d4e4e56a5d584111553afa666800a7cdd51c7ae3f54aaedf3a1a68135",
     "site/public/data/market-history.json": "c91a229d3a8de3363a8f541932032ddd13ad2aa7ed0ac039b3d6f8289307217d",
     "site/public/data/summary.json": "a584d79456323b297d30511aab7dcb7fa08c1a659d4cad5da0d479e640d3477b"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 4,
+  "signature_count": 1,
   "signatures": [
-    "3muTp5kK9xW9hqteW7j3NoJMVGoBqYtSo7B82Rvxst7hPmrghxGCG4Rj4SLbqx3MLXLP6Ce1qJ2NK7R3YxLmpdWi",
-    "2WMt8TDCtTdPmVL9dYXGp29axotv8VHiQypFGxtFgtbKvX7GMhyKEPwNdSdbG6gVvLpWznKChjsWYqLMkVY3Sfts",
-    "2AVSwWjFvRzAD2iZLvuTJfJJ6SXTbJyodsDyp32mn9XKzS6KG5XZuCNjfYTQgMFEbjrrPcrEaBvtkTX9PS8e41tJ",
-    "43tVMx4eqrZxWGNMsdjjaUBZnE8F9qJS2eqJboweiCney2JXz9fs8WQy7aqvaFxvq8kwgpP9FjBkBqSoyaJwi9n9"
+    "2yQTmeGrpzvWXUQapvaktWmBzmfdzABuMWnSXoSCUEY3rCqCAyQ7y1Qo9iW8EBL2f6qgjs6sonqaQ8CrhgEdpPsi"
   ],
-  "snapshot_received_at": "2026-09-06T20:00:53.807Z"
+  "snapshot_received_at": "2026-09-06T20:30:44.116Z"
 }
