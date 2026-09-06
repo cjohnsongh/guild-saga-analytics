@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-09-06T09:00:48.978000Z",
+  "as_of": "2026-09-06T10:00:51.925000Z",
   "kpis": {
-    "active_supply": 9832,
-    "beneficial_holders": 1961,
+    "active_supply": 9827,
+    "beneficial_holders": 1960,
     "staked_heroes": 5856,
     "staked_supply_pct": 59.6,
     "quest_active_30d": 1150,
     "quest_limbo_1y": 3502,
-    "burned": 168
+    "burned": 173
   },
   "holder_distribution": [
     {
@@ -20,9 +20,9 @@
     {
       "order": 2,
       "tier": "5-14",
-      "holder_count": 270,
-      "hero_supply": 1866,
-      "supply_pct": 19.0
+      "holder_count": 269,
+      "hero_supply": 1861,
+      "supply_pct": 18.9
     },
     {
       "order": 3,
@@ -313,25 +313,25 @@
     },
     {
       "month": "2026-09-01",
-      "monthly_burns": 0,
-      "total_burns": 168
+      "monthly_burns": 5,
+      "total_burns": 173
     }
   ],
   "burned_by_rarity": [
     {
       "order": 1,
       "rarity": "Bronze",
-      "burned": 120
+      "burned": 123
     },
     {
       "order": 2,
       "rarity": "Silver",
-      "burned": 28
+      "burned": 29
     },
     {
       "order": 3,
       "rarity": "Gold",
-      "burned": 11
+      "burned": 12
     },
     {
       "order": 4,
