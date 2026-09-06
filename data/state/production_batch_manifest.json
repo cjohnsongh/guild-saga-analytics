@@ -1,22 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "f6c8761b7677a652d207a2252a5fc63a251ca5e5d554663d4c79bbc06421434c",
+    "data/state/checkpoints.json": "3ac4b2875a55227cc7aabd4f48630c573581d49568f822d8041f877117103ff2",
     "data/state/hero_deltas.csv": "eed969cbb9b8412ae2cf2f3868fc4f62c1a3d2a023636c35626c23e23152c741",
     "data/state/hero_event_cursors.csv": "00193cb48b4f4e4eff539849668470f753cabd933a8a3564a6181dfdb6147b90",
     "data/state/market_live_sales.csv": "703f7de7cb7bb9561257400b83dabbcaad089dbd38637c7798c090cc827cb6f9",
-    "data/state/webhook_processed_events.csv": "3717465eca78b8c53aebf434935f5a91025a7ce65b71d053b822a557c83517d6"
+    "data/state/webhook_processed_events.csv": "f9345045875aeeee185d627e3ddbbf8758eb071ec255677c087ac07a9dca2903"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "3aa4d1c44b4b67424d112acbbc8c1cce21677b1e87c67c5459c646ccd3636137",
+    "site/public/data/hero-state.json": "b1aa8daa9f5ff9e01b201faef15f09b2e8a913bc53606ac8a7441481afba6cf7",
     "site/public/data/market-history.json": "c91a229d3a8de3363a8f541932032ddd13ad2aa7ed0ac039b3d6f8289307217d",
     "site/public/data/summary.json": "b1c34ccaccdc5bee4113ee0b170473e23a365093b65572252e3190daac299a27"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 4,
   "signatures": [
-    "3MfeNQRhrpTk3qNAnJebe9avvMAZyCrbcHP9JyN7nbYgNHzCdwyT1xxx8ULVD2AbHC6z3k4Mkxndm1U9KPycwfod"
+    "3F6zsnr6wC5nfDP7fDaARFTPzYoQHVm2V9PEfMbaUMAwJrzpY3XWUgJNkeF5c2oq8bAfqrhh3EpvDbQEvPCeA9ZN",
+    "4MuKQFyzuhKwe18tYwjPxC5udEy43Bghu9iD8x4f56jMMEhXmGoZxadT9qhXs8jNKoYVwaXEpZjKcGFadPxCPHHc",
+    "5Jp8tCtrEks43a3hhDGeiCHMemaWY7HizRgpuqXfpXwepmXPXqWf72J7RdbVAnhohye643ogtX2Qe4GBWtsfZDa3",
+    "5UtZUGm3iXMrBSU2DR4HSXsFj43yi5WiYMovUP3vyPuNC9eVEnmSf3KW1rGQYrojv5R8Xq9fq9Cf8BkFcH4yfwon"
   ],
-  "snapshot_received_at": "2026-09-06T04:30:43.376Z"
+  "snapshot_received_at": "2026-09-06T05:00:46.003Z"
 }
