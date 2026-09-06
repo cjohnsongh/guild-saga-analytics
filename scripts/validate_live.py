@@ -45,6 +45,7 @@ def validate_public(pub: Path, max_age_hours: float | None = None):
     m = load(pub / "market-history.json")
     f = load(pub / "floor-listings.json")
     launch = load(pub / "launch.json")
+    wallet = load(pub / "wallet-explorer.json")
     gold = load(GOLD_PATH)
     gold_summary = gold["summary"]
 
@@ -111,6 +112,52 @@ def validate_public(pub: Path, max_age_hours: float | None = None):
     dates = [x["snapshot_date"] for x in f["history"]]
     assert_unique(dates, "floor/listing snapshot date")
     assert dates == sorted(dates), "floor/listing dates must be ascending"
+
+    # Wallet Explorer is a compact, privacy-preserving projection of the same
+    # canonical Hero / mint / supported-market state. It must never disagree
+    # with the headline dashboard products.
+    assert wallet.get("schema_version") == 1
+    wc = wallet["collection"]
+    assert wc["active_supply"] == hero["active_supply"]
+    assert wc["beneficial_holders"] == hero["beneficial_holders"]
+    assert wc["staked_heroes"] == hero["staked_heroes"]
+    assert close(wc["staked_supply_pct"], hero["staked_supply_pct"], 1e-9)
+    assert wc["public_mint_supply"] == launch["kpis"]["public_mint_supply"]
+    assert wc["unique_public_minters"] == launch["kpis"]["unique_public_minters"]
+    assert wc["unique_market_buyers"] == market["unique_buyers"]
+    assert sum(wc["rarity_counts"]) == hero["active_supply"]
+    assert len(wallet["heroes"]) == 10_000
+    assert len(wallet["mints"]) == launch["kpis"]["public_mint_supply"]
+    assert len(wallet["sales"]) == market["secondary_sales"]
+
+    wallet_rows = wallet["wallets"]
+    current_rows = [row for row in wallet_rows.values() if row[0]]
+    assert len(current_rows) == hero["beneficial_holders"]
+    current_heroes = [n for row in current_rows for n in row[0]]
+    assert len(current_heroes) == hero["active_supply"]
+    assert_unique(current_heroes, "Wallet Explorer current Hero assignment")
+    assert all(isinstance(n, int) and 0 <= n < len(wallet["heroes"]) for n in current_heroes)
+    assert all(wallet["heroes"][n] is not None for n in current_heroes)
+
+    mint_indexes = [i for row in wallet_rows.values() for i in row[1]]
+    buy_indexes = [i for row in wallet_rows.values() for i in row[2]]
+    sell_indexes = [i for row in wallet_rows.values() for i in row[3]]
+    assert len(mint_indexes) == len(wallet["mints"])
+    assert_unique(mint_indexes, "Wallet Explorer public mint assignment")
+    assert set(mint_indexes) == set(range(len(wallet["mints"])))
+    assert all(0 <= i < len(wallet["sales"]) for i in buy_indexes + sell_indexes)
+
+    assert len(wallet["benchmarks"]["holder_balances"]) == hero["beneficial_holders"]
+    assert sum(wallet["benchmarks"]["holder_balances"]) == hero["active_supply"]
+    assert len(wallet["benchmarks"]["market_purchase_counts"]) == market["unique_buyers"]
+    assert sum(wallet["benchmarks"]["market_purchase_counts"]) == len(buy_indexes)
+    assert len(wallet["benchmarks"]["public_mint_counts"]) == launch["kpis"]["unique_public_minters"]
+    assert sum(wallet["benchmarks"]["public_mint_counts"]) == len(wallet["mints"])
+
+    assigned_staked = sum(int(wallet["heroes"][n][1]) for n in current_heroes)
+    assert assigned_staked == hero["staked_heroes"]
+    assert wallet["as_of"]["hero"] == h["as_of"]
+    assert wallet["as_of"]["market"] == m["as_of"]
 
     domain_as_of = {
         "hero_state": h["as_of"],

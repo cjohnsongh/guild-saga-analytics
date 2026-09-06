@@ -51,7 +51,7 @@ See [`docs/architecture.md`](docs/architecture.md) for the full system contract 
 
 ## Public frontend data
 
-The website consumes seven JSON files under `site/public/data/`:
+The main analytics dashboard consumes seven JSON files under `site/public/data/`:
 
 - `summary.json`
 - `hero-state.json`
@@ -60,6 +60,8 @@ The website consumes seven JSON files under `site/public/data/`:
 - `market-daily.json`
 - `launch.json`
 - `treasury.json`
+
+Wallet Explorer has one additional published product, `wallet-explorer.json`. It is fetched only when that dedicated view is opened. The file contains the complete supported wallet index rather than address-specific shards, so entering an address does not create a wallet-specific network request. Saved wallet addresses remain first-party `localStorage` state in the visitor's browser.
 
 The browser does not need provider credentials and does not make live Solana or marketplace API calls.
 

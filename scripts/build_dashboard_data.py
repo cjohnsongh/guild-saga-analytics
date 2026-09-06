@@ -72,6 +72,15 @@ def write_json(name, obj):
     (OUT / name).write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def write_compact_json(name, obj):
+    # Wallet Explorer is intentionally one privacy-preserving public index rather
+    # than address-specific shards. Keep the tracked/downloaded file compact.
+    (OUT / name).write_text(
+        json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+
+
 def month_key_from_iso(v):
     return v[:7] + "-01"
 
@@ -307,6 +316,209 @@ def build_market(checkpoints):
     }
 
 
+
+def build_wallet_explorer(checkpoints):
+    """Build one client-side wallet index from the same canonical state as the dashboard.
+
+    The browser downloads this single file only when Wallet Explorer is opened.
+    Because every address is in the same published artifact, entering a wallet does
+    not cause an address-specific request to the site or to a blockchain provider.
+    """
+    assets = {r["mint"]: r for r in read_csv(DATA / "baseline" / "assets.csv")}
+    for d in read_csv(DATA / "state" / "hero_deltas.csv"):
+        a = assets[d["mint"]]
+        for field in HERO_STATE_FIELDS:
+            a[field] = null(d[field])
+
+    rarity_by_mint = {
+        r["mint"]: r["rarity_level"]
+        for r in read_csv(DATA / "baseline" / "rarity.csv")
+    }
+    hero_as_of = parse_time(checkpoints["hero_state_checkpoint"])
+    if hero_as_of is None:
+        raise RuntimeError("Missing hero-state checkpoint for Wallet Explorer")
+
+    rarity_names = ["Bronze", "Silver", "Gold", "Elven", "Arcane"]
+    rarity_code = {name: i for i, name in enumerate(rarity_names)}
+    quest_names = [
+        "Not staked",
+        "Active 0–7d",
+        "Idle 8–30d",
+        "Idle 31–90d",
+        "Idle 91–180d",
+        "Idle 181–365d",
+        "Idle 1+ year",
+        "Never quested",
+    ]
+    quest_code = {name: i for i, name in enumerate(quest_names)}
+    phase_names = ["", "Phase I", "Phase II", "Phase III"]
+    phase_code = {"PHASE_I": 1, "PHASE_II": 2, "PHASE_III": 3}
+
+    # Wallet rows are compact positional arrays. The public file carries field
+    # legends so the schema remains self-describing while avoiding repeated keys.
+    # [current_heroes, public_mints, supported_market_buys, supported_market_sells]
+    wallets = defaultdict(lambda: [[], [], [], []])
+    heroes = [None] * 10_000
+    known_numbers = set()
+    holder_balances = Counter()
+    active_rarity = Counter()
+    staked_heroes = 0
+
+    def quest_bucket(a):
+        if as_int(a.get("current_world_staked")) != 1:
+            return "Not staked"
+        qt = parse_time(a.get("best_known_last_qualifying_quest_utc"))
+        if qt is None:
+            return "Never quested"
+        days = (hero_as_of - qt).total_seconds() / 86400.0
+        if days <= 7:
+            return "Active 0–7d"
+        if days <= 30:
+            return "Idle 8–30d"
+        if days <= 90:
+            return "Idle 31–90d"
+        if days <= 180:
+            return "Idle 91–180d"
+        if days <= 365:
+            return "Idle 181–365d"
+        return "Idle 1+ year"
+
+    for a in assets.values():
+        raw_number = null(a.get("hero_number"))
+        hero_number = int(float(raw_number)) if raw_number is not None else None
+        rarity = rarity_by_mint[a["mint"]]
+        burned = as_int(a.get("burned")) == 1
+        is_staked = as_int(a.get("current_world_staked")) == 1
+
+        if hero_number is not None:
+            if not 0 <= hero_number <= 9999 or hero_number in known_numbers:
+                raise RuntimeError(f"Invalid/duplicate Hero number in Wallet Explorer: {hero_number}")
+            known_numbers.add(hero_number)
+            bucket = quest_bucket(a)
+            heroes[hero_number] = [
+                rarity_code[rarity],
+                1 if is_staked else 0,
+                quest_code[bucket],
+                iso_z(parse_time(a.get("current_stake_deposit_utc"))) if is_staked and parse_time(a.get("current_stake_deposit_utc")) else "",
+                iso_z(parse_time(a.get("best_known_last_qualifying_quest_utc"))) if is_staked and parse_time(a.get("best_known_last_qualifying_quest_utc")) else "",
+            ]
+
+        if not burned:
+            owner = null(a.get("current_beneficial_owner"))
+            if owner:
+                if hero_number is None:
+                    raise RuntimeError("Active Hero is missing hero_number in Wallet Explorer")
+                wallets[owner][0].append(hero_number)
+                holder_balances[owner] += 1
+                active_rarity[rarity] += 1
+            if is_staked:
+                staked_heroes += 1
+
+    # Preserve every public mint, including the three historical burned assets
+    # whose baseline rows do not have a recoverable Hero number.
+    mints = []
+    for a in sorted(
+        (r for r in assets.values() if r["genesis_type"] == "public_candy_machine"),
+        key=lambda r: (parse_time(r["genesis_utc"]), r["mint"]),
+    ):
+        payer = null(a.get("genesis_payer"))
+        if not payer:
+            continue
+        raw_number = null(a.get("hero_number"))
+        hero_number = int(float(raw_number)) if raw_number is not None else None
+        phase = phase_code.get(a.get("mint_phase") or "", 0)
+        if phase == 0:
+            raise RuntimeError(f"Unexpected public mint phase for {a['mint']}")
+        mint_index = len(mints)
+        mints.append([hero_number, iso_z(parse_time(a["genesis_utc"])), phase])
+        wallets[payer][1].append(mint_index)
+
+    baseline_sales = read_csv(DATA / "baseline" / "market_sales.csv")
+    live_sales = read_csv(DATA / "state" / "market_live_sales.csv")
+    seen = {(r["signature"], r["mint"]) for r in baseline_sales}
+    final_sales = list(baseline_sales)
+    final_sales.extend(r for r in live_sales if (r["signature"], r["mint"]) not in seen)
+    final_sales.sort(key=lambda r: (parse_time(r["utc"]), r["signature"], r["mint"]))
+
+    marketplace_names = []
+    marketplace_code = {}
+    sales = []
+    for r in final_sales:
+        raw_number = null(r.get("hero_number"))
+        if raw_number is None:
+            continue
+        hero_number = int(float(raw_number))
+        marketplace = null(r.get("marketplace")) or "Unknown"
+        if marketplace not in marketplace_code:
+            marketplace_code[marketplace] = len(marketplace_names)
+            marketplace_names.append(marketplace)
+        sale_index = len(sales)
+        sales.append([
+            hero_number,
+            iso_z(parse_time(r["utc"])),
+            round(as_float(r.get("gross_price_sol")), 9),
+            marketplace_code[marketplace],
+            r["signature"],
+        ])
+        buyer = null(r.get("buyer"))
+        seller = null(r.get("seller"))
+        if buyer:
+            wallets[buyer][2].append(sale_index)
+        if seller:
+            wallets[seller][3].append(sale_index)
+
+    active_supply = sum(holder_balances.values())
+    beneficial_holders = len(holder_balances)
+    public_minters = sum(1 for row in wallets.values() if row[1])
+    unique_buyers = sum(1 for row in wallets.values() if row[2])
+
+    return {
+        "schema_version": 1,
+        "as_of": {
+            "hero": iso_z(hero_as_of),
+            "market": checkpoints["market_checkpoint_date"],
+        },
+        "fields": {
+            "hero": ["rarity", "staked", "quest", "stake_since", "last_quest"],
+            "mint": ["hero", "utc", "phase"],
+            "sale": ["hero", "utc", "sol", "marketplace", "signature"],
+            "wallet": ["current_heroes", "public_mints", "buys", "sells"],
+        },
+        "lookups": {
+            "rarities": rarity_names,
+            "quest_buckets": quest_names,
+            "mint_phases": phase_names,
+            "marketplaces": marketplace_names,
+        },
+        "collection": {
+            "active_supply": active_supply,
+            "beneficial_holders": beneficial_holders,
+            "staked_heroes": staked_heroes,
+            "staked_supply_pct": round(100.0 * staked_heroes / active_supply, 1) if active_supply else 0.0,
+            "rarity_counts": [active_rarity[name] for name in rarity_names],
+            "public_mint_supply": len(mints),
+            "unique_public_minters": public_minters,
+            "unique_market_buyers": unique_buyers,
+        },
+        "benchmarks": {
+            "holder_balances": sorted(holder_balances.values(), reverse=True),
+            "market_purchase_counts": sorted((len(row[2]) for row in wallets.values() if row[2]), reverse=True),
+            "public_mint_counts": sorted((len(row[1]) for row in wallets.values() if row[1]), reverse=True),
+        },
+        "heroes": heroes,
+        "mints": mints,
+        "sales": sales,
+        "wallets": {
+            address: [
+                sorted(row[0]),
+                sorted(row[1]),
+                sorted(row[2]),
+                sorted(row[3]),
+            ]
+            for address, row in sorted(wallets.items())
+        },
+    }
+
 def build_floor(checkpoints):
     rows = read_csv(DATA / "history" / "floor_listings.csv")
     rows.sort(key=lambda r: r["snapshot_date"])
@@ -401,6 +613,7 @@ def main():
     hero = build_hero_state(checkpoints)
     launch = build_launch()
     market = build_market(checkpoints)
+    wallet_explorer = build_wallet_explorer(checkpoints)
     treasury = build_treasury()
 
     summary = {
@@ -415,6 +628,7 @@ def main():
     write_json("hero-state.json", hero)
     write_json("launch.json", launch)
     write_json("market-history.json", market)
+    write_compact_json("wallet-explorer.json", wallet_explorer)
     write_json("floor-listings.json", floor)
     write_json("treasury.json", treasury)
     print(json.dumps(summary, indent=2, ensure_ascii=False))

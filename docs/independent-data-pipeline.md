@@ -65,6 +65,12 @@ This domain is independently checkpointed. Cloudflare dispatches it at 23:30 UTC
 
 A source failure does not write an observation and never copies the previous day's value forward. The pipeline writes at most one row per UTC date.
 
+### Wallet Explorer projection
+
+A full Hero/market rebuild also writes `site/public/data/wallet-explorer.json`. This is a deterministic projection of current beneficial ownership, staking/quest timestamps, rarity, public-mint provenance, and validated supported-market buyer/seller records. `scripts/validate_live.py` cross-checks its supply, holder, staking, mint, buyer, rarity, and sale totals against the primary dashboard products before release.
+
+The public artifact is deliberately a single compact all-wallet index rather than address-specific files or an API. The dedicated Wallet Explorer view downloads it only when opened and resolves entered addresses in the browser. This keeps wallet searches out of server/provider request logs while still allowing saved address sets to remain local browser preferences. Market cash-flow presentation is explicitly market-only: sales without a visible prior supported-market purchase in the selected wallet view are retained in history but excluded from matched received/net totals.
+
 ### Historical/static
 
 Launch/mint history, rarity, established historical sales, and known funding history are local baseline data and do not require a scheduled full-chain scan.

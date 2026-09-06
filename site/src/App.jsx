@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { HexColorInput, HexColorPicker } from 'react-colorful';
 import Chart from './components/Chart.jsx';
+import { OwnershipWalletEntry, WalletExplorerPage } from './components/WalletExplorer.jsx';
 import { getHeroDefaultColor, getHeroOriginalUrl, getHeroSourceUrl } from './lib/heroPfp.js';
+import { readStoredWallets, writeStoredWallets } from './lib/walletExplorer.js';
 
 const DATA_PATHS = [
   '/data/summary.json',
@@ -3083,7 +3085,7 @@ function Market({ data }) {
   );
 }
 
-function Ownership({ data }) {
+function Ownership({ data, savedWallets, onExploreWallets }) {
   const tiers = data.hero.holder_distribution;
   const totalHolders = tiers.reduce((sum, row) => sum + Number(row.holder_count || 0), 0);
   const small = tiers.find((row) => row.tier === '1-4');
@@ -3158,6 +3160,8 @@ function Ownership({ data }) {
           <div className="domain-chart joint-domain-chart"><Chart option={stakingOption} /></div>
         </section>
       </div>
+
+      <OwnershipWalletEntry savedWallets={savedWallets} onExplore={onExploreWallets} />
     </div>
   );
 }
@@ -3477,6 +3481,7 @@ function DataPage({ onBack }) {
     ['floor-listings.json', 'Historical floor price and listing-count observations.'],
     ['market-history.json', 'Secondary-market activity, first-resale timing, and royalty history.'],
     ['market-daily.json', 'Daily secondary sales and SOL volume used by the market explorer.'],
+    ['wallet-explorer.json', 'Compact client-side wallet index for current ownership, public mints, and validated supported-market activity.'],
     ['launch.json', 'Original mint history, mint phases, and public mint distribution.'],
     ['treasury.json', 'Mint-proceeds split and project-connected economic aggregates.'],
   ];
@@ -3491,6 +3496,8 @@ function DataPage({ onBack }) {
     ['Royalties', 'Creator royalty value associated with validated secondary sales.'],
     ['First resale', 'The first validated secondary sale after a Hero entered circulation.'],
     ['Funding activity', 'Observed on-chain transfers and conversions involving project-connected wallets. A transfer relationship does not by itself prove common ownership or off-chain spending.'],
+    ['Wallet Explorer market flow', 'Market-only cash flow from validated supported-market records. Received SOL and net market flow include only sales where an earlier supported-market purchase of the same Hero is visible in that wallet view; they are not presented as profit or cost basis.'],
+    ['No market buy trail', 'A currently held Hero without an open supported-market purchase trail in the wallet view. This can include original mints, ordinary transfers, OTC activity, prizes, or other acquisitions outside the supported marketplace records.'],
   ];
 
   const implementationPaths = [
@@ -3663,6 +3670,7 @@ function DataPage({ onBack }) {
         <div className="data-info-grid data-info-grid-three">
           <article className="data-info-card"><h3>Updated indicator</h3><p>The site checks both the published JSON and a small public Cloudflare freshness endpoint every five minutes while the tab is active. Successful production jobs write heartbeat timestamps even when there is no new Guild Saga activity, so a quiet collection is not mistaken for a broken pipeline. The live pipeline gets a six-hour tolerance; the once-daily floor/listings pipeline gets its normal daily interval plus roughly six hours. Failed browser requests do not downgrade a previously verified state. Hover the colored status dot to see the last successful live and floor/listings checks in your local time. Confirmed lag turns the indicator yellow, and both published data domains more than 30 days stale turns it red.</p></article>
           <article className="data-info-card"><h3>Selected Hero</h3><p>The selected Hero and PFP background preference are stored in normal first-party browser local storage. No account, wallet connection, download permission, or browser notification permission is required.</p></article>
+          <article className="data-info-card"><h3>Wallet Explorer</h3><p>Saved wallet addresses stay in first-party local storage. Opening Wallet Explorer downloads one published index containing all supported addresses, so typing a wallet does not trigger an address-specific request, blockchain query, or wallet connection.</p></article>
           <article className="data-info-card"><h3>Since your last visit</h3><p>A compact KPI snapshot is stored locally in the browser. On a later visit, meaningful differences are calculated against the newly published data. Session storage keeps that recap stable across refreshes during the same tab session.</p></article>
         </div>
       </section>
@@ -3847,6 +3855,8 @@ export default function App() {
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState('overview');
   const [showDataPage, setShowDataPage] = useState(() => window.location.hash === '#data');
+  const [showWalletPage, setShowWalletPage] = useState(() => window.location.hash === '#wallet');
+  const [savedWallets, setSavedWallets] = useState(readStoredWallets);
   const [heroIdentityCandidate, setHeroIdentityCandidate] = useState(readHeroPreference);
   const [returnRecap, setReturnRecap] = useState(() => {
     const sessionRecap = safeStorageRead(window.sessionStorage, RETURN_RECAP_SESSION_KEY);
@@ -4015,17 +4025,24 @@ export default function App() {
 
 
   useEffect(() => {
-    const onHashChange = () => {
-      const isData = window.location.hash === '#data';
+    const syncSpecialPageFromLocation = () => {
+      const hash = window.location.hash;
+      const isData = hash === '#data';
+      const isWallet = hash === '#wallet';
       setShowDataPage(isData);
-      if (isData) window.scrollTo({ top: 0, behavior: 'auto' });
+      setShowWalletPage(isWallet);
+      if (isData || isWallet) window.scrollTo({ top: 0, behavior: 'auto' });
     };
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    window.addEventListener('hashchange', syncSpecialPageFromLocation);
+    window.addEventListener('popstate', syncSpecialPageFromLocation);
+    return () => {
+      window.removeEventListener('hashchange', syncSpecialPageFromLocation);
+      window.removeEventListener('popstate', syncSpecialPageFromLocation);
+    };
   }, []);
 
   useEffect(() => {
-    if (showDataPage) return undefined;
+    if (showDataPage || showWalletPage) return undefined;
     const updateActive = () => {
       // During a nav-initiated smooth scroll, keep the clicked destination
       // visually selected. Without this lock the scroll spy briefly activates
@@ -4061,7 +4078,7 @@ export default function App() {
       window.removeEventListener('scroll', updateActive);
       window.removeEventListener('resize', updateActive);
     };
-  }, [data, showDataPage]);
+  }, [data, showDataPage, showWalletPage]);
 
   const scrollToSection = (id, options = {}) => {
     const move = () => {
@@ -4097,18 +4114,33 @@ export default function App() {
       }
     };
 
-    if (showDataPage) {
+    if (showDataPage || showWalletPage) {
       window.history.pushState(null, '', window.location.pathname + window.location.search);
       setShowDataPage(false);
+      setShowWalletPage(false);
       window.setTimeout(move, 0);
     } else {
       move();
     }
   };
 
+  const updateSavedWallets = (nextWallets) => {
+    const next = writeStoredWallets(nextWallets);
+    setSavedWallets(next);
+  };
+
+  const openWalletExplorer = (nextWallets = savedWallets) => {
+    if (nextWallets?.length) updateSavedWallets(nextWallets);
+    window.history.pushState(null, '', `${window.location.pathname}${window.location.search}#wallet`);
+    setShowDataPage(false);
+    setShowWalletPage(true);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
   const backToAnalytics = () => {
     window.history.pushState(null, '', window.location.pathname + window.location.search);
     setShowDataPage(false);
+    setShowWalletPage(false);
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
@@ -4117,7 +4149,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <a className="skip-link" href="#main-content">Skip to analytics</a>
+      <a className="skip-link" href="#main-content">Skip to content</a>
       <header className="site-header">
         <div className="header-inner">
           <button className="brand" type="button" aria-label="Go to Overview" onClick={() => scrollToSection('overview')}>
@@ -4134,9 +4166,9 @@ export default function App() {
               <button
                 key={item.id}
                 type="button"
-                className={`${item.icon === 'home' ? 'nav-home-button ' : ''}${!showDataPage && activeSection === (item.target || item.id) ? 'is-active' : ''}`.trim()}
+                className={`${item.icon === 'home' ? 'nav-home-button ' : ''}${!showDataPage && !showWalletPage && activeSection === (item.target || item.id) ? 'is-active' : ''}`.trim()}
                 aria-label={item.label}
-                aria-current={!showDataPage && activeSection === (item.target || item.id) ? 'location' : undefined}
+                aria-current={!showDataPage && !showWalletPage && activeSection === (item.target || item.id) ? 'location' : undefined}
                 title={item.label}
                 onClick={() => scrollToSection(item.target || item.id)}
               >
@@ -4157,6 +4189,8 @@ export default function App() {
       <main id="main-content" className="content-shell" tabIndex="-1">
         {showDataPage ? (
           <DataPage onBack={backToAnalytics} />
+        ) : showWalletPage ? (
+          <WalletExplorerPage wallets={savedWallets} onWalletsChange={updateSavedWallets} onBack={backToAnalytics} />
         ) : (
           <>
             {recapChanges.length > 0 && (
@@ -4222,7 +4256,7 @@ export default function App() {
 
               <section id="ownership" className="scroll-section ownership-section" data-nav-section>
                 {data ? (
-                  <Ownership data={data} />
+                  <Ownership data={data} savedWallets={savedWallets} onExploreWallets={openWalletExplorer} />
                 ) : error ? (
                   <AnalyticsUnavailableSection category="ownership" title="Ownership" />
                 ) : (
