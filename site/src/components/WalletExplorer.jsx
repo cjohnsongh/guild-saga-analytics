@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Chart from './Chart.jsx';
-import { getHeroDefaultColor, getHeroSourceUrl } from '../lib/heroPfp.js';
+import { getHeroDefaultColor, getHeroOriginalUrl, getHeroSourceUrl } from '../lib/heroPfp.js';
 import {
   buildWalletView,
   parseWalletAddresses,
@@ -8,16 +8,19 @@ import {
 } from '../lib/walletExplorer.js';
 
 const WALLET_DATA_URL = '/data/wallet-explorer.json';
-const HERO_PAGE_SIZE = 48;
-const TIMELINE_PAGE_SIZE = 24;
+const HERO_PAGE_SIZE = 32;
+const TIMELINE_PAGE_SIZE = 15;
 
 const RARITY_COLORS = {
   Bronze: '#956639',
   Silver: '#757c9b',
   Gold: '#fbd364',
-  Elven: '#faebc8',
   Arcane: '#8041a0',
+  Elven: '#faebc8',
 };
+
+const RARITY_ORDER = ['Bronze', 'Silver', 'Gold', 'Arcane', 'Elven'];
+const RARITY_SORT_ORDER = [...RARITY_ORDER].reverse();
 
 const COLORS = {
   text: '#eeeeee',
@@ -133,21 +136,25 @@ function WalletSectionHeading({ title, note }) {
   );
 }
 
+function collectionRarityCount(data, rarity) {
+  const index = data.lookups.rarities.indexOf(rarity);
+  return index >= 0 ? Number(data.collection.rarity_counts[index] || 0) : 0;
+}
+
 function makeRarityOption(stats, data) {
-  const rarities = data.lookups.rarities;
-  const rows = rarities.map((rarity, index) => ({
+  const rows = RARITY_ORDER.map((rarity) => ({
     rarity,
     count: stats.rarityCounts[rarity] || 0,
-    collection: Number(data.collection.rarity_counts[index] || 0),
+    collection: collectionRarityCount(data, rarity),
   }));
 
   return {
-    animationDuration: 260,
+    animation: false,
     tooltip: {
       trigger: 'item',
       backgroundColor: '#17171b',
-      borderColor: '#34343c',
-      textStyle: { color: COLORS.text },
+      borderColor: '#45454d',
+      textStyle: { color: COLORS.text, fontSize: 13 },
       formatter: (p) => {
         const row = rows[p.dataIndex];
         const walletPct = stats.heroCount ? (row.count / stats.heroCount) * 100 : 0;
@@ -158,74 +165,19 @@ function makeRarityOption(stats, data) {
     legend: { show: false },
     series: [{
       type: 'pie',
-      radius: ['50%', '78%'],
+      radius: ['38%', '82%'],
       center: ['50%', '50%'],
-      minAngle: 2,
-      avoidLabelOverlap: true,
       label: { show: false },
-      emphasis: { scaleSize: 5 },
+      emphasis: { scaleSize: 4 },
       data: rows.map((row) => ({
         name: row.rarity,
         value: row.count,
-        itemStyle: { color: RARITY_COLORS[row.rarity] || COLORS.accent },
+        itemStyle: {
+          color: RARITY_COLORS[row.rarity] || COLORS.accent,
+          borderColor: '#101012',
+          borderWidth: 0.65,
+        },
       })),
-    }],
-  };
-}
-
-function makeQuestOption(stats) {
-  const rows = Object.entries(stats.questCounts).filter(([, value]) => Number(value) > 0);
-  const dataRows = rows.length ? rows : [['No staked Heroes', 0]];
-  return {
-    animationDuration: 260,
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      backgroundColor: '#17171b',
-      borderColor: '#34343c',
-      textStyle: { color: COLORS.text },
-      formatter: (params) => {
-        const p = params?.[0];
-        return p ? `<strong>${p.name}</strong><br/>${formatInt(p.value)} Heroes` : '';
-      },
-    },
-    grid: { left: 52, right: 14, top: 18, bottom: 72 },
-    xAxis: {
-      type: 'category',
-      data: dataRows.map(([name]) => ({
-        'Active 0–7d': '0–7d',
-        'Idle 8–30d': '8–30d',
-        'Idle 31–90d': '31–90d',
-        'Idle 91–180d': '91–180d',
-        'Idle 181–365d': '181–365d',
-        'Idle 1+ year': '1y+',
-        'Never quested': 'Never',
-      }[name] || name)),
-      axisTick: { show: false },
-      axisLine: { lineStyle: { color: COLORS.axis } },
-      axisLabel: { color: COLORS.muted, fontSize: 11, interval: 0, rotate: dataRows.length > 5 ? 20 : 0 },
-    },
-    yAxis: {
-      type: 'value',
-      min: 0,
-      minInterval: 1,
-      axisTick: { show: false },
-      axisLine: { show: false },
-      axisLabel: { color: COLORS.muted, fontSize: 11 },
-      splitLine: { lineStyle: { color: COLORS.grid } },
-    },
-    series: [{
-      type: 'bar',
-      data: dataRows.map(([, value]) => value),
-      barMaxWidth: 70,
-      itemStyle: { color: COLORS.accent },
-      label: {
-        show: true,
-        position: 'top',
-        color: '#dedde7',
-        fontSize: 11,
-        formatter: (p) => p.value ? formatInt(p.value) : '',
-      },
     }],
   };
 }
@@ -266,8 +218,8 @@ export function OwnershipWalletEntry({ savedWallets, onExplore }) {
           <span className="category-icon" data-category="ownership" />
         </span>
         <div>
-          <strong id="ownership-wallet-entry-title">Explore your ownership</strong>
-          <span>Wallet portfolio, staking, rarity and history</span>
+          <strong id="ownership-wallet-entry-title">Wallet Explorer</strong>
+          <span>Look up ownership, staking, rarity and history by address</span>
         </div>
       </div>
       <form className="ownership-wallet-entry-form" onSubmit={submit}>
@@ -400,7 +352,9 @@ function WalletManager({ wallets, activeWallet, onActiveWalletChange, onWalletsC
       {wallets.length > 1 && activeWallet === 'all' && (
         <WalletInfo>Everything below treats the saved addresses as one combined ownership profile. Switch to an individual wallet above whenever you want to inspect it on its own.</WalletInfo>
       )}
-      <WalletInfo>Addresses are saved only in this browser. Wallet Explorer downloads one published Guild Saga index; typing an address does not trigger an address-specific lookup or wallet connection.</WalletInfo>
+      <WalletInfo>
+        Addresses are saved only in this browser. Wallet Explorer downloads one published Guild Saga index; typing an address does not trigger an address-specific lookup or wallet connection. The <a href="https://github.com/cjohnsongh/guild-saga-analytics" target="_blank" rel="noreferrer">source is available to inspect on GitHub</a>.
+      </WalletInfo>
     </section>
   );
 }
@@ -408,8 +362,8 @@ function WalletManager({ wallets, activeWallet, onActiveWalletChange, onWalletsC
 function WalletLoadingState() {
   return (
     <div className="wallet-loading-state" aria-hidden="true">
-      <div className="wallet-loading-rail"><i /><i /><i /><i /><i /></div>
-      <div className="wallet-loading-panels"><i /><i /></div>
+      <div className="wallet-loading-rail"><i /><i /><i /></div>
+      <div className="wallet-loading-panels"><i /></div>
     </div>
   );
 }
@@ -418,7 +372,7 @@ function WalletEmptyState() {
   return (
     <section className="wallet-empty-state">
       <span className="category-icon" data-category="ownership" aria-hidden="true" />
-      <strong>Add a wallet to explore its Guild Saga history</strong>
+      <strong>Add an address to explore Guild Saga activity</strong>
       <p>Current Heroes, staking and quest state, rarity, public mint history and validated marketplace activity all stay on this page.</p>
     </section>
   );
@@ -435,18 +389,12 @@ function WalletNoActivity() {
 
 function PortfolioOverview({ stats, data }) {
   const rarityOption = useMemo(() => makeRarityOption(stats, data), [stats, data]);
-  const questOption = useMemo(() => makeQuestOption(stats), [stats]);
   const collectionStaking = Number(stats.collection.staked_supply_pct || 0);
 
   return (
     <>
       <section className="wallet-stat-rail wallet-overview-rail" aria-label="Ownership overview">
         <WalletStat label="Heroes" value={formatInt(stats.heroCount)} />
-        <WalletStat
-          label="Staked"
-          value={formatInt(stats.stakedCount)}
-          sub={`${formatPercent(stats.stakingPct)} of Heroes`}
-        />
         <WalletStat
           label="Active supply"
           value={formatPercent(stats.supplyPct, stats.supplyPct < 0.1 ? 2 : 1)}
@@ -458,28 +406,22 @@ function PortfolioOverview({ stats, data }) {
           sub={formatTopPct(stats.ownershipRank)}
           title="For multiple selected wallets, the combined Hero count is ranked against individual current holders."
         />
-        <WalletStat
-          label="No market buy trail"
-          value={formatInt(stats.noSupportedPurchase)}
-          sub={stats.heroCount ? `${formatPercent((stats.noSupportedPurchase / stats.heroCount) * 100)} of Heroes` : ''}
-          title="Current Heroes without an open supported-market purchase trail in this wallet view. This can include original mints, transfers, OTC deals, prizes or other activity outside supported marketplace records."
-        />
       </section>
 
-      <section className="wallet-analytics-grid">
-        <article className="wallet-analytics-panel">
-          <div className="wallet-panel-head">
-            <div>
-              <strong>Rarity</strong>
-              <span>Your current Heroes</span>
-            </div>
+      <section className="wallet-rarity-panel" aria-labelledby="wallet-rarity-title">
+        <div className="wallet-panel-head">
+          <div>
+            <strong id="wallet-rarity-title">Rarity</strong>
+            <span>Your current Heroes</span>
           </div>
-          {stats.heroCount ? <div className="wallet-chart"><Chart option={rarityOption} /></div> : <div className="wallet-chart-empty">No current Heroes</div>}
+        </div>
+        <div className="wallet-rarity-layout">
+          {stats.heroCount ? <div className="wallet-chart wallet-rarity-chart"><Chart option={rarityOption} /></div> : <div className="wallet-chart-empty">No current Heroes</div>}
           <div className="wallet-rarity-breakdown">
-            {data.lookups.rarities.map((rarity, index) => {
+            {RARITY_ORDER.map((rarity) => {
               const count = stats.rarityCounts[rarity] || 0;
               const walletPct = stats.heroCount ? (count / stats.heroCount) * 100 : 0;
-              const collectionCount = Number(data.collection.rarity_counts[index] || 0);
+              const collectionCount = collectionRarityCount(data, rarity);
               const collectionPct = data.collection.active_supply ? (collectionCount / data.collection.active_supply) * 100 : 0;
               return (
                 <div className="wallet-rarity-row" key={rarity}>
@@ -490,32 +432,140 @@ function PortfolioOverview({ stats, data }) {
               );
             })}
           </div>
-        </article>
+        </div>
+      </section>
 
-        <article className="wallet-analytics-panel">
-          <div className="wallet-panel-head">
-            <div>
-              <strong>World Mode</strong>
-              <span>Current staking and quest activity</span>
-            </div>
-          </div>
-          {stats.stakedCount ? <div className="wallet-chart"><Chart option={questOption} /></div> : <div className="wallet-chart-empty">No currently staked Heroes</div>}
-          <div className="wallet-world-summary">
-            <div><span>Staking rate</span><strong>{formatPercent(stats.stakingPct)}</strong><small>Collection {formatPercent(collectionStaking)}</small></div>
-            <div><span>Longest current stake</span><strong>{formatDurationSince(stats.longestStakeSince, data.as_of.hero)}</strong><small>{formatDate(stats.longestStakeSince)}</small></div>
-            <div><span>Most recent quest</span><strong>{stats.mostRecentQuest ? formatDate(stats.mostRecentQuest, { year: false }) : '—'}</strong><small>{stats.mostRecentQuest ? formatDate(stats.mostRecentQuest) : 'No qualifying quest found'}</small></div>
-          </div>
-        </article>
+      <section className="wallet-stat-rail wallet-world-rail" aria-label="World Mode statistics">
+        <WalletStat label="Staked" value={formatInt(stats.stakedCount)} sub={`of ${formatInt(stats.heroCount)} Heroes`} />
+        <WalletStat label="Staking rate" value={formatPercent(stats.stakingPct)} sub={`Collection ${formatPercent(collectionStaking)}`} />
+        <WalletStat label="Longest current stake" value={formatDurationSince(stats.longestStakeSince, data.as_of.hero)} sub={formatDate(stats.longestStakeSince)} />
+        <WalletStat
+          label="Most recent quest"
+          value={stats.mostRecentQuest ? formatDate(stats.mostRecentQuest, { year: false }) : '—'}
+          sub={stats.mostRecentQuest ? formatDate(stats.mostRecentQuest) : 'No qualifying quest found'}
+        />
       </section>
     </>
+  );
+}
+
+function HeroArtwork({ hero, variant, eager = false }) {
+  const sourceUrl = getHeroSourceUrl(hero.number);
+  const alt = variant === 'nft'
+    ? `Guild Saga Hero #${hero.number} NFT`
+    : variant === 'face'
+      ? `Guild Saga Hero #${hero.number} face profile picture`
+      : `Guild Saga Hero #${hero.number} body profile picture`;
+
+  if (variant === 'nft') {
+    return (
+      <span className="wallet-hero-render is-nft">
+        <img src={getHeroOriginalUrl(hero.number)} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" draggable="false" />
+      </span>
+    );
+  }
+
+  return (
+    <span className={`wallet-hero-render is-${variant}`} style={{ backgroundColor: getHeroDefaultColor(hero.number) }}>
+      <img src={sourceUrl} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" draggable="false" />
+    </span>
+  );
+}
+
+function WalletHeroViewer({ hero, initialView, onClose }) {
+  const [view, setView] = useState(initialView);
+  const dialogRef = useRef(null);
+  const closeRef = useRef(null);
+
+  useEffect(() => {
+    setView(initialView);
+  }, [hero.number, initialView]);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    const previousPaddingRight = document.body.style.paddingRight;
+    const previouslyFocused = document.activeElement;
+    const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+
+    document.body.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
+    window.requestAnimationFrame(() => closeRef.current?.focus());
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(dialogRef.current?.querySelectorAll('button:not([disabled])') || []);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.paddingRight = previousPaddingRight;
+      window.removeEventListener('keydown', handleKeyDown);
+      previouslyFocused?.focus?.();
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      ref={dialogRef}
+      className="wallet-hero-lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Guild Saga Hero #${hero.number} image viewer`}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div className="wallet-hero-lightbox-shell">
+        <button ref={closeRef} className="wallet-hero-lightbox-close" type="button" aria-label="Close Hero image viewer" onClick={onClose}>×</button>
+        <div className="wallet-hero-lightbox-stage">
+          <HeroArtwork hero={hero} variant={view} eager />
+        </div>
+        <div className="wallet-hero-lightbox-tabs" role="tablist" aria-label="Hero image type">
+          {[
+            ['nft', 'NFT'],
+            ['body', 'Body'],
+            ['face', 'Face'],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={view === id}
+              className={view === id ? 'is-active' : ''}
+              onClick={() => setView(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
 function HeroGallery({ stats }) {
   const [rarity, setRarity] = useState('all');
   const [status, setStatus] = useState('all');
-  const [sort, setSort] = useState('number');
+  const [sort, setSort] = useState('rarity');
+  const [imageMode, setImageMode] = useState('body');
   const [visibleCount, setVisibleCount] = useState(HERO_PAGE_SIZE);
+  const [viewerHero, setViewerHero] = useState(null);
 
   useEffect(() => {
     setVisibleCount(HERO_PAGE_SIZE);
@@ -531,8 +581,7 @@ function HeroGallery({ stats }) {
 
     next.sort((a, b) => {
       if (sort === 'rarity') {
-        const order = ['Arcane', 'Elven', 'Gold', 'Silver', 'Bronze'];
-        return order.indexOf(a.rarity) - order.indexOf(b.rarity) || a.number - b.number;
+        return RARITY_SORT_ORDER.indexOf(a.rarity) - RARITY_SORT_ORDER.indexOf(b.rarity) || a.number - b.number;
       }
       if (sort === 'quest') {
         if (a.staked !== b.staked) return a.staked ? -1 : 1;
@@ -550,10 +599,18 @@ function HeroGallery({ stats }) {
         <span>{formatInt(filtered.length)} {filtered.length === 1 ? 'Hero' : 'Heroes'}</span>
         <div className="wallet-gallery-filters">
           <label>
+            <span>Image</span>
+            <select value={imageMode} onChange={(event) => setImageMode(event.target.value)}>
+              <option value="body">Body</option>
+              <option value="face">Face</option>
+              <option value="nft">NFT</option>
+            </select>
+          </label>
+          <label>
             <span>Rarity</span>
             <select value={rarity} onChange={(event) => setRarity(event.target.value)}>
               <option value="all">All</option>
-              {Object.keys(RARITY_COLORS).map((name) => <option value={name} key={name}>{name}</option>)}
+              {RARITY_ORDER.map((name) => <option value={name} key={name}>{name}</option>)}
             </select>
           </label>
           <label>
@@ -567,8 +624,8 @@ function HeroGallery({ stats }) {
           <label>
             <span>Sort</span>
             <select value={sort} onChange={(event) => setSort(event.target.value)}>
-              <option value="number">Hero #</option>
               <option value="rarity">Rarity</option>
+              <option value="number">Hero #</option>
               <option value="quest">Quest activity</option>
             </select>
           </label>
@@ -580,9 +637,17 @@ function HeroGallery({ stats }) {
           <div className="wallet-hero-grid">
             {filtered.slice(0, visibleCount).map((hero) => (
               <article className="wallet-hero-card" key={hero.number}>
-                <span className="wallet-hero-art" style={{ backgroundColor: getHeroDefaultColor(hero.number) }}>
-                  <img src={getHeroSourceUrl(hero.number)} alt="" draggable="false" />
-                </span>
+                <button
+                  className="wallet-hero-art"
+                  type="button"
+                  onClick={() => setViewerHero(hero)}
+                  aria-label={`Open Hero #${hero.number} image viewer`}
+                >
+                  <HeroArtwork hero={hero} variant={imageMode} />
+                  <span className="wallet-hero-zoom" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><circle cx="10.5" cy="10.5" r="5.5" /><path d="m15 15 5 5" /></svg>
+                  </span>
+                </button>
                 <span className="wallet-hero-card-copy">
                   <strong>#{hero.number}</strong>
                   <small><i style={{ backgroundColor: RARITY_COLORS[hero.rarity] }} />{hero.rarity}</small>
@@ -600,6 +665,8 @@ function HeroGallery({ stats }) {
       ) : (
         <div className="wallet-inline-empty">No Heroes match these filters.</div>
       )}
+
+      {viewerHero && <WalletHeroViewer hero={viewerHero} initialView={imageMode} onClose={() => setViewerHero(null)} />}
     </section>
   );
 }
@@ -612,6 +679,12 @@ function MarketActivity({ stats }) {
         note="Validated marketplace activity for this wallet view. Ordinary transfers and OTC deals are not treated as marketplace purchases."
       />
       <div className="wallet-stat-rail wallet-market-rail" aria-label="Supported market statistics">
+        <WalletStat
+          label="No market buy trail"
+          value={formatInt(stats.noSupportedPurchase)}
+          sub={stats.heroCount ? `${formatPercent((stats.noSupportedPurchase / stats.heroCount) * 100)} of Heroes` : ''}
+          title="Current Heroes without an open supported-market purchase trail in this wallet view. This can include original mints, transfers, OTC deals, prizes or other activity outside supported marketplace records."
+        />
         <WalletStat label="Market purchases" value={formatInt(stats.purchaseCount)} sub={percentileCopy(stats.buyerRank)} />
         <WalletStat label="SOL spent" value={formatSol(stats.marketSpentSol, 2)} sub="Supported-market buys" />
         <WalletStat label="Matched resales" value={formatInt(stats.matchedResaleCount)} sub="Prior market purchase found" />
@@ -718,36 +791,6 @@ function ActivityTimeline({ stats }) {
   );
 }
 
-function ComparisonSection({ stats }) {
-  return (
-    <section className="wallet-section">
-      <WalletSectionHeading title="Compared with the collection" note="How this ownership profile compares with current holders and collection activity." />
-      <div className="wallet-comparison-grid">
-        <article>
-          <span>Ownership</span>
-          <strong>{formatRank(stats.ownershipRank)}</strong>
-          <small>{formatTopPct(stats.ownershipRank) || 'No current Heroes'}</small>
-        </article>
-        <article>
-          <span>Staking rate</span>
-          <strong>{formatPercent(stats.stakingPct)}</strong>
-          <small>Collection {formatPercent(stats.collection.staked_supply_pct)}</small>
-        </article>
-        <article>
-          <span>Market purchases</span>
-          <strong>{formatInt(stats.purchaseCount)}</strong>
-          <small>{percentileCopy(stats.buyerRank)}</small>
-        </article>
-        <article>
-          <span>Original mints</span>
-          <strong>{formatInt(stats.mintCount)}</strong>
-          <small>{percentileCopy(stats.minterRank)}</small>
-        </article>
-      </div>
-    </section>
-  );
-}
-
 export function WalletExplorerPage({ wallets, onWalletsChange, onBack }) {
   const [activeWallet, setActiveWallet] = useState(() => wallets.length > 1 ? 'all' : wallets[0] || 'all');
   const [data, setData] = useState(walletDataCache);
@@ -801,7 +844,7 @@ export function WalletExplorerPage({ wallets, onWalletsChange, onBack }) {
         <div>
           <span className="eyebrow">Ownership</span>
           <h1>Explore Ownership</h1>
-          <p>Combine your Guild Saga wallets into one portfolio, or inspect them individually, using the same published state behind the analytics dashboard.</p>
+          <p>Explore Guild Saga ownership for any Solana address, or add multiple addresses to view them together using the same published state behind the analytics dashboard.</p>
         </div>
         <button className="secondary-button" type="button" onClick={onBack}>Back to analytics</button>
       </section>
@@ -828,10 +871,12 @@ export function WalletExplorerPage({ wallets, onWalletsChange, onBack }) {
         <>
           <PortfolioOverview stats={stats} data={data} />
           <HeroGallery stats={stats} />
-          <ComparisonSection stats={stats} />
           <MarketActivity stats={stats} />
           <MintHistory stats={stats} />
           <ActivityTimeline stats={stats} />
+          <div className="wallet-page-footer">
+            <button className="wallet-show-more wallet-back-bottom" type="button" onClick={onBack}>Back to analytics</button>
+          </div>
         </>
       )}
     </div>
