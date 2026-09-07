@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Chart from './Chart.jsx';
+import ImageLightbox from './ImageLightbox.jsx';
 import { getHeroDefaultColor, getHeroOriginalUrl, getHeroSourceUrl } from '../lib/heroPfp.js';
 import {
   buildWalletView,
@@ -33,6 +34,93 @@ const COLORS = {
 
 let walletDataCache = null;
 let walletDataPromise = null;
+
+const HERO_SOURCE_WIDTH = 65;
+const HERO_SOURCE_HEIGHT = 70;
+const HERO_FACE_CROP = { x: 20, y: 8, width: 26, height: 26 };
+const HERO_BODY_OUTPUT = { width: 650, height: 700 };
+const HERO_FACE_OUTPUT = { width: 780, height: 780 };
+const walletHeroSourceCache = new Map();
+const walletHeroPfpBlobCache = new Map();
+
+function loadWalletHeroSource(heroId) {
+  if (walletHeroSourceCache.has(heroId)) return walletHeroSourceCache.get(heroId);
+  const request = new Promise((resolve, reject) => {
+    const image = new Image();
+    image.decoding = 'async';
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Could not load Hero #${heroId} PFP source.`));
+    image.src = getHeroSourceUrl(heroId);
+  });
+  walletHeroSourceCache.set(heroId, request);
+  request.catch(() => walletHeroSourceCache.delete(heroId));
+  return request;
+}
+
+function walletCanvasToPngBlob(canvas) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error('Browser could not encode the Hero PFP PNG.'));
+    }, 'image/png');
+  });
+}
+
+async function makeWalletHeroPfpBlob(sourceImage, backgroundColor, variant) {
+  const isFace = variant === 'face';
+  const sourceWidth = isFace ? HERO_FACE_CROP.width : HERO_SOURCE_WIDTH;
+  const sourceHeight = isFace ? HERO_FACE_CROP.height : HERO_SOURCE_HEIGHT;
+  const output = isFace ? HERO_FACE_OUTPUT : HERO_BODY_OUTPUT;
+
+  const compositeCanvas = document.createElement('canvas');
+  compositeCanvas.width = sourceWidth;
+  compositeCanvas.height = sourceHeight;
+  const compositeContext = compositeCanvas.getContext('2d', { alpha: false });
+  if (!compositeContext) throw new Error('Browser could not create the Hero PFP canvas.');
+
+  compositeContext.imageSmoothingEnabled = false;
+  compositeContext.fillStyle = backgroundColor;
+  compositeContext.fillRect(0, 0, sourceWidth, sourceHeight);
+  if (isFace) {
+    compositeContext.drawImage(
+      sourceImage,
+      HERO_FACE_CROP.x,
+      HERO_FACE_CROP.y,
+      HERO_FACE_CROP.width,
+      HERO_FACE_CROP.height,
+      0,
+      0,
+      sourceWidth,
+      sourceHeight,
+    );
+  } else {
+    compositeContext.drawImage(sourceImage, 0, 0);
+  }
+
+  const outputCanvas = document.createElement('canvas');
+  outputCanvas.width = output.width;
+  outputCanvas.height = output.height;
+  const outputContext = outputCanvas.getContext('2d', { alpha: false });
+  if (!outputContext) throw new Error('Browser could not create the Hero PFP output canvas.');
+  outputContext.imageSmoothingEnabled = false;
+  outputContext.drawImage(compositeCanvas, 0, 0, output.width, output.height);
+  return walletCanvasToPngBlob(outputCanvas);
+}
+
+function getWalletHeroPfpBlobs(heroId) {
+  if (walletHeroPfpBlobCache.has(heroId)) return walletHeroPfpBlobCache.get(heroId);
+  const request = loadWalletHeroSource(heroId).then(async (sourceImage) => {
+    const backgroundColor = getHeroDefaultColor(heroId);
+    const [body, face] = await Promise.all([
+      makeWalletHeroPfpBlob(sourceImage, backgroundColor, 'body'),
+      makeWalletHeroPfpBlob(sourceImage, backgroundColor, 'face'),
+    ]);
+    return { body, face };
+  });
+  walletHeroPfpBlobCache.set(heroId, request);
+  request.catch(() => walletHeroPfpBlobCache.delete(heroId));
+  return request;
+}
 
 function loadWalletData() {
   if (walletDataCache) return Promise.resolve(walletDataCache);
@@ -187,11 +275,68 @@ function percentileCopy(rank) {
   return formatTopPct(rank);
 }
 
-export function OwnershipWalletEntry({ savedWallets, onExplore }) {
+export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExplore }) {
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
-  const savedPreview = savedWallets.map((address) => shortenWallet(address, { compact: true })).join(', ');
-  const placeholder = savedPreview || 'Enter a Solana wallet address';
+  const [visibleSavedCount, setVisibleSavedCount] = useState(savedWallets.length);
+  const tokenFieldRef = useRef(null);
+
+  useEffect(() => {
+    const field = tokenFieldRef.current;
+    if (!field || typeof ResizeObserver === 'undefined') {
+      setVisibleSavedCount(savedWallets.length);
+      return undefined;
+    }
+
+    const update = () => {
+      const width = field.clientWidth;
+      if (!savedWallets.length || !width) {
+        setVisibleSavedCount(savedWallets.length);
+        return;
+      }
+
+      // Compact wallet chips are intentionally predictable in width. Reserve
+      // enough room to keep the field genuinely useful for typing another
+      // address, then spend the remaining width on saved-wallet context.
+      const chipWidth = 75;
+      const gap = 6;
+      const minTypingWidth = width < 380 ? 86 : 118;
+      const overflowChipWidth = 92;
+      const allCapacity = Math.max(0, Math.floor((width - minTypingWidth + gap) / (chipWidth + gap)));
+
+      if (savedWallets.length <= allCapacity) {
+        setVisibleSavedCount(savedWallets.length);
+        return;
+      }
+
+      const withOverflowCapacity = Math.max(
+        width >= 250 ? 1 : 0,
+        Math.floor((width - minTypingWidth - overflowChipWidth) / (chipWidth + gap)),
+      );
+      setVisibleSavedCount(Math.min(savedWallets.length, withOverflowCapacity));
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(field);
+    return () => observer.disconnect();
+  }, [savedWallets.length]);
+
+  const visibleWallets = savedWallets.slice(0, visibleSavedCount);
+  const hiddenWallets = savedWallets.slice(visibleSavedCount);
+
+  const changeSavedWallets = (next) => {
+    onSavedWalletsChange?.(next);
+    if (error) setError('');
+  };
+
+  const removeWallet = (address) => {
+    changeSavedWallets(savedWallets.filter((wallet) => wallet !== address));
+  };
+
+  const removeHiddenWallets = () => {
+    changeSavedWallets(visibleWallets);
+  };
 
   const submit = (event) => {
     event.preventDefault();
@@ -207,8 +352,11 @@ export function OwnershipWalletEntry({ savedWallets, onExplore }) {
       setError('Enter a valid Solana wallet address. You can paste multiple addresses separated by spaces or commas.');
       return;
     }
+
+    const next = [...new Set([...savedWallets, ...parsed.addresses])];
     setError('');
-    onExplore(parsed.addresses);
+    setValue('');
+    onExplore(next);
   };
 
   return (
@@ -223,22 +371,42 @@ export function OwnershipWalletEntry({ savedWallets, onExplore }) {
         </div>
       </div>
       <form className="ownership-wallet-entry-form" onSubmit={submit}>
-        <input
-          type="text"
-          inputMode="text"
-          autoComplete="off"
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck="false"
-          aria-label="Solana wallet address"
-          aria-invalid={Boolean(error) || undefined}
-          placeholder={placeholder}
-          value={value}
-          onChange={(event) => {
-            setValue(event.target.value);
-            if (error) setError('');
+        <div
+          ref={tokenFieldRef}
+          className={`ownership-wallet-token-field${error ? ' is-invalid' : ''}`}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) event.currentTarget.querySelector('input')?.focus();
           }}
-        />
+        >
+          {visibleWallets.map((address) => (
+            <span className="ownership-wallet-token" key={address} title={address}>
+              <span>{shortenWallet(address, { compact: true })}</span>
+              <button type="button" aria-label={`Remove ${shortenWallet(address)}`} onClick={() => removeWallet(address)}>×</button>
+            </span>
+          ))}
+          {hiddenWallets.length > 0 && (
+            <span className="ownership-wallet-token is-overflow" title={hiddenWallets.join('\n')}>
+              <span>+ {hiddenWallets.length} more</span>
+              <button type="button" aria-label={`Remove ${hiddenWallets.length} hidden wallets`} onClick={removeHiddenWallets}>×</button>
+            </span>
+          )}
+          <input
+            type="text"
+            inputMode="text"
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck="false"
+            aria-label="Solana wallet address"
+            aria-invalid={Boolean(error) || undefined}
+            placeholder={savedWallets.length ? 'Add address' : 'Enter a Solana wallet address'}
+            value={value}
+            onChange={(event) => {
+              setValue(event.target.value);
+              if (error) setError('');
+            }}
+          />
+        </div>
         <button type="submit" className="wallet-primary-button">Explore Ownership</button>
       </form>
       {error && <span className="ownership-wallet-entry-error" role="alert">{error}</span>}
@@ -394,17 +562,17 @@ function PortfolioOverview({ stats, data }) {
   return (
     <>
       <section className="wallet-stat-rail wallet-overview-rail" aria-label="Ownership overview">
-        <WalletStat label="Heroes" value={formatInt(stats.heroCount)} />
-        <WalletStat
-          label="Active supply"
-          value={formatPercent(stats.supplyPct, stats.supplyPct < 0.1 ? 2 : 1)}
-          sub={`${formatInt(stats.heroCount)} of ${formatInt(stats.collection.active_supply)}`}
-        />
         <WalletStat
           label="Ownership rank"
           value={formatRank(stats.ownershipRank)}
           sub={formatTopPct(stats.ownershipRank)}
           title="For multiple selected wallets, the combined Hero count is ranked against individual current holders."
+        />
+        <WalletStat label="Heroes" value={formatInt(stats.heroCount)} />
+        <WalletStat
+          label="Active supply"
+          value={formatPercent(stats.supplyPct, stats.supplyPct < 0.1 ? 2 : 1)}
+          sub={`${formatInt(stats.heroCount)} of ${formatInt(stats.collection.active_supply)}`}
         />
       </section>
 
@@ -472,92 +640,6 @@ function HeroArtwork({ hero, variant, eager = false }) {
   );
 }
 
-function WalletHeroViewer({ hero, initialView, onClose }) {
-  const [view, setView] = useState(initialView);
-  const dialogRef = useRef(null);
-  const closeRef = useRef(null);
-
-  useEffect(() => {
-    setView(initialView);
-  }, [hero.number, initialView]);
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    const previousPaddingRight = document.body.style.paddingRight;
-    const previouslyFocused = document.activeElement;
-    const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
-
-    document.body.style.overflow = 'hidden';
-    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
-    window.requestAnimationFrame(() => closeRef.current?.focus());
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-      if (event.key !== 'Tab') return;
-      const focusable = Array.from(dialogRef.current?.querySelectorAll('button:not([disabled])') || []);
-      if (!focusable.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.body.style.paddingRight = previousPaddingRight;
-      window.removeEventListener('keydown', handleKeyDown);
-      previouslyFocused?.focus?.();
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      ref={dialogRef}
-      className="wallet-hero-lightbox"
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Guild Saga Hero #${hero.number} image viewer`}
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-    >
-      <div className="wallet-hero-lightbox-shell">
-        <button ref={closeRef} className="wallet-hero-lightbox-close" type="button" aria-label="Close Hero image viewer" onClick={onClose}>×</button>
-        <div className="wallet-hero-lightbox-stage">
-          <HeroArtwork hero={hero} variant={view} eager />
-        </div>
-        <div className="wallet-hero-lightbox-tabs" role="tablist" aria-label="Hero image type">
-          {[
-            ['nft', 'NFT'],
-            ['body', 'Body'],
-            ['face', 'Face'],
-          ].map(([id, label]) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={view === id}
-              className={view === id ? 'is-active' : ''}
-              onClick={() => setView(id)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function HeroGallery({ stats }) {
   const [rarity, setRarity] = useState('all');
@@ -565,11 +647,22 @@ function HeroGallery({ stats }) {
   const [sort, setSort] = useState('rarity');
   const [imageMode, setImageMode] = useState('body');
   const [visibleCount, setVisibleCount] = useState(HERO_PAGE_SIZE);
-  const [viewerHero, setViewerHero] = useState(null);
+  const [viewer, setViewer] = useState(null);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const viewerRequestRef = useRef(0);
+  const viewerRef = useRef(null);
+  viewerRef.current = viewer;
 
   useEffect(() => {
     setVisibleCount(HERO_PAGE_SIZE);
   }, [rarity, status, sort, stats.addresses.join('|')]);
+
+  useEffect(() => () => {
+    viewerRequestRef.current += 1;
+    viewerRef.current?.items.forEach((item) => {
+      if (item.src?.startsWith('blob:')) URL.revokeObjectURL(item.src);
+    });
+  }, []);
 
   const filtered = useMemo(() => {
     const next = stats.heroes.filter((hero) => {
@@ -591,6 +684,47 @@ function HeroGallery({ stats }) {
     });
     return next;
   }, [stats.heroes, rarity, status, sort]);
+
+  const openHeroViewer = async (hero) => {
+    const requestId = ++viewerRequestRef.current;
+    try {
+      const blobs = await getWalletHeroPfpBlobs(hero.number);
+      if (requestId !== viewerRequestRef.current) return;
+
+      const items = [
+        {
+          id: 'nft',
+          src: getHeroOriginalUrl(hero.number),
+          alt: `Guild Saga Hero #${hero.number} NFT`,
+        },
+        {
+          id: 'body',
+          src: URL.createObjectURL(blobs.body),
+          alt: `Guild Saga Hero #${hero.number} body profile picture`,
+        },
+        {
+          id: 'face',
+          src: URL.createObjectURL(blobs.face),
+          alt: `Guild Saga Hero #${hero.number} face profile picture`,
+        },
+      ];
+      const initialIndex = Math.max(0, items.findIndex((item) => item.id === imageMode));
+      setViewer({ hero, items });
+      setViewerIndex(initialIndex);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const closeHeroViewer = () => {
+    viewerRequestRef.current += 1;
+    if (viewer) {
+      viewer.items.forEach((item) => {
+        if (item.src?.startsWith('blob:')) URL.revokeObjectURL(item.src);
+      });
+    }
+    setViewer(null);
+  };
 
   return (
     <section className="wallet-section wallet-hero-section">
@@ -640,13 +774,10 @@ function HeroGallery({ stats }) {
                 <button
                   className="wallet-hero-art"
                   type="button"
-                  onClick={() => setViewerHero(hero)}
+                  onClick={() => openHeroViewer(hero)}
                   aria-label={`Open Hero #${hero.number} image viewer`}
                 >
                   <HeroArtwork hero={hero} variant={imageMode} />
-                  <span className="wallet-hero-zoom" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" focusable="false"><circle cx="10.5" cy="10.5" r="5.5" /><path d="m15 15 5 5" /></svg>
-                  </span>
                 </button>
                 <span className="wallet-hero-card-copy">
                   <strong>#{hero.number}</strong>
@@ -666,7 +797,16 @@ function HeroGallery({ stats }) {
         <div className="wallet-inline-empty">No Heroes match these filters.</div>
       )}
 
-      {viewerHero && <WalletHeroViewer hero={viewerHero} initialView={imageMode} onClose={() => setViewerHero(null)} />}
+      {viewer && (
+        <ImageLightbox
+          items={viewer.items}
+          index={viewerIndex}
+          onClose={closeHeroViewer}
+          onChange={setViewerIndex}
+          label={`Guild Saga Hero #${viewer.hero.number} image viewer`}
+          showSelector
+        />
+      )}
     </section>
   );
 }

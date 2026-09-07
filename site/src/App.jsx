@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { HexColorInput, HexColorPicker } from 'react-colorful';
 import Chart from './components/Chart.jsx';
+import ImageLightbox, { LightboxIcon } from './components/ImageLightbox.jsx';
 import { OwnershipWalletEntry, WalletExplorerPage } from './components/WalletExplorer.jsx';
 import { getHeroDefaultColor, getHeroOriginalUrl, getHeroSourceUrl } from './lib/heroPfp.js';
 import { readStoredWallets, writeStoredWallets } from './lib/walletExplorer.js';
@@ -2045,126 +2046,6 @@ function ShareMeter({ label, value, pct, tone = 'accent' }) {
   );
 }
 
-function LightboxIcon({ type }) {
-  if (type === 'close') {
-    return (
-      <svg className="image-lightbox-control-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M6 6 18 18M18 6 6 18" />
-      </svg>
-    );
-  }
-
-  const points = type === 'prev' ? '15 5 8 12 15 19' : '9 5 16 12 9 19';
-  return (
-    <svg className="image-lightbox-control-icon image-lightbox-arrow-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <polyline points={points} />
-    </svg>
-  );
-}
-
-function ImageLightbox({ items, index, onClose, onChange, label }) {
-  const dialogRef = useRef(null);
-  const closeButtonRef = useRef(null);
-  const indexRef = useRef(index);
-  const onCloseRef = useRef(onClose);
-  const onChangeRef = useRef(onChange);
-  indexRef.current = index;
-  onCloseRef.current = onClose;
-  onChangeRef.current = onChange;
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    const previousPaddingRight = document.body.style.paddingRight;
-    const previouslyFocused = document.activeElement;
-    const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
-
-    document.body.style.overflow = 'hidden';
-    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
-    window.requestAnimationFrame(() => closeButtonRef.current?.focus());
-
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onCloseRef.current();
-        return;
-      }
-      if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        onChangeRef.current((indexRef.current - 1 + items.length) % items.length);
-        return;
-      }
-      if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        onChangeRef.current((indexRef.current + 1) % items.length);
-        return;
-      }
-      if (event.key !== 'Tab') return;
-
-      const focusable = Array.from(dialogRef.current?.querySelectorAll('button:not([disabled])') || []);
-      if (!focusable.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.body.style.paddingRight = previousPaddingRight;
-      window.removeEventListener('keydown', onKeyDown);
-      previouslyFocused?.focus?.();
-    };
-  }, [items.length]);
-
-  const item = items[index];
-
-  return (
-    <div
-      ref={dialogRef}
-      className="image-lightbox"
-      role="dialog"
-      aria-modal="true"
-      aria-label={label}
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-    >
-      <button ref={closeButtonRef} type="button" className="image-lightbox-close" aria-label="Close image viewer" onClick={onClose}><LightboxIcon type="close" /></button>
-      {items.length > 1 && (
-        <button
-          type="button"
-          className="image-lightbox-arrow image-lightbox-prev"
-          aria-label="Previous image"
-          onClick={() => onChange((index - 1 + items.length) % items.length)}
-        ><LightboxIcon type="prev" /></button>
-      )}
-      <div className="image-lightbox-image-wrap">
-        <img
-        src={item.src}
-        alt={item.alt}
-        loading="eager"
-        decoding="async"
-        fetchPriority={item.id === 'original' ? 'high' : 'auto'}
-      />
-      </div>
-      {items.length > 1 && (
-        <button
-          type="button"
-          className="image-lightbox-arrow image-lightbox-next"
-          aria-label="Next image"
-          onClick={() => onChange((index + 1) % items.length)}
-        ><LightboxIcon type="next" /></button>
-      )}
-    </div>
-  );
-}
-
 function loadHeroSourceImage(heroId) {
   if (heroSourceImageCache.has(heroId)) return heroSourceImageCache.get(heroId);
 
@@ -2736,6 +2617,7 @@ function HeroShowcase({ onIdentityCandidate }) {
           onClose={() => setHeroLightboxIndex(null)}
           onChange={setHeroLightboxIndex}
           label={`Guild Saga Hero #${visibleHeroSet.heroId} image viewer`}
+          showSelector
         />
       )}
     </section>
@@ -3085,7 +2967,7 @@ function Market({ data }) {
   );
 }
 
-function Ownership({ data, savedWallets, onExploreWallets }) {
+function Ownership({ data, savedWallets, onSavedWalletsChange, onExploreWallets }) {
   const tiers = data.hero.holder_distribution;
   const totalHolders = tiers.reduce((sum, row) => sum + Number(row.holder_count || 0), 0);
   const small = tiers.find((row) => row.tier === '1-4');
@@ -3161,7 +3043,7 @@ function Ownership({ data, savedWallets, onExploreWallets }) {
         </section>
       </div>
 
-      <OwnershipWalletEntry savedWallets={savedWallets} onExplore={onExploreWallets} />
+      <OwnershipWalletEntry savedWallets={savedWallets} onSavedWalletsChange={onSavedWalletsChange} onExplore={onExploreWallets} />
     </div>
   );
 }
@@ -4256,7 +4138,7 @@ export default function App() {
 
               <section id="ownership" className="scroll-section ownership-section" data-nav-section>
                 {data ? (
-                  <Ownership data={data} savedWallets={savedWallets} onExploreWallets={openWalletExplorer} />
+                  <Ownership data={data} savedWallets={savedWallets} onSavedWalletsChange={updateSavedWallets} onExploreWallets={openWalletExplorer} />
                 ) : error ? (
                   <AnalyticsUnavailableSection category="ownership" title="Ownership" />
                 ) : (

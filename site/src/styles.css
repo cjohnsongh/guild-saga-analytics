@@ -5659,3 +5659,177 @@ select[class]:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .wallet-hero-zoom { transition: none; }
 }
+
+/* --------------------------------------------------------------------------
+   Wallet context chips + one shared Hero image viewer — Sept 2026
+   -------------------------------------------------------------------------- */
+
+/* Saved addresses live inside the dashboard lookup field so returning users
+   can see, remove and extend the exact wallet set they explored last time. */
+.ownership-wallet-token-field {
+  min-width: 0;
+  height: 40px;
+  padding: 4px 7px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: var(--radius-sm);
+  background: #131317;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+  cursor: text;
+}
+.ownership-wallet-token-field:hover { border-color: rgba(136,168,177,.42); }
+.ownership-wallet-token-field:focus-within {
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 2px rgba(136,168,177,.14);
+  background: #151519;
+}
+.ownership-wallet-token-field.is-invalid { border-color: rgba(239,123,125,.62); }
+.ownership-wallet-entry-form .ownership-wallet-token-field input {
+  flex: 1 1 110px;
+  width: auto;
+  min-width: 78px;
+  height: 100%;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #ededf2;
+  font-size: 13px;
+  line-height: 1;
+}
+.ownership-wallet-entry-form .ownership-wallet-token-field input:hover,
+.ownership-wallet-entry-form .ownership-wallet-token-field input:focus,
+.ownership-wallet-entry-form .ownership-wallet-token-field input[aria-invalid='true'] {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.ownership-wallet-entry-form .ownership-wallet-token-field input::placeholder { color: #74747f; }
+.ownership-wallet-token {
+  flex: 0 0 auto;
+  height: 29px;
+  padding-left: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid rgba(255,255,255,.105);
+  border-radius: 7px;
+  background: rgba(255,255,255,.035);
+  color: #c0c0c8;
+  font-size: 11.5px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ownership-wallet-token.is-overflow {
+  border-color: rgba(136,168,177,.18);
+  background: rgba(102,138,149,.075);
+  color: #c6d2d5;
+}
+.ownership-wallet-token button {
+  width: 25px;
+  height: 27px;
+  padding: 0 2px 1px 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-left: 1px solid rgba(255,255,255,.065);
+  border-radius: 0 6px 6px 0;
+  background: transparent;
+  color: #85858f;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+.ownership-wallet-token button:hover {
+  background: rgba(255,255,255,.045);
+  color: #ececf0;
+}
+
+/* Hero artwork uses the browser's native zoom-in cursor. The image itself is
+   the affordance; no second magnifier badge is painted over the art. */
+.wallet-hero-art { cursor: zoom-in; }
+
+/* Main-page and Wallet Explorer Hero viewers now share the exact same modal,
+   arrows, close control, fixed NFT-sized viewport and NFT / Body / Face tabs. */
+.image-lightbox.has-hero-selector { padding-block: 28px; }
+.image-lightbox-hero-shell {
+  width: min(900px, calc(100vw - 150px), calc(100vh - 116px));
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.image-lightbox.has-hero-selector .image-lightbox-image-wrap {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border: 1px solid var(--line-strong);
+  border-bottom: 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: #0d0d10;
+  overflow: hidden;
+}
+.image-lightbox.has-hero-selector .image-lightbox-image-wrap img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+.image-lightbox-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--line-strong);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  overflow: hidden;
+  background: #0d0d10;
+}
+.image-lightbox-tabs button {
+  min-height: 44px;
+  padding: 7px 5px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  color: #8e8d97;
+  font-size: 12px;
+  cursor: pointer;
+}
+.image-lightbox-tabs button:last-child { border-right: 0; }
+.image-lightbox-tabs button.is-active {
+  background: #151c1e;
+  color: #e7ecee;
+  box-shadow: inset 0 2px #789aa3;
+}
+
+@media (max-width: 780px) {
+  .ownership-wallet-entry-form .ownership-wallet-token-field input {
+    font-size: 16px; /* Preserve the site's no-iOS-focus-zoom behavior. */
+  }
+  .image-lightbox.has-hero-selector { padding-block: 58px; }
+  .image-lightbox-hero-shell {
+    width: min(calc(100vw - 108px), calc(100vh - 164px));
+  }
+  .image-lightbox-tabs button { min-height: 46px; font-size: 13px; }
+}
+
+@media (max-width: 520px) {
+  .image-lightbox.has-hero-selector { padding-block: 62px; }
+  .image-lightbox-hero-shell {
+    width: min(calc(100vw - 88px), calc(100vh - 170px));
+  }
+}
+
+@media (max-width: 380px) {
+  .ownership-wallet-token-field { padding-inline: 5px; gap: 4px; }
+  .ownership-wallet-token { padding-left: 7px; gap: 3px; }
+  .ownership-wallet-entry-form .ownership-wallet-token-field input { min-width: 68px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ownership-wallet-token-field { transition: none; }
+}
