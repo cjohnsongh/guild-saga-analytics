@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-07T13:30:44.841000Z",
+  "as_of": "2026-09-07T14:30:44.794000Z",
   "kpis": {
     "active_supply": 9827,
     "beneficial_holders": 1960,
@@ -57,12 +57,12 @@
     {
       "order": 1,
       "bucket": "Active 0–7d",
-      "heroes": 784
+      "heroes": 782
     },
     {
       "order": 2,
       "bucket": "Idle 8–30d",
-      "heroes": 366
+      "heroes": 368
     },
     {
       "order": 3,
@@ -72,12 +72,12 @@
     {
       "order": 4,
       "bucket": "Idle 91–180d",
-      "heroes": 303
+      "heroes": 297
     },
     {
       "order": 5,
       "bucket": "Idle 181–365d",
-      "heroes": 650
+      "heroes": 656
     },
     {
       "order": 6,
