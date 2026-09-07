@@ -866,7 +866,7 @@ function MintHistory({ stats }) {
   );
 }
 
-function ActivityTimeline({ stats }) {
+function ActivityTimeline({ stats, onBack }) {
   const [filter, setFilter] = useState('all');
   const [visibleCount, setVisibleCount] = useState(TIMELINE_PAGE_SIZE);
 
@@ -894,39 +894,41 @@ function ActivityTimeline({ stats }) {
       </div>
 
       {rows.length ? (
-        <>
-          <div className="wallet-history-list">
-            {rows.slice(0, visibleCount).map((row, index) => {
-              const heroLabel = Number.isInteger(row.hero) ? `Hero #${row.hero}` : 'Public mint';
-              const kindLabel = row.kind === 'buy' ? 'Bought' : row.kind === 'sell' ? 'Sold' : 'Minted';
-              return (
-                <article className="wallet-history-row" key={`${row.kind}-${row.index ?? row.utc}-${index}`}>
-                  <time dateTime={row.utc}>{formatDate(row.utc)}</time>
-                  <span className={`wallet-history-kind is-${row.kind}`}>{kindLabel}</span>
-                  <div className="wallet-history-main">
-                    <strong>{heroLabel}</strong>
-                    <span>
-                      {row.kind === 'mint'
-                        ? row.phase
-                        : `${formatSol(row.sol, 3)} · ${row.marketplace}${row.kind === 'sell' && !row.matched ? ' · unmatched acquisition' : ''}`}
-                    </span>
-                  </div>
-                  {row.signature ? (
-                    <a href={`https://explorer.solana.com/tx/${row.signature}`} target="_blank" rel="noreferrer" aria-label={`View transaction for ${heroLabel}`}>
-                      Transaction ↗
-                    </a>
-                  ) : <span className="wallet-history-spacer" />}
-                </article>
-              );
-            })}
-          </div>
-          {visibleCount < rows.length && (
-            <button className="wallet-show-more" type="button" onClick={() => setVisibleCount((count) => count + TIMELINE_PAGE_SIZE)}>
-              Show more history
-            </button>
-          )}
-        </>
+        <div className="wallet-history-list">
+          {rows.slice(0, visibleCount).map((row, index) => {
+            const heroLabel = Number.isInteger(row.hero) ? `Hero #${row.hero}` : 'Public mint';
+            const kindLabel = row.kind === 'buy' ? 'Bought' : row.kind === 'sell' ? 'Sold' : 'Minted';
+            return (
+              <article className="wallet-history-row" key={`${row.kind}-${row.index ?? row.utc}-${index}`}>
+                <time dateTime={row.utc}>{formatDate(row.utc)}</time>
+                <span className={`wallet-history-kind is-${row.kind}`}>{kindLabel}</span>
+                <div className="wallet-history-main">
+                  <strong>{heroLabel}</strong>
+                  <span>
+                    {row.kind === 'mint'
+                      ? row.phase
+                      : `${formatSol(row.sol, 3)} · ${row.marketplace}${row.kind === 'sell' && !row.matched ? ' · unmatched acquisition' : ''}`}
+                  </span>
+                </div>
+                {row.signature ? (
+                  <a href={`https://explorer.solana.com/tx/${row.signature}`} target="_blank" rel="noreferrer" aria-label={`View transaction for ${heroLabel}`}>
+                    Transaction ↗
+                  </a>
+                ) : <span className="wallet-history-spacer" />}
+              </article>
+            );
+          })}
+        </div>
       ) : <div className="wallet-inline-empty">No activity in this category.</div>}
+
+      <div className="wallet-history-actions">
+        {visibleCount < rows.length && (
+          <button className="wallet-show-more" type="button" onClick={() => setVisibleCount((count) => count + TIMELINE_PAGE_SIZE)}>
+            Show more history
+          </button>
+        )}
+        <button className="wallet-show-more wallet-back-bottom" type="button" onClick={onBack}>Back to analytics</button>
+      </div>
     </section>
   );
 }
@@ -1010,13 +1012,10 @@ export function WalletExplorerPage({ wallets, onWalletsChange, onBack }) {
       {data && stats && hasAnyActivity && (
         <>
           <PortfolioOverview stats={stats} data={data} />
-          <HeroGallery stats={stats} />
           <MarketActivity stats={stats} />
           <MintHistory stats={stats} />
-          <ActivityTimeline stats={stats} />
-          <div className="wallet-page-footer">
-            <button className="wallet-show-more wallet-back-bottom" type="button" onClick={onBack}>Back to analytics</button>
-          </div>
+          <HeroGallery stats={stats} />
+          <ActivityTimeline stats={stats} onBack={onBack} />
         </>
       )}
     </div>

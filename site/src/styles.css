@@ -5537,13 +5537,16 @@ select[class]:focus-visible {
   box-shadow: inset 0 -2px #789aa3;
 }
 
-.wallet-page-footer {
+.wallet-history-actions {
   min-width: 0;
   display: flex;
-  justify-content: flex-end;
-  padding-top: 2px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
 }
-.wallet-page-footer .wallet-show-more { margin-top: 0; }
+.wallet-history-actions .wallet-show-more { margin-top: 0; }
+.wallet-history-actions .wallet-back-bottom { margin-left: auto; }
 
 @media (max-width: 1180px) {
   .ownership-wallet-entry {
