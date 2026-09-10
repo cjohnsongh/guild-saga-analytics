@@ -3,10 +3,10 @@
   "hero": {
     "active_supply": 9827,
     "beneficial_holders": 1960,
-    "staked_heroes": 5856,
+    "staked_heroes": 5853,
     "staked_supply_pct": 59.6,
     "quest_active_30d": 995,
-    "quest_limbo_1y": 3502,
+    "quest_limbo_1y": 3499,
     "burned": 173
   },
   "launch": {
