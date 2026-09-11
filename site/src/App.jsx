@@ -3739,6 +3739,7 @@ export default function App() {
   const [showDataPage, setShowDataPage] = useState(() => window.location.hash === '#data');
   const [showWalletPage, setShowWalletPage] = useState(() => window.location.hash === '#wallet');
   const [savedWallets, setSavedWallets] = useState(readStoredWallets);
+  const [walletExplorerInitialActive, setWalletExplorerInitialActive] = useState(null);
   const [heroIdentityCandidate, setHeroIdentityCandidate] = useState(readHeroPreference);
   const [returnRecap, setReturnRecap] = useState(() => {
     const sessionRecap = safeStorageRead(window.sessionStorage, RETURN_RECAP_SESSION_KEY);
@@ -4011,8 +4012,9 @@ export default function App() {
     setSavedWallets(next);
   };
 
-  const openWalletExplorer = (nextWallets = savedWallets) => {
+  const openWalletExplorer = (nextWallets = savedWallets, initialActiveWallet = null) => {
     if (nextWallets?.length) updateSavedWallets(nextWallets);
+    setWalletExplorerInitialActive(initialActiveWallet && nextWallets?.includes(initialActiveWallet) ? initialActiveWallet : null);
     window.history.pushState(null, '', `${window.location.pathname}${window.location.search}#wallet`);
     setShowDataPage(false);
     setShowWalletPage(true);
@@ -4023,6 +4025,7 @@ export default function App() {
     window.history.pushState(null, '', window.location.pathname + window.location.search);
     setShowDataPage(false);
     setShowWalletPage(false);
+    setWalletExplorerInitialActive(null);
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
@@ -4072,7 +4075,7 @@ export default function App() {
         {showDataPage ? (
           <DataPage onBack={backToAnalytics} />
         ) : showWalletPage ? (
-          <WalletExplorerPage wallets={savedWallets} onWalletsChange={updateSavedWallets} onBack={backToAnalytics} />
+          <WalletExplorerPage wallets={savedWallets} onWalletsChange={updateSavedWallets} onBack={backToAnalytics} initialActiveWallet={walletExplorerInitialActive} />
         ) : (
           <>
             {recapChanges.length > 0 && (

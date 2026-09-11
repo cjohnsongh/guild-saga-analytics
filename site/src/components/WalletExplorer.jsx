@@ -279,6 +279,10 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
   const [visibleSavedCount, setVisibleSavedCount] = useState(savedWallets.length);
+  const [showTopHolders, setShowTopHolders] = useState(false);
+  const [topHolders, setTopHolders] = useState(null);
+  const [topHoldersLoading, setTopHoldersLoading] = useState(false);
+  const [topHoldersError, setTopHoldersError] = useState(false);
   const tokenFieldRef = useRef(null);
 
   useEffect(() => {
@@ -325,6 +329,38 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
   const visibleWallets = savedWallets.slice(0, visibleSavedCount);
   const hiddenWallets = savedWallets.slice(visibleSavedCount);
 
+  const loadTopHolders = () => {
+    if (topHolders || topHoldersLoading) return;
+    setTopHoldersLoading(true);
+    setTopHoldersError(false);
+
+    loadWalletData()
+      .then((data) => {
+        const ranked = Object.entries(data?.wallets || {})
+          .map(([address, row]) => ({ address, heroes: Array.isArray(row?.[0]) ? row[0].length : 0 }))
+          .filter((row) => row.heroes > 0)
+          .sort((a, b) => b.heroes - a.heroes || a.address.localeCompare(b.address))
+          .slice(0, 10);
+
+        let previousCount = null;
+        let previousRank = 0;
+        const withRanks = ranked.map((row, index) => {
+          const rank = row.heroes === previousCount ? previousRank : index + 1;
+          previousCount = row.heroes;
+          previousRank = rank;
+          return { ...row, rank };
+        });
+
+        setTopHolders(withRanks);
+        setTopHoldersError(false);
+      })
+      .catch((loadError) => {
+        console.error('Top holder shortcuts could not load.', loadError);
+        setTopHoldersError(true);
+      })
+      .finally(() => setTopHoldersLoading(false));
+  };
+
   const changeSavedWallets = (next) => {
     onSavedWalletsChange?.(next);
     if (error) setError('');
@@ -336,6 +372,18 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
 
   const removeHiddenWallets = () => {
     changeSavedWallets(visibleWallets);
+  };
+
+  const addTopHolder = (address) => {
+    if (savedWallets.includes(address)) return;
+    changeSavedWallets([...savedWallets, address]);
+  };
+
+  const exploreTopHolder = (address) => {
+    const next = savedWallets.includes(address) ? savedWallets : [...savedWallets, address];
+    setError('');
+    setValue('');
+    onExplore(next, address);
   };
 
   const submit = (event) => {
@@ -360,13 +408,28 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
   };
 
   return (
-    <section className="ownership-wallet-entry" aria-labelledby="ownership-wallet-entry-title">
+    <section className={`ownership-wallet-entry${showTopHolders ? ' has-top-holders' : ''}`} aria-labelledby="ownership-wallet-entry-title">
       <div className="ownership-wallet-entry-copy">
         <span className="ownership-wallet-entry-icon" aria-hidden="true">
           <span className="category-icon" data-category="ownership" />
         </span>
         <div>
-          <strong id="ownership-wallet-entry-title">Wallet Explorer</strong>
+          <div className="ownership-wallet-entry-title-row">
+            <strong id="ownership-wallet-entry-title">Wallet Explorer</strong>
+            <button
+              type="button"
+              className="ownership-top-holders-toggle"
+              aria-expanded={showTopHolders}
+              aria-controls="ownership-top-holders-panel"
+              onClick={() => {
+                const nextOpen = !showTopHolders;
+                setShowTopHolders(nextOpen);
+                if (nextOpen) loadTopHolders();
+              }}
+            >
+              Top 10 holders <span aria-hidden="true">{showTopHolders ? '▴' : '▾'}</span>
+            </button>
+          </div>
           <span>Look up ownership, staking, rarity and history by address</span>
         </div>
       </div>
@@ -409,6 +472,54 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
         </div>
         <button type="submit" className="wallet-primary-button">Explore Ownership</button>
       </form>
+      {showTopHolders && (
+        <div className="ownership-top-holders-panel" id="ownership-top-holders-panel">
+          <div className="ownership-top-holders-head">
+            <strong>Top holders</strong>
+            <span>Current beneficial ownership · click an address to explore it, or + to add it above</span>
+          </div>
+          {topHoldersLoading && !topHolders && (
+            <div className="ownership-top-holders-status" role="status">Loading top holders…</div>
+          )}
+          {topHoldersError && !topHolders && (
+            <div className="ownership-top-holders-status is-error">
+              <span>Top holders are temporarily unavailable.</span>
+              <button type="button" onClick={loadTopHolders}>Try again</button>
+            </div>
+          )}
+          {topHolders && (
+            <div className="ownership-top-holders-grid">
+              {topHolders.map((holder) => {
+                const isAdded = savedWallets.includes(holder.address);
+                return (
+                  <div className="ownership-top-holder" key={holder.address}>
+                    <span className="ownership-top-holder-rank">#{holder.rank}</span>
+                    <button
+                      type="button"
+                      className="ownership-top-holder-address"
+                      title={`Explore ${holder.address}`}
+                      onClick={() => exploreTopHolder(holder.address)}
+                    >
+                      {shortenWallet(holder.address, { compact: true })}
+                    </button>
+                    <span className="ownership-top-holder-count" title={`${formatInt(holder.heroes)} Heroes`}>{formatInt(holder.heroes)}</span>
+                    <button
+                      type="button"
+                      className={`ownership-top-holder-add${isAdded ? ' is-added' : ''}`}
+                      aria-label={isAdded ? `${shortenWallet(holder.address)} is already added` : `Add ${shortenWallet(holder.address)} to Wallet Explorer`}
+                      title={isAdded ? 'Already added' : 'Add address'}
+                      disabled={isAdded}
+                      onClick={() => addTopHolder(holder.address)}
+                    >
+                      {isAdded ? '✓' : '+'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
       {error && <span className="ownership-wallet-entry-error" role="alert">{error}</span>}
     </section>
   );
@@ -933,11 +1044,21 @@ function ActivityTimeline({ stats, onBack }) {
   );
 }
 
-export function WalletExplorerPage({ wallets, onWalletsChange, onBack }) {
-  const [activeWallet, setActiveWallet] = useState(() => wallets.length > 1 ? 'all' : wallets[0] || 'all');
+export function WalletExplorerPage({ wallets, onWalletsChange, onBack, initialActiveWallet = null }) {
+  const [activeWallet, setActiveWallet] = useState(() => (
+    initialActiveWallet && wallets.includes(initialActiveWallet)
+      ? initialActiveWallet
+      : wallets.length > 1 ? 'all' : wallets[0] || 'all'
+  ));
   const [data, setData] = useState(walletDataCache);
   const [error, setError] = useState(null);
   const [showLoading, setShowLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialActiveWallet && wallets.includes(initialActiveWallet)) {
+      setActiveWallet(initialActiveWallet);
+    }
+  }, [initialActiveWallet, wallets]);
 
   useEffect(() => {
     if (activeWallet !== 'all' && !wallets.includes(activeWallet)) {
