@@ -1,25 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "50f35f8ff848ec732859ed210febe9241c07101212370332ada3a9f73e974b8e",
+    "data/state/checkpoints.json": "e5795720ed39d5e6121752c32ddc81e79ffc4b52b69aba6d80d1c5283b0e8de5",
     "data/state/hero_deltas.csv": "fdebd632e671f557d39a5dc2e14c76c869ed2dd1eb0d2fa1ef36ec31600072b6",
     "data/state/hero_event_cursors.csv": "c4409188c35a73b09ed7fd7d323f1a2a111c59f1e049bef5f7a7ea05f128671e",
     "data/state/market_live_sales.csv": "703f7de7cb7bb9561257400b83dabbcaad089dbd38637c7798c090cc827cb6f9",
-    "data/state/webhook_processed_events.csv": "fed3f001fe532bd81bf551605c79a60f7349384ba2799ad28269d43f2c3583d9"
+    "data/state/webhook_processed_events.csv": "0423c80ae96d0a3f22c8a34921df9c5c4b411dff8f64b4174c790e943d5fa8ff"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "dde9eaf4970984d9445c77932bfca0799038109530b1d35243ceb688976e3e1c",
+    "site/public/data/hero-state.json": "28e1539cd17a583597b7c0dc259664ef5db1e5523b192042ec60c349896d222c",
     "site/public/data/market-history.json": "5ca118ccf40e013f8d2d23e3e13a8f3f207da91cfc4d3fcfe9dfbed976f93467",
     "site/public/data/summary.json": "98f8716fdc82d3b60104353ee5b56b1de75a61c547e8903d6f205cc8cb18574c"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 4,
+  "signature_count": 1,
   "signatures": [
-    "59gTXgSTfKVcRMtbA7xybS2wmEjqHP4y8ziD2fKorjeHzAnU537zCtHCM8yUEfNsXdqibapMJS68y5au9Tq4v9Nn",
-    "2LDzsSm77gkccBDzi57uDD6EbPfRLPdMoNPUjEXPHY9tyem89LME54xarFo4VPPdroLTjrhmszP3YtNwYSzJ9yse",
-    "3HLeQt8ArThV6LEQNkivbMr3jvP62LVG24G46gdZcHUzrceDmZQL8WLxEMDxM2THxoroknwuqVsHkXXw7HoN92M5",
-    "4QAbEgpYc2Qh1FfocVnkM3PZeKUx7WbHqyhmCB98i3kJxakCD13ZeWTQrXVgtNJLcrExKazb9fAHz4TLL6Czd3ky"
+    "3nht9eBzMY52ufBMehAfCXQnQKJrjoghUfXqzeMsFar5PQ3dvW2KJp81P6ApGRVSqvLnoG9EXbZQHbNzeScPh7ks"
   ],
-  "snapshot_received_at": "2026-09-11T14:31:26.547Z"
+  "snapshot_received_at": "2026-09-11T15:31:40.618Z"
 }
