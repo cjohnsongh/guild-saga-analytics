@@ -46,6 +46,7 @@ def validate_public(pub: Path, max_age_hours: float | None = None):
     f = load(pub / "floor-listings.json")
     launch = load(pub / "launch.json")
     wallet = load(pub / "wallet-explorer.json")
+    top_holders = load(pub / "top-holders.json")
     gold = load(GOLD_PATH)
     gold_summary = gold["summary"]
 
@@ -158,6 +159,28 @@ def validate_public(pub: Path, max_age_hours: float | None = None):
     assert assigned_staked == hero["staked_heroes"]
     assert wallet["as_of"]["hero"] == h["as_of"]
     assert wallet["as_of"]["market"] == m["as_of"]
+
+    # The dashboard's always-visible shortcuts are a tiny projection of the
+    # same Wallet Explorer ownership state, so they must agree exactly.
+    assert top_holders.get("schema_version") == 1
+    assert top_holders.get("as_of") == wallet["as_of"]["hero"]
+    expected_top = sorted(
+        (
+            (address, len(row[0]))
+            for address, row in wallet_rows.items()
+            if row[0]
+        ),
+        key=lambda item: (-item[1], item[0]),
+    )[:10]
+    actual_top = top_holders.get("holders", [])
+    assert len(actual_top) == len(expected_top) == 10
+    previous_count = None
+    previous_rank = 0
+    for index, ((address, heroes), row) in enumerate(zip(expected_top, actual_top), start=1):
+        expected_rank = previous_rank if heroes == previous_count else index
+        assert row == {"rank": expected_rank, "address": address, "heroes": heroes}
+        previous_count = heroes
+        previous_rank = expected_rank
 
     domain_as_of = {
         "hero_state": h["as_of"],

@@ -61,7 +61,7 @@ The main analytics dashboard consumes seven JSON files under `site/public/data/`
 - `launch.json`
 - `treasury.json`
 
-Wallet Explorer has one additional published product, `wallet-explorer.json`. It is fetched only when that dedicated view is opened. The file contains the complete supported wallet index rather than address-specific shards, so entering an address does not create a wallet-specific network request. Saved wallet addresses remain first-party `localStorage` state in the visitor's browser.
+Wallet Explorer publishes two additional products. `top-holders.json` is a tiny ten-row projection used by the always-visible Ownership shortcuts. `wallet-explorer.json` contains the complete supported wallet index and is fetched only when the dedicated explorer view is opened. The full index is not address-sharded, so entering an address does not create a wallet-specific network request. Saved wallet addresses remain first-party `localStorage` state in the visitor's browser.
 
 The browser does not need provider credentials and does not make live Solana or marketplace API calls.
 

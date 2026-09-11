@@ -519,6 +519,33 @@ def build_wallet_explorer(checkpoints):
         },
     }
 
+def build_top_holders(wallet_explorer, limit=10):
+    """Build the small always-visible holder shortcut product for Ownership."""
+    ranked = sorted(
+        (
+            (address, len(row[0]))
+            for address, row in wallet_explorer["wallets"].items()
+            if row and row[0]
+        ),
+        key=lambda item: (-item[1], item[0]),
+    )[:limit]
+
+    holders = []
+    previous_count = None
+    previous_rank = 0
+    for index, (address, heroes) in enumerate(ranked, start=1):
+        rank = previous_rank if heroes == previous_count else index
+        holders.append({"rank": rank, "address": address, "heroes": heroes})
+        previous_count = heroes
+        previous_rank = rank
+
+    return {
+        "schema_version": 1,
+        "as_of": wallet_explorer["as_of"]["hero"],
+        "holders": holders,
+    }
+
+
 def build_floor(checkpoints):
     rows = read_csv(DATA / "history" / "floor_listings.csv")
     rows.sort(key=lambda r: r["snapshot_date"])
@@ -614,6 +641,7 @@ def main():
     launch = build_launch()
     market = build_market(checkpoints)
     wallet_explorer = build_wallet_explorer(checkpoints)
+    top_holders = build_top_holders(wallet_explorer)
     treasury = build_treasury()
 
     summary = {
@@ -629,6 +657,7 @@ def main():
     write_json("launch.json", launch)
     write_json("market-history.json", market)
     write_compact_json("wallet-explorer.json", wallet_explorer)
+    write_compact_json("top-holders.json", top_holders)
     write_json("floor-listings.json", floor)
     write_json("treasury.json", treasury)
     print(json.dumps(summary, indent=2, ensure_ascii=False))

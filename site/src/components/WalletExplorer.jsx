@@ -9,6 +9,7 @@ import {
 } from '../lib/walletExplorer.js';
 
 const WALLET_DATA_URL = '/data/wallet-explorer.json';
+const TOP_HOLDERS_DATA_URL = '/data/top-holders.json';
 const HERO_PAGE_SIZE = 32;
 const TIMELINE_PAGE_SIZE = 15;
 
@@ -34,6 +35,8 @@ const COLORS = {
 
 let walletDataCache = null;
 let walletDataPromise = null;
+let topHoldersDataCache = null;
+let topHoldersDataPromise = null;
 
 const HERO_SOURCE_WIDTH = 65;
 const HERO_SOURCE_HEIGHT = 70;
@@ -139,6 +142,25 @@ function loadWalletData() {
       });
   }
   return walletDataPromise;
+}
+
+function loadTopHoldersData() {
+  if (topHoldersDataCache) return Promise.resolve(topHoldersDataCache);
+  if (!topHoldersDataPromise) {
+    topHoldersDataPromise = fetch(TOP_HOLDERS_DATA_URL, { cache: 'no-cache' })
+      .then((response) => {
+        if (!response.ok) throw new Error(`${TOP_HOLDERS_DATA_URL}: ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        topHoldersDataCache = data;
+        return data;
+      })
+      .finally(() => {
+        topHoldersDataPromise = null;
+      });
+  }
+  return topHoldersDataPromise;
 }
 
 function formatInt(value) {
@@ -279,7 +301,7 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
   const [visibleSavedCount, setVisibleSavedCount] = useState(savedWallets.length);
-  const [showTopHolders, setShowTopHolders] = useState(false);
+  const [showAllTopHoldersMobile, setShowAllTopHoldersMobile] = useState(false);
   const [topHolders, setTopHolders] = useState(null);
   const [topHoldersLoading, setTopHoldersLoading] = useState(false);
   const [topHoldersError, setTopHoldersError] = useState(false);
@@ -334,24 +356,9 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
     setTopHoldersLoading(true);
     setTopHoldersError(false);
 
-    loadWalletData()
+    loadTopHoldersData()
       .then((data) => {
-        const ranked = Object.entries(data?.wallets || {})
-          .map(([address, row]) => ({ address, heroes: Array.isArray(row?.[0]) ? row[0].length : 0 }))
-          .filter((row) => row.heroes > 0)
-          .sort((a, b) => b.heroes - a.heroes || a.address.localeCompare(b.address))
-          .slice(0, 10);
-
-        let previousCount = null;
-        let previousRank = 0;
-        const withRanks = ranked.map((row, index) => {
-          const rank = row.heroes === previousCount ? previousRank : index + 1;
-          previousCount = row.heroes;
-          previousRank = rank;
-          return { ...row, rank };
-        });
-
-        setTopHolders(withRanks);
+        setTopHolders(Array.isArray(data?.holders) ? data.holders : []);
         setTopHoldersError(false);
       })
       .catch((loadError) => {
@@ -360,6 +367,10 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
       })
       .finally(() => setTopHoldersLoading(false));
   };
+
+  useEffect(() => {
+    loadTopHolders();
+  }, []);
 
   const changeSavedWallets = (next) => {
     onSavedWalletsChange?.(next);
@@ -408,28 +419,13 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
   };
 
   return (
-    <section className={`ownership-wallet-entry${showTopHolders ? ' has-top-holders' : ''}`} aria-labelledby="ownership-wallet-entry-title">
+    <section className="ownership-wallet-entry has-top-holders" aria-labelledby="ownership-wallet-entry-title">
       <div className="ownership-wallet-entry-copy">
         <span className="ownership-wallet-entry-icon" aria-hidden="true">
           <span className="category-icon" data-category="ownership" />
         </span>
         <div>
-          <div className="ownership-wallet-entry-title-row">
-            <strong id="ownership-wallet-entry-title">Wallet Explorer</strong>
-            <button
-              type="button"
-              className="ownership-top-holders-toggle"
-              aria-expanded={showTopHolders}
-              aria-controls="ownership-top-holders-panel"
-              onClick={() => {
-                const nextOpen = !showTopHolders;
-                setShowTopHolders(nextOpen);
-                if (nextOpen) loadTopHolders();
-              }}
-            >
-              Top 10 holders <span aria-hidden="true">{showTopHolders ? '▴' : '▾'}</span>
-            </button>
-          </div>
+          <strong id="ownership-wallet-entry-title">Wallet Explorer</strong>
           <span>Look up ownership, staking, rarity and history by address</span>
         </div>
       </div>
@@ -472,12 +468,7 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
         </div>
         <button type="submit" className="wallet-primary-button">Explore Ownership</button>
       </form>
-      {showTopHolders && (
-        <div className="ownership-top-holders-panel" id="ownership-top-holders-panel">
-          <div className="ownership-top-holders-head">
-            <strong>Top holders</strong>
-            <span>Current beneficial ownership · click an address to explore it, or + to add it above</span>
-          </div>
+      <div className="ownership-top-holders-panel" id="ownership-top-holders-panel">
           {topHoldersLoading && !topHolders && (
             <div className="ownership-top-holders-status" role="status">Loading top holders…</div>
           )}
@@ -488,12 +479,12 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
             </div>
           )}
           {topHolders && (
-            <div className="ownership-top-holders-grid">
+            <div className={`ownership-top-holders-grid${showAllTopHoldersMobile ? ' is-expanded' : ''}`}>
               {topHolders.map((holder) => {
                 const isAdded = savedWallets.includes(holder.address);
                 return (
                   <div className="ownership-top-holder" key={holder.address}>
-                    <span className="ownership-top-holder-rank">#{holder.rank}</span>
+                    <span className={`ownership-top-holder-rank${holder.rank <= 3 ? ' is-medal' : ''}`}>{holder.rank === 1 ? '🥇' : holder.rank === 2 ? '🥈' : holder.rank === 3 ? '🥉' : `#${holder.rank}`}</span>
                     <button
                       type="button"
                       className="ownership-top-holder-address"
@@ -502,7 +493,7 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
                     >
                       {shortenWallet(holder.address, { compact: true })}
                     </button>
-                    <span className="ownership-top-holder-count" title={`${formatInt(holder.heroes)} Heroes`}>{formatInt(holder.heroes)}</span>
+                    <span className="ownership-top-holder-count" title={`${formatInt(holder.heroes)} Heroes`}>{formatInt(holder.heroes)} Heroes</span>
                     <button
                       type="button"
                       className={`ownership-top-holder-add${isAdded ? ' is-added' : ''}`}
@@ -518,8 +509,17 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
               })}
             </div>
           )}
-        </div>
-      )}
+        {topHolders?.length > 4 && (
+          <button
+            type="button"
+            className="wallet-show-more ownership-top-holders-more"
+            aria-expanded={showAllTopHoldersMobile}
+            onClick={() => setShowAllTopHoldersMobile((shown) => !shown)}
+          >
+            {showAllTopHoldersMobile ? 'Show less' : 'Show more'}
+          </button>
+        )}
+      </div>
       {error && <span className="ownership-wallet-entry-error" role="alert">{error}</span>}
     </section>
   );

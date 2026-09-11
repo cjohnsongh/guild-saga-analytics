@@ -202,11 +202,11 @@ The main analytics view loads this coherent seven-file static snapshot from `sit
 - `launch.json`
 - `treasury.json`
 
-Wallet Explorer uses an eighth product, `wallet-explorer.json`, generated from the same canonical Hero, public-mint, rarity, and supported-market state. It is intentionally one complete compact index and is fetched only after Wallet Explorer is opened. The browser then performs address matching locally. There is no wallet connection and no address-specific server, Solana, or marketplace request; saved addresses are first-party `localStorage` state.
+Wallet Explorer adds two auxiliary products generated from the same canonical state. `top-holders.json` is a tiny ten-row beneficial-ownership projection used by the always-visible shortcuts at the bottom of Ownership. `wallet-explorer.json` remains the complete compact wallet index and is fetched only after the dedicated Wallet Explorer is opened. The browser performs address matching locally. There is no wallet connection and no address-specific server, Solana, or marketplace request; saved addresses are first-party `localStorage` state.
 
 The public site therefore stays available when a provider is temporarily unavailable. A production outage makes published data stale rather than making the page depend on a failing live API request.
 
-An open analytics tab revalidates the complete seven-file dashboard snapshot every five minutes while visible. A tab that was hidden for at least one refresh interval checks again as soon as it becomes visible. The browser uses cache revalidation rather than blindly trusting a previously cached response, while still allowing unchanged bodies to be reused efficiently. A background refresh replaces the visible dashboard dataset only when every required JSON request succeeds; otherwise the last fully verified snapshot remains on screen. Wallet Explorer's optional index is cached independently for the lifetime of the page after its first successful load.
+An open analytics tab revalidates the complete seven-file dashboard snapshot every five minutes while visible. A tab that was hidden for at least one refresh interval checks again as soon as it becomes visible. The browser uses cache revalidation rather than blindly trusting a previously cached response, while still allowing unchanged bodies to be reused efficiently. A background refresh replaces the visible dashboard dataset only when every required JSON request succeeds; otherwise the last fully verified snapshot remains on screen. The tiny top-holder projection and Wallet Explorer's optional full index are cached independently for the lifetime of the page after their first successful loads.
 
 ## Freshness behavior
 
