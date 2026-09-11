@@ -516,7 +516,7 @@ export function OwnershipWalletEntry({ savedWallets, onSavedWalletsChange, onExp
             aria-expanded={showAllTopHoldersMobile}
             onClick={() => setShowAllTopHoldersMobile((shown) => !shown)}
           >
-            {showAllTopHoldersMobile ? 'Show less' : 'Show more'}
+            {showAllTopHoldersMobile ? 'Show less ▴' : 'Show more ▾'}
           </button>
         )}
       </div>
