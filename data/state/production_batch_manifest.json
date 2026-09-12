@@ -1,23 +1,24 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "8f8953634748d4bf56cf5726aa3ced7e419c0470cc1fe5a088f633dd7a3c80ff",
+    "data/state/checkpoints.json": "f83cb5626090d08b305530d0ed9723d5f2b554c3a777a59ddf7ca65e31824374",
     "data/state/hero_deltas.csv": "2f8fed99dcdb2fe18156985de3a4c79656b642e9a046801ee45080dba0d068fe",
     "data/state/hero_event_cursors.csv": "c4409188c35a73b09ed7fd7d323f1a2a111c59f1e049bef5f7a7ea05f128671e",
     "data/state/market_live_sales.csv": "703f7de7cb7bb9561257400b83dabbcaad089dbd38637c7798c090cc827cb6f9",
-    "data/state/webhook_processed_events.csv": "1dd6e0ffca56ac01d0b313ccdbad810a518ed6b04d11cc8c8443c9abcf66e4b6"
+    "data/state/webhook_processed_events.csv": "2517fa443a1945c470084dcf4d28efbc42b612d7811bcb7517dac0a15f0e96db"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "8a24e9f0324f0b53504c52c1247fe61fea8d9cdc2d99d33dd99c56ce0134b2e8",
+    "site/public/data/hero-state.json": "6a411ff28de66566aa7ae3c70d2165b1fb70831306a2c3bbbac5ed5245189e5b",
     "site/public/data/market-history.json": "6960d2020275632f35194547173e2d28112690c221ca593ed0129e35199ef0f7",
     "site/public/data/summary.json": "98f8716fdc82d3b60104353ee5b56b1de75a61c547e8903d6f205cc8cb18574c"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 2,
+  "signature_count": 3,
   "signatures": [
-    "5QiErYDHSoiVJRygZZVaD8PdqnudGoBdNoe6ncC4PaSa8873Qt5SrDXvV36MqrQJEUzEPT2p5SsjjAmbrvjNca8A",
-    "4S5aXwjD38Tc6zmmKpgAEY5ySnzDyQ15gXp33FmTjj1wp1NfoRpL5eyvF92BokDR6G2GErTy8vCkCYPAJo5qqnHN"
+    "3pDMY5APkMx3GfbnULyxnnDBZswevQhZDpRaLUfkGZoTp3nN4eV2zAYxSBu1v1w9yUJCWCtVAoW9ovUoj9Dk7CQf",
+    "5VYx4fNjwAr7qh4PteVxJ6BECaJ2NLKca5TZdEHuJhrBDRRdMFudDSRsbGG3q9372UUaymCPthJdhkBoKcrbxvoE",
+    "4RnXTHECsENrM549ci5iXhEDdnTGcqkR9gA5vHmAE7GVBxYycJesG6HrHeqUbbVHsNXD25x2XPUzAs3HUx9kR8s3"
   ],
-  "snapshot_received_at": "2026-09-12T13:00:39.316Z"
+  "snapshot_received_at": "2026-09-12T13:30:41.391Z"
 }
