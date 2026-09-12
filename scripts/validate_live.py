@@ -39,6 +39,39 @@ def assert_unique(values, label):
     assert len(values) == len(set(values)), f"duplicate {label}"
 
 
+def validate_floor_public(pub: Path, max_age_hours: float | None = None):
+    """Validate only the independent floor/listings release domain.
+
+    This deliberately does not load Hero/market/Wallet Explorer products. The
+    daily floor pipeline owns a separate checkpoint and must not be blocked by
+    an unrelated derived-product mismatch elsewhere on the site. Full
+    production validation still checks every cross-product invariant.
+    """
+    s = load(pub / "summary.json")
+    f = load(pub / "floor-listings.json")
+    gold = load(GOLD_PATH)
+
+    assert s.get("cutover_date") == gold["cutover_date"], "cutover_date is immutable"
+    assert f["kpis"] == s["floor"], "floor/listings KPIs disagree with summary.json"
+    assert f["history"], "floor/listing history cannot be empty"
+    assert f["history"][-1]["snapshot_date"] == f["as_of"], "floor/listings as_of is not the latest history row"
+    assert f["history"][-1]["floor_sol"] == s["floor"]["floor_sol"], "latest floor disagrees with summary.json"
+    assert f["history"][-1]["listed_count"] == s["floor"]["listed_count"], "latest listing count disagrees with summary.json"
+    dates = [x["snapshot_date"] for x in f["history"]]
+    assert_unique(dates, "floor/listing snapshot date")
+    assert dates == sorted(dates), "floor/listing dates must be ascending"
+
+    now = datetime.now(timezone.utc)
+    dt = parse_iso_or_date(f["as_of"])
+    assert dt is not None
+    assert dt <= now, f"floor as_of is in the future: {f['as_of']}"
+    if max_age_hours is not None:
+        age_hours = (now - dt).total_seconds() / 3600.0
+        assert age_hours <= max_age_hours, f"floor is stale ({age_hours:.1f}h > {max_age_hours}h)"
+
+    return {"floor": f["as_of"]}
+
+
 def validate_public(pub: Path, max_age_hours: float | None = None):
     s = load(pub / "summary.json")
     h = load(pub / "hero-state.json")
@@ -163,7 +196,10 @@ def validate_public(pub: Path, max_age_hours: float | None = None):
     # The dashboard's always-visible shortcuts are a tiny projection of the
     # same Wallet Explorer ownership state, so they must agree exactly.
     assert top_holders.get("schema_version") == 1
-    assert top_holders.get("as_of") == wallet["as_of"]["hero"]
+    assert top_holders.get("as_of") == wallet["as_of"]["hero"], (
+        "top-holders.json Hero timestamp does not match wallet-explorer.json: "
+        f"top-holders={top_holders.get('as_of')!r}, wallet={wallet['as_of']['hero']!r}"
+    )
     expected_top = sorted(
         (
             (address, len(row[0]))
@@ -268,11 +304,21 @@ def main():
         default=None,
         help="Optional CI freshness gate; omitted for local/offline validation.",
     )
+    ap.add_argument(
+        "--scope",
+        choices=("full", "floor"),
+        default="full",
+        help="Validation scope. Floor releases use the independent floor domain only.",
+    )
     args = ap.parse_args()
 
-    as_of = validate_public(args.data_dir, args.max_age_hours)
-    validate_canonical_if_present()
-    print("PASS: live production invariants are healthy.")
+    if args.scope == "floor":
+        as_of = validate_floor_public(args.data_dir, args.max_age_hours)
+        print("PASS: floor/listings release invariants are healthy.")
+    else:
+        as_of = validate_public(args.data_dir, args.max_age_hours)
+        validate_canonical_if_present()
+        print("PASS: live production invariants are healthy.")
     print("Domain freshness:", ", ".join(f"{k}={v}" for k, v in as_of.items()))
 
 

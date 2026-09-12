@@ -105,7 +105,17 @@ class FloorListingsPipelineTests(unittest.TestCase):
                     stdout=("main\n" if args[:2] == ("branch", "--show-current") else "a" * 40 + "\n")
                 )
                 self.assertTrue(mod.prove_current_date_if_present("2026-08-30", root))
-                fake_run_python.assert_called_once_with("scripts/validate_live.py", cwd=root)
+                fake_run_python.assert_called_once_with("scripts/validate_live.py", "--scope", "floor", cwd=root)
+
+    def test_run_validation_uses_floor_scoped_live_validator(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = pathlib.Path(raw)
+            with mock.patch.object(mod, "run_python") as fake_run_python:
+                mod.run_validation(root)
+            self.assertEqual(
+                fake_run_python.call_args_list[-1],
+                mock.call("scripts/validate_live.py", "--scope", "floor", cwd=root),
+            )
 
     def test_fetch_retries_transient_network_failure(self):
         responses = [

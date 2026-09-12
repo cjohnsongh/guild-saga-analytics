@@ -182,7 +182,7 @@ def run_validation(root: Path) -> None:
     run_python("scripts/build_dashboard_data.py", "--only-floor", cwd=root)
     run_python("-m", "unittest", "discover", "-s", "tests", "-v", cwd=root)
     run_python("scripts/validate_cutover.py", cwd=root)
-    run_python("scripts/validate_live.py", cwd=root)
+    run_python("scripts/validate_live.py", "--scope", "floor", cwd=root)
 
 
 def changed_paths(root: Path = ROOT) -> list[str]:
@@ -284,7 +284,7 @@ def prove_current_date_if_present(snapshot_date: str, root: Path = ROOT) -> bool
     if git("branch", "--show-current", cwd=root).stdout.strip() != "main":
         raise RuntimeError("Floor/listings production mutation requires branch main.")
 
-    run_python("scripts/validate_live.py", cwd=root)
+    run_python("scripts/validate_live.py", "--scope", "floor", cwd=root)
     commit = git("rev-parse", "HEAD", cwd=root).stdout.strip()
     origin = wait_for_deployment(commit)
     print(f"NO-OP PROVEN: {snapshot_date} floor/listings already current and deployed at {origin}.")
@@ -300,7 +300,7 @@ def dry_run(snapshot_date: str, floor_sol: float, listed_count: int) -> int:
             run_validation(temp_root)
             assert_exact_changes(temp_root)
         else:
-            run_python("scripts/validate_live.py", cwd=temp_root)
+            run_python("scripts/validate_live.py", "--scope", "floor", cwd=temp_root)
     after = git("status", "--porcelain=v1", "-uall").stdout
     if before != after:
         raise RuntimeError("Floor/listings dry run changed the source worktree.")
@@ -316,7 +316,7 @@ def production_run(snapshot_date: str, floor_sol: float, listed_count: int) -> i
 
     changed = prepare_snapshot(ROOT, snapshot_date, floor_sol, listed_count)
     if not changed:
-        run_python("scripts/validate_live.py")
+        run_python("scripts/validate_live.py", "--scope", "floor")
         commit = git("rev-parse", "HEAD").stdout.strip()
         origin = wait_for_deployment(commit)
         print(f"NO-OP PROVEN: {snapshot_date} floor/listings already current and deployed at {origin}.")
