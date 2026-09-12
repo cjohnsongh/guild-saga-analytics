@@ -632,7 +632,7 @@ function WalletManager({ wallets, activeWallet, onActiveWalletChange, onWalletsC
         <WalletInfo>Everything below treats the saved addresses as one combined ownership profile. Switch to an individual wallet above whenever you want to inspect it on its own.</WalletInfo>
       )}
       <WalletInfo>
-        Addresses are saved only in this browser. Wallet Explorer downloads one published Guild Saga index; typing an address does not trigger an address-specific lookup or wallet connection. The <a href="https://github.com/cjohnsongh/guild-saga-analytics" target="_blank" rel="noreferrer">source is available to inspect on GitHub</a>.
+        Addresses are saved only in this browser. Wallet Explorer downloads one published Guild Saga index; typing an address does not trigger an address-specific lookup or wallet connection. Website <a href="https://github.com/cjohnsongh/guild-saga-analytics" target="_blank" rel="noreferrer">source is available to inspect on GitHub</a>.
       </WalletInfo>
     </section>
   );

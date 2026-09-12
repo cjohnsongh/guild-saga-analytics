@@ -6007,3 +6007,10 @@ select[class]:focus-visible {
   .ownership-top-holder { transition: none; }
 }
 
+/* V39 — tighter mobile landing rhythm. The return-visit banner is rendered
+   only when it exists, so the normal Overview does not need desktop-sized
+   breathing room beneath the compact mobile nav. */
+@media (max-width: 780px) {
+  .content-shell { padding-top: 10px; }
+  .scroll-section-overview .hero-showcase { padding-top: 0; }
+}
