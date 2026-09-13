@@ -1,22 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "96789d23e07fac3c7d5d3e2268d931b6f887727d6a93001ceb0c1170b5cf3de7",
+    "data/state/checkpoints.json": "63c564389c6969cf809713880dd707fd5c329a57ce29452af3d97cc569076dcb",
     "data/state/hero_deltas.csv": "7b74bd4af494af76ba7ef7858b892996dcb857a07d11fc524dc027288b8abed9",
     "data/state/hero_event_cursors.csv": "c4409188c35a73b09ed7fd7d323f1a2a111c59f1e049bef5f7a7ea05f128671e",
     "data/state/market_live_sales.csv": "703f7de7cb7bb9561257400b83dabbcaad089dbd38637c7798c090cc827cb6f9",
-    "data/state/webhook_processed_events.csv": "e5a07cc4f8514989e72e3cce5eb003b2826462bdfa6c99d3c96aa59e69b70623"
+    "data/state/webhook_processed_events.csv": "39becf1dad0e11d11cff58bff98a9ff7699f0c1909ebd2c49bbf531058d0ba38"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "5e3f2bcf2036bf08f64f9b6353f211aa9ad0342b1529d1564fe49278c4854717",
+    "site/public/data/hero-state.json": "3fb32eadbc34fe26ee98a851dc2dff4f47cd98eb2c5e6325b9aad98c7432fd79",
     "site/public/data/market-history.json": "af3db1fcee978829f9e47f67858f0890d98a46ddf8b72cb24b04e5fbfb4a51f5",
     "site/public/data/summary.json": "4eb510d4fe1e4556481fc17731201b06db6e0f915c5f43cb7a5a6efaaf247b12"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 4,
   "signatures": [
-    "3MPtq5hUFzjRf9uNSLzZLtchWySXQPtVhMrEYWQvudogiJzYy547cdapYxE7u8fcpb6j6vRLDjZUKy8sbT2BU8r1"
+    "5BCPyXVsGT5DgUYNnhQhCgGHgSBRhL7ijK5BA8cnBSzrGXmS6a2S44ZEodVpUZxgjheqvtqGrL6yb3RWHXLc1vP2",
+    "64dqxGRyrTJa5cj1mXtxrDctdryokEJz5FLesr8U1mbvdnVHvyFBqXWxSxSz7Aya5E7bK8kF2GQBjXraNnNshXeg",
+    "kZimDoaWp1U6e23PmBeWZEVShEa3DcwwKnjjyVB9qkyhMV3jWefE7t4orgiEazNJKYCQM4fdEgVTN48ZYpDP8bE",
+    "53RCYZVESgN1tjysgRt27QcQofjG4R2ETm6ybhnjDNkpP5Gk5EnPHwMLXY2pnSbPZ3HwDknkojJwjUWWufTteSSd"
   ],
-  "snapshot_received_at": "2026-09-13T18:30:37.373Z"
+  "snapshot_received_at": "2026-09-13T19:01:05.295Z"
 }
