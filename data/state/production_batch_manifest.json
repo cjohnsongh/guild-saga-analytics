@@ -1,24 +1,23 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "82ef1dc1a134c7be4bc9b5c9c4d267e3f2a269416263b76fe4feb4fb4ac1d993",
+    "data/state/checkpoints.json": "cf72c66bd8cba9af8d4260e788dcade1d09a61cf2b2726409c851c4f961367d8",
     "data/state/hero_deltas.csv": "7b74bd4af494af76ba7ef7858b892996dcb857a07d11fc524dc027288b8abed9",
     "data/state/hero_event_cursors.csv": "c4409188c35a73b09ed7fd7d323f1a2a111c59f1e049bef5f7a7ea05f128671e",
     "data/state/market_live_sales.csv": "703f7de7cb7bb9561257400b83dabbcaad089dbd38637c7798c090cc827cb6f9",
-    "data/state/webhook_processed_events.csv": "f7dfe5510a1350c316b5cf495acb816a4da365b83beb9d909aa2483c02a1463a"
+    "data/state/webhook_processed_events.csv": "c5957cd3c806e0b61dfc864b1e384eff37cc13b9ca93ce5a093f4975a629e615"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "c1832171cebfb6f12efa7b9128cf8b5ca0b41d8c5adc7d5144c267f5bf603456",
+    "site/public/data/hero-state.json": "3654423b570a9b99fe4378ebe95e0ee9591ae486b0a8543f2d0b9ff25898daa3",
     "site/public/data/market-history.json": "af3db1fcee978829f9e47f67858f0890d98a46ddf8b72cb24b04e5fbfb4a51f5",
     "site/public/data/summary.json": "98f8716fdc82d3b60104353ee5b56b1de75a61c547e8903d6f205cc8cb18574c"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 3,
+  "signature_count": 2,
   "signatures": [
-    "5Z7RMiGwbjJXxE9e4c6U91iAWK58WEF8tBC1N6qriNm1jXoc743X9Rh7RbdekVWAJc33sCz51r9hGNoMg6oayYFn",
-    "9Yg44YUVQbWb4GLaZ8nPqxaZX21n5R6toaoQ9VmQXNv2EFKs5mWhFRL4H4r39oFnJVSk2fVxreDawVyoQewjZfV",
-    "QgGwEVvVbcVmFSMhPPmQg1nhfT5NiTZDE74YRxi65YnFeX1LTAGQwjxSAVwHwuDJx41w5WDFD13bsizsoXU6isq"
+    "XMt3vnXSodbmxkAUHEd3Szt6JsgFJ9RK96CuzsPM3aJxHA5NfH118Ub5PPQhgRXGXBfCw2n5fqJKW9Fhe6AzFnE",
+    "6GaLFCB68f4WyEUrfKZWdAaZCHUWTAL5trJtYLx9qXgpHeZtjn7jj7US3RkED9muEfzZo8a6d3Q25Z8HityZQvj"
   ],
-  "snapshot_received_at": "2026-09-13T08:00:39.607Z"
+  "snapshot_received_at": "2026-09-13T08:30:36.695Z"
 }
