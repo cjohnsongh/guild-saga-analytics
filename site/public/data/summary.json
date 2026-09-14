@@ -2,7 +2,7 @@
   "cutover_date": "2026-08-26",
   "hero": {
     "active_supply": 9827,
-    "beneficial_holders": 1960,
+    "beneficial_holders": 1961,
     "staked_heroes": 5853,
     "staked_supply_pct": 59.6,
     "quest_active_30d": 996,
@@ -16,9 +16,9 @@
     "public_mint_proceeds_sol": 14850.0
   },
   "market": {
-    "secondary_sales": 19798,
-    "secondary_volume_sol": 35725.807237474,
-    "unique_buyers": 5472,
+    "secondary_sales": 19799,
+    "secondary_volume_sol": 35725.857237474,
+    "unique_buyers": 5473,
     "heroes_ever_sold": 8405,
     "guild_saga_royalties_sol": 1742.09,
     "mint_plus_royalties_sol": 16592.09
