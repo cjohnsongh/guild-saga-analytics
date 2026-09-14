@@ -1,25 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "5366b659879fba34dd133a0f2b2f236df1d9af796cf3069c239bbd8c846bf30c",
+    "data/state/checkpoints.json": "90147ec63ca8926ef3e948d7181751d36a445a66d30e749ebe8c560f112f5a0a",
     "data/state/hero_deltas.csv": "28b614f54f22b2d259bcb9c29177283e6a05570d332ebe699880f425bd599d0c",
     "data/state/hero_event_cursors.csv": "56e6220d4c9bc27264135bc719d895927824a0ecf7ffdcc7eb17b0d469f9f91e",
     "data/state/market_live_sales.csv": "6448b41dd467d1cb43fdce3c4cf5bb5bce59e01874441902487b9893e99cb611",
-    "data/state/webhook_processed_events.csv": "f9c35db7c7a6aa57a72c6c7224416983ea7b6095de94336e6c2532d5f41621d6"
+    "data/state/webhook_processed_events.csv": "3582f8681047fdcf4ae8f302ab636905804ec371fdf965118fcab0987a09b5e9"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "80fd8b4d7b7772afa6e0ee3299bce07720da10f00930bd3c44070a53ac0b4b42",
+    "site/public/data/hero-state.json": "a4611664e9847f672a727e23082ccf79967e7ad1964ad610db7b176e87d6db19",
     "site/public/data/market-history.json": "c9a687555be7a80bbc99846e7e95c9bea166bf0a4db41548273a9b6920b34b35",
     "site/public/data/summary.json": "27000d5892a24bba20b9bdb37a6bd721048523d6e0b970fdf4fa29c11c508d3e"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 4,
+  "signature_count": 1,
   "signatures": [
-    "5VzrRzBhPFPZkzLRtqmb8LkoRSAtMKo866K8auhisnLHuHUjepXV6DWdHp5GSdUvpM5PA64fh7BmNv3SZisHXjup",
-    "4SpCvTVBEZTFRW3sM2N6ABncde6LtJD87qrTW8RtcE488Mtc3EzhQNEigvVR8xXokcUKRwqD4T8ck4bQhytQ7PCv",
-    "3gnsSxhGp8QCubKuD7GofZzNZhqVGHyg6sC13YTjCFqXkAVgzSVVeqpSVTJPqf8ikCeDfk9VPn7royG1BPENSqo7",
-    "mEWHo2PvfoqrwUGNytaPVokYYd8KNjSfLDWHa3qFbxaZsQdgXz74pU2NuBdg1JkWZ5GrG84ayt1DzWLHJyaA9mr"
+    "5D9rwnDU4DhToFfsmLd7jnaZiptRG2MAg5AwZDYzcZL9vPVZ2haykEYdefDf9Fk93Htz8nTJLc2B8WN8ez2WT65j"
   ],
-  "snapshot_received_at": "2026-09-14T14:31:06.133Z"
+  "snapshot_received_at": "2026-09-14T15:00:51.370Z"
 }
