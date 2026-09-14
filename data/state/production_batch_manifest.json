@@ -1,16 +1,16 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "89c361ab470aa38d09d73ce4711198226f75794c7fc1b8fb750587bd54295220",
-    "data/state/hero_deltas.csv": "a22606b3bd522d1dd556dba9bc2a33862aca49dd411d907baa3344c488a93d08",
-    "data/state/hero_event_cursors.csv": "e07288bdcc42f89e431747e3fd7c3e2b3f74b01ac236f8e46884fb773ca6af7a",
-    "data/state/market_live_sales.csv": "32bd33fa04e7b5c19110b7bcac220d77e5d29456aaa6afc38f9906c4f5b8c5d1",
-    "data/state/webhook_processed_events.csv": "9cd43b445131075d1cf140a8b85b7b131731cd7d98c8bb19b8486c0653d2d5f5"
+    "data/state/checkpoints.json": "88d4ef32352862bdb1a10a23b6dc5b7a4039c86710f9950ca55801ba7afc498c",
+    "data/state/hero_deltas.csv": "28b614f54f22b2d259bcb9c29177283e6a05570d332ebe699880f425bd599d0c",
+    "data/state/hero_event_cursors.csv": "56e6220d4c9bc27264135bc719d895927824a0ecf7ffdcc7eb17b0d469f9f91e",
+    "data/state/market_live_sales.csv": "6448b41dd467d1cb43fdce3c4cf5bb5bce59e01874441902487b9893e99cb611",
+    "data/state/webhook_processed_events.csv": "564d2363fc1f1186e24303768b5745d3838d21bc6ea12441bf583a2bcb728b5b"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "295ae1a419cf4317c236044db8e8113d0352884d9f40bf5d50921edb7a9e75d0",
-    "site/public/data/market-history.json": "829e685ebd562f255b8532c10158d3e28d736432a085f02b54b09c92f50b3369",
-    "site/public/data/summary.json": "1f2c6b8719709e5f0a87fbe3ab7a4b8c0f99bd1e9c47998b8b62ed74cbdca7b0"
+    "site/public/data/hero-state.json": "ed85af6c313344c6603d231de0ea33ba92522268918b36f6257f423738e26a28",
+    "site/public/data/market-history.json": "c9a687555be7a80bbc99846e7e95c9bea166bf0a4db41548273a9b6920b34b35",
+    "site/public/data/summary.json": "27000d5892a24bba20b9bdb37a6bd721048523d6e0b970fdf4fa29c11c508d3e"
   },
   "reducer_counts": {
     "MOVEMENT_APPLY": 1,
@@ -18,10 +18,13 @@
     "TRANSFER": 1
   },
   "schema_version": 1,
-  "signature_count": 2,
+  "signature_count": 5,
   "signatures": [
-    "4cCpwJSjKATX8eWAketUz2TQaYgm8nrDeLSS14L4QSbu1MpCNCzq1dapBxptZH4f44LPYQmR7JKyRWPf9SRD7A4i",
-    "2QzP4GMstWX5GyP9CWesdm4RBgH6m5KesfPHtTjvQG3BGu7KPJGtBhFtqjBZY3TSD7hyadc38LJrmfQvcNV8Tp8J"
+    "3fkY1ubhz4tJpJzzGkuF7YjdjjZSLRJTa4Ad56czK95hnVAjecqV1s9oGy8QCbfrpKUcXLXbcAfhxWUYbzkoF1NM",
+    "3QXDbmEArZBZ5X18NPve6p3ZuXsP9W2qHhE975mRQbTWaH3FzbHqFJJi9rKYjYgmiFv26GEmTNExMB7GvKNoz8rH",
+    "4vjjJS8QY1CCaa7CKK68pHyp1Bnt6idv9KK7XsJsTrSjyb6fPtPaArESfqJJ7CBRW44dM441Tyyhuc4wq1nrRNrJ",
+    "3QzwkCGzGbcak35XLw8rR7dCFoJ7HTJvRTN4v3PQCtZe9BzGA9rLZp55rkdaQYo7xy5HX7vrgDP1hccR8WeMjrww",
+    "2EbpSXjf7tjBwYR7dy6LnAz9LEniuzvZj7YtLWiGBDesaFJydhQQtyCG1LoGY9S1M1ZGRJLtz7dafPq98wjnNcWx"
   ],
-  "snapshot_received_at": "2026-09-14T12:30:45.174Z"
+  "snapshot_received_at": "2026-09-14T13:00:41.809Z"
 }
