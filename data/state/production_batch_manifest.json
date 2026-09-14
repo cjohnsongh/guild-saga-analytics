@@ -1,23 +1,24 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "b978caa28a7c690787fc2d8e55f1ba288da8374db36f5107c8af8734902a59e5",
+    "data/state/checkpoints.json": "5eb818659e473397e826781dc29b297c9b7743a5a7eed84ef11419cae30518b3",
     "data/state/hero_deltas.csv": "28b614f54f22b2d259bcb9c29177283e6a05570d332ebe699880f425bd599d0c",
     "data/state/hero_event_cursors.csv": "56e6220d4c9bc27264135bc719d895927824a0ecf7ffdcc7eb17b0d469f9f91e",
     "data/state/market_live_sales.csv": "6448b41dd467d1cb43fdce3c4cf5bb5bce59e01874441902487b9893e99cb611",
-    "data/state/webhook_processed_events.csv": "b19d8df5af56ca12ce5c8f7c8c1f8e4df46f8622daad1a4b0813729150fa8f72"
+    "data/state/webhook_processed_events.csv": "22d72445b51f94abff26efc5b263bce1d42be8fe0c3a6541b083d90fdfc40f80"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "8765d22814dd88bc8bb3d696b4aa99eaecd3de484a6b5376db57df353be37503",
+    "site/public/data/hero-state.json": "923ef7d1e74d1e8333914e27587a1912bab535ee15784b65d7ea1f11a587074a",
     "site/public/data/market-history.json": "c9a687555be7a80bbc99846e7e95c9bea166bf0a4db41548273a9b6920b34b35",
     "site/public/data/summary.json": "27000d5892a24bba20b9bdb37a6bd721048523d6e0b970fdf4fa29c11c508d3e"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 2,
+  "signature_count": 3,
   "signatures": [
-    "52WAzyhZFQ4TtoJjZdA5CvrxcZjrQQynco7UrxnYez33t3eC2qs2aCwmCoRJuCv1Ch9CmE4cEcpTb8BBm23xpXea",
-    "5BHCK1DoG2PZjg2uDeAuERg56cxT91eE2yh8SoTJdS8V4Cahu32ZVgRRufEkTsXvSZxBbQWC1o86K1dZiPyqbtM9"
+    "5MLN2i1wPMi9bkFavNzasWgxjb5cJwPXGuBt9JtdQnWcvJ9a4mDbjN7TXDqqVpcyggvKQWUPzX2cGxr9BZ45g6AG",
+    "nWT5ntrNR2gs5DF8g4WXdRcsXST1hTGBvRZXnfFpYt9ePEdoidaKJUETK9onxWfYc7KH2SxeZ8wuMvXtdQzXYRU",
+    "45fNiScY1ohQXUjbzuEMouXtYFG89ureDz99HWP9VBJJmCMeHd1vx6MZ2AjmcbL2AqnmGifARabivXpRyTFYTkHU"
   ],
-  "snapshot_received_at": "2026-09-14T15:31:28.740Z"
+  "snapshot_received_at": "2026-09-14T17:00:52.440Z"
 }
