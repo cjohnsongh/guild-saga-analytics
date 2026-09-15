@@ -1,24 +1,23 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "13afdb1e362c10f19e6d095ef3d1222989f35c64527ba178f31f3c319cf6b5a0",
+    "data/state/checkpoints.json": "057dabd5066fa65bd26fc6f6d7abb0cf9a3227193c7e88af7b64362e9251d44c",
     "data/state/hero_deltas.csv": "a18e5cc3b8c19e48863ccbf4dfc5d5719ad9ab204ffe3068cad04ff290788c55",
     "data/state/hero_event_cursors.csv": "56e6220d4c9bc27264135bc719d895927824a0ecf7ffdcc7eb17b0d469f9f91e",
     "data/state/market_live_sales.csv": "6448b41dd467d1cb43fdce3c4cf5bb5bce59e01874441902487b9893e99cb611",
-    "data/state/webhook_processed_events.csv": "3ce9980f376cad9f34b3e658a5a1d068611c18b2c2e13a991c9bfdfa13156bce"
+    "data/state/webhook_processed_events.csv": "2c55ef1694f2f8927f324659c55231aa69461f54540c18e390a14bdac5d3177a"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "66802bc53deda26c5d3233bc5b81b89e5085ad76ed1f2bfe208c702112c883fd",
+    "site/public/data/hero-state.json": "6c3a42529940db54bc5d8d63ae7bdfcd1784597758e1c8109fedf9d64c76ca1c",
     "site/public/data/market-history.json": "616c9cce526bc958f6dd023ac004e83eda81bb74d8fceec3dea6578e7a8a59c5",
     "site/public/data/summary.json": "069a2029fbf4c8b7cc70691a8ce09b14b4aa4f462b419dee1e40b33392705b28"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 3,
+  "signature_count": 2,
   "signatures": [
-    "3vo7AjnoNdfEg8cUh93E29qMf8Hd5nMrEpjH8y5pQazk9DdD72Prs3zoFDQZR5c2RZxHBLMxVVQLJW3aDYvzLs3V",
-    "47rs17rudtdpE7Q9wZnxVUQDj5T2LjSGN5vKbC4LsXNesFoSP9jv4HZ5vyWCitpm9NCoP97nJyDx3hVapKy8fFWe",
-    "KvWeufwvXmrvjU7ZHkXAwDVcZ9RFSoPXKzjmSN8cNx6p4C3GH1Ds5WqXzRQdr9Gc7nCZsWrm47qFoKXVvjL9Y8j"
+    "2UYNepH1TSagjm4PtGNB5LdGVDkHfFuQHtqPdN8wx2AdNtFkXMwZoQso8UBaKxyB8a5nAzfa7vMdBhAudqrira3Y",
+    "21w3pxW4qqcBfCVuWxLqRRGdaxcLJG3Yzn4qmjBuq31vqDtYUzQCNFsF9o42sx3e49RDkuirkWdrzfmaYZCZpu9x"
   ],
-  "snapshot_received_at": "2026-09-15T02:30:33.516Z"
+  "snapshot_received_at": "2026-09-15T05:30:40.742Z"
 }
