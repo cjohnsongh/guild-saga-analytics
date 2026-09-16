@@ -1,22 +1,24 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "f25cad709192434e0ef0d15e877f3c4023ebda36f299c545ac8530355b1744d5",
+    "data/state/checkpoints.json": "ca5198dce142aa2de8fdae1c6268b2b2ac998b01290dd38a58a53338810deb39",
     "data/state/hero_deltas.csv": "a18e5cc3b8c19e48863ccbf4dfc5d5719ad9ab204ffe3068cad04ff290788c55",
     "data/state/hero_event_cursors.csv": "56e6220d4c9bc27264135bc719d895927824a0ecf7ffdcc7eb17b0d469f9f91e",
     "data/state/market_live_sales.csv": "6448b41dd467d1cb43fdce3c4cf5bb5bce59e01874441902487b9893e99cb611",
-    "data/state/webhook_processed_events.csv": "4f7c1b4814dda4dcf57ce00c23d8e7223173913b7c162681715e7179528c9990"
+    "data/state/webhook_processed_events.csv": "de71409fa8a6e789e3e716643ab37c0fbf5b6fb15f93e6019c3db8fdde160a96"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "2b326a1e3d76896b599dbca6851a800daa90c8e53e7d58c320abf1f53828cb5e",
-    "site/public/data/market-history.json": "616c9cce526bc958f6dd023ac004e83eda81bb74d8fceec3dea6578e7a8a59c5",
+    "site/public/data/hero-state.json": "55a9ca67ed7132ec8de8fbc9f44c89683e797d04f1d4e331405149f7794d758d",
+    "site/public/data/market-history.json": "161c696146c4637bfeda9327ec41132a1de22b400c02a7a06b3e207c78bf4f1f",
     "site/public/data/summary.json": "8837bd77d0ac097bd02880ad3029da3ff8b5e64f274c85cc67fcad678f5889be"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 3,
   "signatures": [
-    "3UMD7U5ukDwfLhkaXP2aC6xbcdRLqq7tg684dzMHvBkvBRxR8QBAtwcJ34BJPdRMi1Pj24t2LrQeRMreT1my1qQS"
+    "6ZyRPDw7jHEbBHr2ikV827hVDYckYj8AFHXLTRjg4WvsoY5Yt1CVyYoDMzNZtBXkoarpyRYNQMdfw5LjchMoeWN",
+    "4ttfRHHmGDWdPuw4zMH4te1213NL3gEsEfGFHBNEKM28gksZstnU6La5u5VVobu5Civf1EH6A3GzG4TvxDxeuN4H",
+    "EpXmPVxhNcwWGJmdVYj4rWxJrKchggk3M855MfHRLXL3WtPuontFSqF6s3BUZeiYb16vfpttGK9JHVJRi53Xnmd"
   ],
-  "snapshot_received_at": "2026-09-15T23:00:44.512Z"
+  "snapshot_received_at": "2026-09-16T01:00:57.849Z"
 }
