@@ -1,24 +1,23 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "ade7f5cdb9d2b300f5f95fae2407141b89cf90dddff5bec99e06ae2b34a6b218",
+    "data/state/checkpoints.json": "58aa5d7d01348a77c8511bd3ce76c5708c757a5150562c736347c217c8e77129",
     "data/state/hero_deltas.csv": "5349d5f2542b133b698a7bda02e7fc0899aa6e025eb55b0ebdf4b8cadae57245",
     "data/state/hero_event_cursors.csv": "2a4db0f2c96c036a00293550db4cd89ff29b4fcb95e02581e213db3019a4a816",
     "data/state/market_live_sales.csv": "b7c5acfd0bed85ecaade44696725830af7c3172ebc89fb1fa5b07b9dced129e0",
-    "data/state/webhook_processed_events.csv": "b81b0a1d72482c0dcb5a587e8162ed3b091c482028248aa003265978521ee876"
+    "data/state/webhook_processed_events.csv": "7a90f6fff54c61b25a4860857ad3f0aa2818cbba44b03634100ef751d81852b5"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "d24c198ffe96d2effbac8b3423bfc9e93befc3c368c539af786cd2219585cca5",
+    "site/public/data/hero-state.json": "60d87df4293a0e2727438527e482fea21a769766b262653d61a372b6fb523eb8",
     "site/public/data/market-history.json": "0f9418d40d7bf55b26272b31e4c6218e5fcfe18c245395abac396041b94bcfa3",
     "site/public/data/summary.json": "df7e55c66ce5aeb94604dab6a3cec4d354ef6535f73e4e88c232e5f650ef89ee"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 3,
+  "signature_count": 2,
   "signatures": [
-    "2NgtyTSQfa1Dw5jLetUed4zWxp5PiaKhsHnNizg6oEpwEKbLKtRemX2WnbbcBuY2CkpX66G9p1cYKHz7ZHbdMTff",
-    "5rxmqFmkfqJbxiTmdZtK5VM8Xz8MAr9mfbMU64sCRE1cWyhZSTNMbKDwEPr9d4gub91UwAgbaW5SHav6EyQnanX9",
-    "4JsyrPXMHp9pSzQK2BFS2nWM9Z3nKgmLqhoHzspLV2LEfDqkK2pczyTnAj3ax4dfC6q3HBKmjckUGbCPPLiHCoVa"
+    "3171oU3LSbsnv7E8z5JfsXzgmp2GqCxdwQFcHwu4c8EhKuZG6YZQeaEKoYPeMRLeg7bJhdhW1w3889HXBvJNTEXd",
+    "4ufvix1tQQG1f3LLcG3Ppf5hVjJiFrhTXUWsX5cmKwzCtbFNrkboCSYMn6UL4MU7VzuECS5pUvaJJG8S9U4tvDrX"
   ],
-  "snapshot_received_at": "2026-09-21T04:01:05.388Z"
+  "snapshot_received_at": "2026-09-21T04:31:01.912Z"
 }
