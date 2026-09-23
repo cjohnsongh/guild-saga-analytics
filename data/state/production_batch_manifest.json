@@ -1,24 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "47f9068d8fa801fe51849c74af76f731731b948dc60ba2dce68d423f6299087d",
+    "data/state/checkpoints.json": "a843f1331a45aca9d82cec8399df7f09d301aa1f669d88037b24bc969615ce8a",
     "data/state/hero_deltas.csv": "9c32e399c20fc1bca6a07118e1aea3c7959bd0e22475dc2902a377adda55929b",
     "data/state/hero_event_cursors.csv": "2a4db0f2c96c036a00293550db4cd89ff29b4fcb95e02581e213db3019a4a816",
     "data/state/market_live_sales.csv": "b7c5acfd0bed85ecaade44696725830af7c3172ebc89fb1fa5b07b9dced129e0",
-    "data/state/webhook_processed_events.csv": "6729504e2b104734aadd7c7a4ffdeada7d582b9c676abb444f6a8f4221b32f1e"
+    "data/state/webhook_processed_events.csv": "7cca76cd3d55e771748d9ea1779b851e8698a9633e557d729265b42efb5fb25a"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "c0986715d48ae4ed6a5f15cb2987cb3d1fd3f739545a334ef15fc245890346a5",
-    "site/public/data/market-history.json": "8232801d7eb697aa1e4169cf5340d88ace9b6ddbdfb55eab36f69fd6edebeefb",
+    "site/public/data/hero-state.json": "412ec3d396cdf55c280a390b0c8c94051255499bad1d3788148171e88280bd86",
+    "site/public/data/market-history.json": "fdbf1413f89c670b53b15d69ecd210e5b946cc45d4677a6201f09b6c356a43e3",
     "site/public/data/summary.json": "6243a8ecccdd2ee5c6842f643a135acd84ecd6d1913b5bd75b29d216e5dfeebf"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 3,
+  "signature_count": 1,
   "signatures": [
-    "5erePy4nUSm88QT1GREbwpX45oRAFyWJfRiqdDwxmjX3XCAHpZi5zy9Ttt1TjWdwbcmNH7pF2xm38o4pXV6QK1Q",
-    "MTvu8yFuPY9CKxFPcL7sovpR8gVsEzwSzvAm1GCot8yEWhFCD5TNRSq5di5quSqAywaCrdzi3dsLrM1KdqxykyN",
-    "55AcivdxWzFVa9CDBNiLWg2wMaYSdaxGVZnJJW1T7AUvZGwZHFyAKWJXbFQHCjCaLuqKRQ1QdpoNxFipGCnJMabc"
+    "4m5NwSjjWTUaQKBAefkX1AkJAMSbgRriFLHw7DsvfQRDVVcHVTn9fNc2XDNE4Re97Z2hjf3rKkuv1MXd32S4J2d1"
   ],
-  "snapshot_received_at": "2026-09-22T23:33:14.225Z"
+  "snapshot_received_at": "2026-09-23T00:31:20.272Z"
 }
