@@ -1,23 +1,24 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "c8a45d374c10cf8a464ea7edde0285270bdc37270bd29a8c207841d9936f29ed",
+    "data/state/checkpoints.json": "1d78b35aaf61cc44eca9c53d1fb4218dc90e2853251511f93640fd2f79b393ba",
     "data/state/hero_deltas.csv": "05575951d6c8ef73cc891ac16da6383d211692f2b00f243deb3fc77354d4ed7f",
     "data/state/hero_event_cursors.csv": "2a4db0f2c96c036a00293550db4cd89ff29b4fcb95e02581e213db3019a4a816",
     "data/state/market_live_sales.csv": "b7c5acfd0bed85ecaade44696725830af7c3172ebc89fb1fa5b07b9dced129e0",
-    "data/state/webhook_processed_events.csv": "26042cd40f063f079eb4f5c935a0e1b74c7f3f9de814a5826d5aced5ab865144"
+    "data/state/webhook_processed_events.csv": "ab6a0a9a91c1aef8ae852dd9b191d90fbc4d0b2ea03db725b89cacc0b2ecbb9e"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "2f229c2f4c9607af228df1134575bd8a274d1e0b7bd7eefa007b801422e976d0",
+    "site/public/data/hero-state.json": "3a444cc5e198e7387fe1187b4db1ddae9f9e1567fa30e598443d2c4c35ebc16f",
     "site/public/data/market-history.json": "0c0cd6520771b3b465eb6ea9e0895ba88e43c80a51ad02232054115f6b377f74",
     "site/public/data/summary.json": "6243a8ecccdd2ee5c6842f643a135acd84ecd6d1913b5bd75b29d216e5dfeebf"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 2,
+  "signature_count": 3,
   "signatures": [
-    "4NkZv9Gm9yRjb1p1Xo6XGX7VcweDeU5FHv9YPd4ZtmcKcKptngqLwVVsTwWmVFkoLjVuwZ2eT97PKbu6rPLfdzYR",
-    "5PwPiF3rjsaD4Y8EeKmvauvCKNv18ZvD5zSDkaMXNnVByVbygq2hBLrL1upEW22xkdFQj3C4UXaYB9MFQTQuesRk"
+    "4MC4kYW8tRVmXWsN2ZbuKcpSFiujzk6vbFSK179HmCBNwASEkAFe9dE95vBcdPGZLcizhA4UEYaMckMdMUtFXZBU",
+    "3qronE7bJ2heAd9Xo6trrvmtDDj6hm111QCnyxzTA58m94QHdM7H8D3ZvCKduhxajhDjErbGCMCbWtvFbpBvHMQw",
+    "2AcwdRSUr42mC8jgoVPQbwvR1TbMvzQoPu9qre1xRmvu4CWBEb8th6hiHjnqx1DvSLDaFwhofuiQr6FpdBbmGht3"
   ],
-  "snapshot_received_at": "2026-09-24T14:31:07.607Z"
+  "snapshot_received_at": "2026-09-24T15:31:11.140Z"
 }
