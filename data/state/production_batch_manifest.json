@@ -1,25 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "34bb28c820f8918ad873269c48b9a29119224994103657ae5a1782b5640d6225",
+    "data/state/checkpoints.json": "6bcb30d5cf3d6a488ba9aad0d9fb5bbab49619ab3fd07a2143dfcfbac77274be",
     "data/state/hero_deltas.csv": "7f3d2e9dd43e044cee01c102540dee0deaf0601293a406dec8a5f1d998a84dcf",
     "data/state/hero_event_cursors.csv": "1a58ee7266ebc77907bf2a885015e469c5e797484c7ccb14cef45afc8730d857",
     "data/state/market_live_sales.csv": "b7c5acfd0bed85ecaade44696725830af7c3172ebc89fb1fa5b07b9dced129e0",
-    "data/state/webhook_processed_events.csv": "219baeedad21333a200ef52b8b04e2f23aa41c0946208cefcf939c2f906b8448"
+    "data/state/webhook_processed_events.csv": "956057994596ceee4943c7db92aaf1fc8977c128a248a841b343c907010c386c"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "1240825210c6bef3e3529236a73f74d44ec93f50e71c3efe5e5e856b844336c1",
+    "site/public/data/hero-state.json": "484452c8cbcabcb97d3efe4ca29abff9e94acc9d4d8db337d7abc4ba8ea820da",
     "site/public/data/market-history.json": "a13395ce9913bc1ad55af3d95ee566f2c6fb5b204069e4e0fec09a3584f5580e",
     "site/public/data/summary.json": "6243a8ecccdd2ee5c6842f643a135acd84ecd6d1913b5bd75b29d216e5dfeebf"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 4,
+  "signature_count": 1,
   "signatures": [
-    "3MFKa25ctkpGyndDWZQsPa7g6uamwmGxS27WLwY4Z3UTw8KwzDPW1M2u6MXbuedMpSj534V7vNRnjULMb7BKVMkx",
-    "2RJdaVHuhQta3CZGSuWUjjhdgwwMhNu5tvv6FjCEarVrEksFecPqQHFrDdQkt4XzZe5LSgRLYjp9H7AqFvyhxA2r",
-    "283oyPK14WCGVkGJ5cjWNMHc7qGt2XDpCi6QXAySmtAgrQ7SiSjUi56aEyghdqSRirp97pDC5KjKV3wPyuQgTMnX",
-    "3pkw9VBFBUnEA7PfBAWZXeZvx1SchzjSF9sQofymx1bbGyhEzhWZ4tm13CfsU9KM5ij1vmjYapxTKAsGfYiQHoKe"
+    "4ysWmaXQ7mvY4rayrb9U28X9MsdeqJ6vPBuF7WHgJRSHxFGNweUAFW4cLNY4gu5Tsm4NBthCoqKN7rzUFmR7hgJB"
   ],
-  "snapshot_received_at": "2026-09-25T05:01:10.221Z"
+  "snapshot_received_at": "2026-09-25T07:01:08.668Z"
 }
