@@ -207,8 +207,79 @@ class ProductionPipelineTests(unittest.TestCase):
             mod, "request_json", side_effect=mod.urllib.error.URLError("temporary dns failure")
         ):
             candidates = mod.deployment_candidates("a" * 40, "token")
-        self.assertIn("https://guildsaga.pages.dev", candidates)
-        self.assertIn("https://guild-saga-analytics.pages.dev", candidates)
+        self.assertEqual(candidates, {"https://guildsaga.pages.dev"})
+
+    def test_latest_cloudflare_pages_check_prefers_newest_retry(self):
+        check = mod._latest_cloudflare_pages_check({
+            "check_runs": [
+                {
+                    "id": 1,
+                    "name": "Cloudflare Pages",
+                    "app": {"name": "Cloudflare Workers and Pages"},
+                    "status": "completed",
+                    "conclusion": "failure",
+                    "completed_at": "2026-09-26T18:38:03Z",
+                },
+                {
+                    "id": 2,
+                    "name": "Cloudflare Pages",
+                    "app": {"name": "Cloudflare Workers and Pages"},
+                    "status": "completed",
+                    "conclusion": "success",
+                    "completed_at": "2026-09-27T17:16:51Z",
+                },
+            ]
+        })
+        self.assertIsNotNone(check)
+        self.assertEqual(check["id"], 2)
+        self.assertEqual(check["conclusion"], "success")
+
+    def test_latest_cloudflare_pages_check_prefers_newer_in_progress_retry(self):
+        check = mod._latest_cloudflare_pages_check({
+            "check_runs": [
+                {
+                    "id": 1,
+                    "name": "Cloudflare Pages",
+                    "app": {"name": "Cloudflare Workers and Pages"},
+                    "status": "completed",
+                    "conclusion": "failure",
+                    "started_at": "2026-09-26T18:01:54Z",
+                    "completed_at": "2026-09-26T18:38:03Z",
+                },
+                {
+                    "id": 2,
+                    "name": "Cloudflare Pages",
+                    "app": {"name": "Cloudflare Workers and Pages"},
+                    "status": "in_progress",
+                    "conclusion": None,
+                    "started_at": "2026-09-27T17:16:19Z",
+                    "completed_at": None,
+                },
+            ]
+        })
+        self.assertIsNotNone(check)
+        self.assertEqual(check["id"], 2)
+        self.assertEqual(check["status"], "in_progress")
+
+    def test_discover_deployment_reports_cloudflare_failure(self):
+        responses = [
+            (200, {"statuses": []}, {}),
+            (200, {
+                "check_runs": [{
+                    "id": 7,
+                    "name": "Cloudflare Pages",
+                    "app": {"name": "Cloudflare Workers and Pages"},
+                    "status": "completed",
+                    "conclusion": "failure",
+                    "details_url": "https://dash.cloudflare.com/example",
+                }]
+            }, {}),
+        ]
+        with mock.patch.object(mod, "request_json", side_effect=responses):
+            discovery = mod.discover_deployment("a" * 40, "token")
+        self.assertEqual(discovery.origins, frozenset({"https://guildsaga.pages.dev"}))
+        self.assertTrue(discovery.cloudflare_failed)
+        self.assertEqual(discovery.cloudflare_details_url, "https://dash.cloudflare.com/example")
 
     def test_candidate_matches_treats_transient_dns_failure_as_not_ready(self):
         with mock.patch.object(
@@ -223,7 +294,7 @@ class ProductionPipelineTests(unittest.TestCase):
         source = mock.Mock(
             side_effect=[
                 mod.urllib.error.URLError("temporary dns failure"),
-                {"https://release.pages.dev"},
+                mod.DeploymentDiscovery(frozenset({"https://release.pages.dev"})),
             ]
         )
         with (
@@ -232,11 +303,44 @@ class ProductionPipelineTests(unittest.TestCase):
             mock.patch.object(mod.time, "sleep"),
         ):
             origin = mod.wait_for_deployment(
-                "a" * 40, {}, timeout_seconds=10, poll_seconds=1, candidate_source=source
+                "a" * 40, {}, timeout_seconds=10, poll_seconds=1, discovery_source=source
             )
-        self.assertIn(origin, {"https://guildsaga.pages.dev", "https://guild-saga-analytics.pages.dev"})
+        self.assertEqual(origin, "https://guildsaga.pages.dev")
         self.assertEqual(source.call_count, 1)
         matches.assert_called_once()
+
+    def test_wait_for_deployment_fails_fast_on_cloudflare_failure(self):
+        source = mock.Mock(return_value=mod.DeploymentDiscovery(
+            frozenset({"https://guildsaga.pages.dev"}),
+            cloudflare_status="completed",
+            cloudflare_conclusion="failure",
+            cloudflare_details_url="https://dash.cloudflare.com/example",
+        ))
+        with (
+            mock.patch.object(mod, "expected_release_json", return_value={"data/example.json": {"ok": True}}),
+            mock.patch.object(mod, "candidate_matches", return_value=False),
+            mock.patch.object(mod.time, "sleep") as sleep,
+        ):
+            with self.assertRaisesRegex(RuntimeError, "reported a failed deployment"):
+                mod.wait_for_deployment(
+                    "a" * 40, {}, timeout_seconds=600, poll_seconds=15, discovery_source=source
+                )
+        sleep.assert_not_called()
+
+    def test_exact_deployment_proof_wins_over_stale_failed_check(self):
+        source = mock.Mock(return_value=mod.DeploymentDiscovery(
+            frozenset({"https://release.pages.dev"}),
+            cloudflare_status="completed",
+            cloudflare_conclusion="failure",
+        ))
+        with (
+            mock.patch.object(mod, "expected_release_json", return_value={"data/example.json": {"ok": True}}),
+            mock.patch.object(mod, "candidate_matches", return_value=True),
+        ):
+            origin = mod.wait_for_deployment(
+                "a" * 40, {}, timeout_seconds=600, poll_seconds=15, discovery_source=source
+            )
+        self.assertEqual(origin, "https://release.pages.dev")
 
     def test_missing_secret_fails_before_provider_or_ack(self):
         with mock.patch.object(mod, "assert_clean_production_tree"):

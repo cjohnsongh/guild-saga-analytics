@@ -43,8 +43,6 @@ VERIFY_FILES = (
 USER_AGENT = "GuildSagaAnalytics-ProductionPipeline/1.0"
 DEPLOYMENT_FALLBACK_ORIGINS = (
     "https://guildsaga.pages.dev",
-    # Keep the original fallback for compatibility with any older Pages project name.
-    "https://guild-saga-analytics.pages.dev",
 )
 DEPLOYMENT_NETWORK_ERRORS = (urllib.error.URLError, TimeoutError, ConnectionError)
 
@@ -290,8 +288,56 @@ def normalize_origin(value: str) -> str | None:
     return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, "", "", "")).rstrip("/")
 
 
-def deployment_candidates(commit: str, github_token: str) -> set[str]:
+@dataclass(frozen=True)
+class DeploymentDiscovery:
+    origins: frozenset[str]
+    cloudflare_status: str | None = None
+    cloudflare_conclusion: str | None = None
+    cloudflare_details_url: str | None = None
+
+    @property
+    def cloudflare_failed(self) -> bool:
+        return (
+            self.cloudflare_status == "completed"
+            and self.cloudflare_conclusion not in (None, "", "success")
+        )
+
+
+def _latest_cloudflare_pages_check(obj: object) -> dict[str, Any] | None:
+    if not isinstance(obj, dict):
+        return None
+    raw_runs = obj.get("check_runs")
+    if not isinstance(raw_runs, list):
+        return None
+
+    matches: list[dict[str, Any]] = []
+    for row in raw_runs:
+        if not isinstance(row, dict):
+            continue
+        app = row.get("app") if isinstance(row.get("app"), dict) else {}
+        label = f"{app.get('name') or ''} {row.get('name') or ''}".lower()
+        if "cloudflare" in label and "pages" in label:
+            matches.append(row)
+    if not matches:
+        return None
+
+    def key(row: dict[str, Any]) -> tuple[str, int]:
+        # A retried check can be newer while still queued/in-progress and therefore
+        # have no completed_at yet. Prefer its start/create timestamp over an older
+        # completed failure so recovery does not fail early during an active retry.
+        when = (
+            str(row.get("started_at") or "")
+            or str(row.get("created_at") or "")
+            or str(row.get("completed_at") or "")
+        )
+        return when, int(row.get("id") or 0)
+
+    return max(matches, key=key)
+
+
+def discover_deployment(commit: str, github_token: str) -> DeploymentDiscovery:
     candidates = set(DEPLOYMENT_FALLBACK_ORIGINS)
+    cloudflare_check: dict[str, Any] | None = None
     for endpoint in (f"commits/{commit}/status", f"commits/{commit}/check-runs"):
         try:
             status, obj, _ = request_json(
@@ -304,12 +350,28 @@ def deployment_candidates(commit: str, github_token: str) -> set[str]:
             continue
         if status != 200:
             continue
+        if endpoint.endswith("/check-runs"):
+            cloudflare_check = _latest_cloudflare_pages_check(obj)
         encoded = json.dumps(obj)
         for raw in re.findall(r"https://[^\s\"'<>]+", encoded):
             origin = normalize_origin(raw.rstrip("\\).,]"))
             if origin:
                 candidates.add(origin)
-    return candidates
+
+    return DeploymentDiscovery(
+        origins=frozenset(candidates),
+        cloudflare_status=(str(cloudflare_check.get("status") or "") or None) if cloudflare_check else None,
+        cloudflare_conclusion=(
+            str(cloudflare_check.get("conclusion") or "") or None
+        ) if cloudflare_check else None,
+        cloudflare_details_url=(
+            str(cloudflare_check.get("details_url") or "") or None
+        ) if cloudflare_check else None,
+    )
+
+
+def deployment_candidates(commit: str, github_token: str) -> set[str]:
+    return set(discover_deployment(commit, github_token).origins)
 
 
 def deployment_discovery_smoke(commit: str, github_token: str) -> None:
@@ -341,22 +403,39 @@ def wait_for_deployment(
     *,
     timeout_seconds: int = 600,
     poll_seconds: int = 15,
-    candidate_source: Callable[[str, str], set[str]] = deployment_candidates,
+    discovery_source: Callable[[str, str], DeploymentDiscovery] = discover_deployment,
 ) -> str:
     expected = expected_release_json(commit, manifest)
     token = os.environ.get("GITHUB_TOKEN", "").strip()
     deadline = time.monotonic() + timeout_seconds
     while True:
         try:
-            candidates = candidate_source(commit, token)
+            discovery = discovery_source(commit, token)
         except DEPLOYMENT_NETWORK_ERRORS as exc:
             # A custom/test discovery source may still surface a transport error.
             # Preserve the same bounded retry behavior as the real discovery path.
             print(f"Deployment discovery transient network error: {exc}", flush=True)
-            candidates = set(DEPLOYMENT_FALLBACK_ORIGINS)
-        for origin in sorted(candidates):
+            discovery = DeploymentDiscovery(frozenset(DEPLOYMENT_FALLBACK_ORIGINS))
+
+        for origin in sorted(discovery.origins):
             if candidate_matches(origin, expected, commit):
                 return origin
+
+        # Exact content proof above remains authoritative. If no candidate matches
+        # and GitHub already reports the latest Cloudflare Pages check as failed,
+        # there is no reason to burn the full propagation timeout. Leave D1 pending
+        # and let a later run recover after the Pages deployment is retried/fixed.
+        if discovery.cloudflare_failed:
+            details = (
+                f" Details: {discovery.cloudflare_details_url}"
+                if discovery.cloudflare_details_url
+                else ""
+            )
+            raise RuntimeError(
+                f"Cloudflare Pages reported a failed deployment for {commit[:12]}; "
+                f"D1 was not ACKed.{details}"
+            )
+
         if time.monotonic() >= deadline:
             raise RuntimeError("Cloudflare Pages deployment verification timed out; D1 was not ACKed.")
         time.sleep(min(poll_seconds, max(1, deadline - time.monotonic())))
