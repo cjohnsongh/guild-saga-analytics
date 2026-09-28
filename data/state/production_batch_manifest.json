@@ -1,23 +1,24 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "1c92eb4e300d46a5ca5d16bd1d2233ce2c8eabcdaa88bc38930857e584e48ce9",
+    "data/state/checkpoints.json": "fa2bde55b4bf3a3003379b904ca06729aace95ae683f31adc1659ac5f9d26245",
     "data/state/hero_deltas.csv": "caa836b85dfc63e518d54c26fccfeb3e3342fe8a0ab852cae358072144f8561b",
     "data/state/hero_event_cursors.csv": "92f1f713f2d761f13897a683da12bb12ebd3f7309e4ecce198e6bc15c45c4d18",
     "data/state/market_live_sales.csv": "00e6f10956181b8e4455a9f2384316bf907eb17f0763023623330627823949a7",
-    "data/state/webhook_processed_events.csv": "c73b3b5e5fcc71625128dc3a10497d79fffdf6add3f2322d41ce99c370fbd49c"
+    "data/state/webhook_processed_events.csv": "843302a6c6c3b979c8460b59fd3ff30c17b0afcd286334d5ee946170fc568ebd"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "271a79f0b8ec1946d91bfb13fee492eb945cabf5bddf13b4883b5b7858980290",
+    "site/public/data/hero-state.json": "f6f16e644ce5cc851b916e78474269ba84b07c30f599e98505a621f9ff722583",
     "site/public/data/market-history.json": "40c9cf60e75ff4316025367c0e410e9f249f33bcce400f908147e77abbd62d70",
     "site/public/data/summary.json": "aa045a83e1dae76e20836e7280a76921141f54bcd0aa6da0491e2ead5a7a67f9"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 2,
+  "signature_count": 3,
   "signatures": [
-    "4t89yPhnQ3uim5VUK3wsjT4NPzMvhdVAft4GYipGkwVVvvVdEMcQ2unUUA1Zgv1cSsxK1EhW4EU5zgJpT5TeasUf",
-    "5G76TGnq7zECn51gRrw6c5xCmXqRaoHqWE3fjWzJvmu8rUdwT6mDukRySVDktda8G9iSpPkwkmWBct9n4BGaDCvb"
+    "284vGLLdcGqMezCydYyor2bapnPj59av4k4cfx3RjReXnB2SDrFkf9Ryc5fx49sK8wFtfHsF4Tr4hduW1JdC1fYw",
+    "22zceguzVSHHvqiu5tfymUhH1wYCTX4TZ1Yx33HA7PDfQk45oEiFGMaeHkwVzBZqKXvsUM5hx1u6JHyY3Z5Vhe6x",
+    "2PD2zG49Q1GZrg8pUuEAc6bBjuBxxa58xo9jt98U7q4KTJ73ct49AKZ148p4u3EaTEZkRiC9ZY9YqpxAjgZxRN1i"
   ],
-  "snapshot_received_at": "2026-09-28T06:01:26.744Z"
+  "snapshot_received_at": "2026-09-28T06:31:23.703Z"
 }
