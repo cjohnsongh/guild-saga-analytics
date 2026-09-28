@@ -1,51 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "a9f21e02033fd1007d55063efc72d06f14e4992fd820227f8a6f61630b4792e9",
+    "data/state/checkpoints.json": "5e494643bdecf3ff0ec35a7ed5ed61865d91c0b36e85b8a09ebd882877e34ec6",
     "data/state/hero_deltas.csv": "8f5051f437dbbc8307e44e431b54d54c952651debf5e6fdd8fa1aa08636db166",
     "data/state/hero_event_cursors.csv": "a2767e4aa3517216ef484853d3f8a1a3a5f3ed3c698948e681103913bde231ef",
     "data/state/market_live_sales.csv": "78a18f8ed466796162c01b10520bad6ca2df8d7891c6b0b80559131b5b66d3ba",
-    "data/state/webhook_processed_events.csv": "973cf0bf1566b1228c5984487e25dec51d7583bdba14c5d53eedba52d27e8eea"
+    "data/state/webhook_processed_events.csv": "b91dcd984ae94cc9218026240a721dece2533da24e5efe1bb0438ba5d36683f8"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "3fffb26fe685fc35b0ab7e64dd0db5131174bd3fd81646c5f278f4b469e63a90",
+    "site/public/data/hero-state.json": "10af1ebaaaf67442cf0edcff8e4153ab3cb78aceec5383bd3352e41b2bd2b63c",
     "site/public/data/market-history.json": "2a8337305646e52b7ce8f15d5845a5a6be1d73c5407243a64f265cf1d0e2fbd6",
     "site/public/data/summary.json": "606f3a7435eb1f8200771a6cd4474581cdae18fc4e10ddb243ab0010b6fdcd43"
   },
-  "reducer_counts": {
-    "FAILED_TX": 7,
-    "MOVEMENT_APPLY": 1,
-    "SALE": 1,
-    "TRANSFER": 1
-  },
+  "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 25,
+  "signature_count": 1,
   "signatures": [
-    "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"
+    "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"
   ],
-  "snapshot_received_at": "2026-09-28T19:31:29.763Z"
+  "snapshot_received_at": "2026-09-28T20:01:40.974Z"
 }
