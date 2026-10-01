@@ -1,22 +1,24 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "0ffae5be20ec4a26bd4b1d1867e63a79874ea8ebe9f55797d73634f4bf58862e",
+    "data/state/checkpoints.json": "fe5a904d7424c6a155599923fee9651e51dc28c800ce6f7e193221f37cfcc467",
     "data/state/hero_deltas.csv": "abdf5b40122fba718acf149696969f47d1b9147adf5a62feaad7bb9d842ff53a",
     "data/state/hero_event_cursors.csv": "c4a0a495b9f6b437db329c7e3de2de7d2d53075bad02d6a5da3fd20066d6330d",
     "data/state/market_live_sales.csv": "05ac10592266a32c479538245f7f8e1b79116b3bfbd046d3a553a15a80407c7f",
-    "data/state/webhook_processed_events.csv": "c4dd01b79de02f8356abcaaa2a93a62c3ec3db58f849ca9b679edd9d934c1448"
+    "data/state/webhook_processed_events.csv": "e00068d0d05857e6ac013667289a9a6f32eaf81ee0feda15ec477a7e9b7c02ae"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "d9c704c3a9b0f15a1a93a7b1c2cca8eeb0f218c9d706abb2aca14ed2601c1ff9",
+    "site/public/data/hero-state.json": "d753ab5505402358d235605644555fa96f2033a7de7043352cf7f684ac85a2dc",
     "site/public/data/market-history.json": "46fdc632854a44cb8daf6523da6bcbc7bb0797787e69cb993245e092a430b28b",
-    "site/public/data/summary.json": "4b7cecefd5216c8d6f7dc160c2b47eb545a18be6f68ab056f5d7f2697a3d5aa2"
+    "site/public/data/summary.json": "4250842182fadb9fa12d2ceb68760e8ec31172d56219673fb97e7143bc8b1a39"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 3,
   "signatures": [
-    "5bvfmFvDyrsf6jXJzDJbgRcdLbspKFtjMYmpY39siJtJjQbtF3jp35nWuKL6UGg6XrgsstXeSxBU7QfD7fCC3tLj"
+    "4F7aL4KhP3XLf6y479hTi8DYLnC4wjtiJj3Nd9BxaDadmCW7dCTocb53V8TWuCnPV1qzbrUGKURJFThk5ckKqAeh",
+    "3D6XTqro4VE6KJLWcZ3L7RK3TuDo3z3ErtDNwp7fvJe5FgB2x6Vrm26GZGRmsf9Kdsuv8SC9aDk7RcXk1D2ZczW",
+    "HqWEDTrtj5WimeZgJevQWVcCXPQZkZGcNQaUtaFHKsogcy1gNwLxFmmSQALD2gVPmMV64js76EFdtQskPiupX3i"
   ],
-  "snapshot_received_at": "2026-10-01T05:31:38.589Z"
+  "snapshot_received_at": "2026-10-01T10:31:19.860Z"
 }
