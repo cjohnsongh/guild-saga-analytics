@@ -1,26 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "8b37891a39488c8d5ea147642770abc460523dff4b3bb8a20f0bc0f1e37d01fa",
-    "data/state/hero_deltas.csv": "0922acae3e223c71987382ff65e9f8730bfbefb3dc8959f2dde3d382c4a819ed",
+    "data/state/checkpoints.json": "3791c2510f78fce9accd942d59f36a61c907ed05cb5c6956a6646c8f30a703b4",
+    "data/state/hero_deltas.csv": "518d7ffadcf794ab90c2e554835e3c9284131936495bbc4af256643407f4ff1f",
     "data/state/hero_event_cursors.csv": "c4a0a495b9f6b437db329c7e3de2de7d2d53075bad02d6a5da3fd20066d6330d",
     "data/state/market_live_sales.csv": "05ac10592266a32c479538245f7f8e1b79116b3bfbd046d3a553a15a80407c7f",
-    "data/state/webhook_processed_events.csv": "185cce0faf2c5b2b18adeaf8e94949acbed35600d8a9db72b40d9e6fe912eba7"
+    "data/state/webhook_processed_events.csv": "dc73421e16b79e810b7e10e24cb141a5c4b8ed361df1cf98841047a832f35abd"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "74dfef7f2b3309482995ee7f47b087421bd61a8537a4380b41d3c68a10c9cdaa",
+    "site/public/data/hero-state.json": "b88ac11fd3f9b7b5061e389e946380e459abce43244191ab5f8f073d50b9d90b",
     "site/public/data/market-history.json": "83ab3402f49cd70d55addb707da8fb4243ad6dedad3ac51efbd3f31114c72008",
     "site/public/data/summary.json": "4250842182fadb9fa12d2ceb68760e8ec31172d56219673fb97e7143bc8b1a39"
   },
   "reducer_counts": {
-    "QUEST_HERO_UPDATES": 4,
+    "QUEST_HERO_UPDATES": 175,
     "WORLD_QUEST_RESTART": 1
   },
   "schema_version": 1,
-  "signature_count": 2,
+  "signature_count": 1,
   "signatures": [
-    "5QUSuc34fjdBv6uGNvXb3fbKAnxc3FJjCrMXN2ULvMNRSvcmd5dEqaBUoGNR8hg8qS74CozqUSDqZrLSnv1ng87G",
-    "2CAT1E9yZxyCmwdDxS5XBJMqDJdorum7YincWubPPsHmCATG7QVRKFeKivn8tPwGsw2nNz4Kkk437FTJPjv1WQov"
+    "5uTsutaqqaU6qry19mt4Lc6NsHdfKT5aAuDYVacjQiBW2rQCgZ2GMx3V2B2dRBCHPyxEHui4jXnaZRKgudXzqLGk"
   ],
-  "snapshot_received_at": "2026-10-03T14:01:19.264Z"
+  "snapshot_received_at": "2026-10-03T15:01:45.883Z"
 }
