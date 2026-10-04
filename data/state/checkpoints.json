@@ -1,9 +1,9 @@
 {
   "cutover_date": "2026-08-26",
-  "hero_state_checkpoint": "2026-10-04T13:01:44.240Z",
+  "hero_state_checkpoint": "2026-10-04T15:01:44.943Z",
   "market_checkpoint_date": "2026-10-04",
   "floor_checkpoint_date": "2026-10-03",
   "notes": "Independent production state. Hero and market domains are reduced from the durable Helius raw-webhook D1 inbox. hero_state_checkpoint and webhook_inbox_checkpoint are received-through watermarks; late chain events remain eligible for later idempotent processing. Floor/listings retains its independent checkpoint.",
-  "market_checkpoint_utc": "2026-10-04T13:01:44.240Z",
-  "webhook_inbox_checkpoint": "2026-10-04T13:01:44.240Z"
+  "market_checkpoint_utc": "2026-10-04T15:01:44.943Z",
+  "webhook_inbox_checkpoint": "2026-10-04T15:01:44.943Z"
 }
