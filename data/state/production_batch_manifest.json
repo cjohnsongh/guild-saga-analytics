@@ -1,25 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "60b7e58972d653c2b29bf854e16e75cb8e6888d1772e003927163126de23b57d",
+    "data/state/checkpoints.json": "f4b8da272e6f3bc0b5a2ecb609b685f9acac1d0300e98edd34ef77ae9c9698fa",
     "data/state/hero_deltas.csv": "f46cb108943a64a0ee25e00698ca39d9704451cd486409e187900707e504573c",
     "data/state/hero_event_cursors.csv": "c4a0a495b9f6b437db329c7e3de2de7d2d53075bad02d6a5da3fd20066d6330d",
     "data/state/market_live_sales.csv": "05ac10592266a32c479538245f7f8e1b79116b3bfbd046d3a553a15a80407c7f",
-    "data/state/webhook_processed_events.csv": "e5e4db001d6fc4407d908d7ee013b333c935d8b7f9c0c26de3c74056afffb044"
+    "data/state/webhook_processed_events.csv": "5d7e168b74d2e844b5e8fcf3be389965fa0ee1851adf56f24c44b95c739521fa"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "9da3d8855cd93a1aba7f1614622707468943e450d684255f427771cb62a85144",
+    "site/public/data/hero-state.json": "350f6aa7d0ab026043e49f809586defd13a8dc897ce8ac70cc04d73326b8cd31",
     "site/public/data/market-history.json": "574257748ed68a65480c06c518d5a50cfbbbb5d879125cda7ac98087faf4f0e9",
     "site/public/data/summary.json": "2081123019095aa634683a14519a29b15c10f1f39e6981d2e8f411c400e0a6fe"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 4,
+  "signature_count": 1,
   "signatures": [
-    "364RP779wghhpyPxE9nm8myY71z71igghy85wPMif9oZ6rcZ4imM7Msh9vmi8pzjfFW2WFpj8sNpydACXATFG6xf",
-    "3d9HfxzmWZdV8ZQ9DqQYfor7FdZmDVfcZigQSUP738Qa74XRDftdqrWvLT75y93BSapNFiaP1Yg5xK7uGBZuUAdW",
-    "2X6QxkBPh8tk8XPGtARmzN8ATytcSpatdCLQC6BQNMAHw5ycLJBVNRNHeXztLtTerAypMUzvPGiT6oQ5vktCapir",
-    "YEZcw7B1RKsSkRM8UKh3j2vvuM1Q7jpDtbiNJ75rqQT4tEwEouDSkZQ25ywNG9EFob9Wrbs46QTMVoP3YocynZC"
+    "3Q6ANUWTedmtyRGfjp6YzEu4ZkH8Rhn3qKMDQ8Xzyoe8f8Hk3pFJRj197AKy2oVU7fMuD3oCoWrVBiccQtBZ9vDQ"
   ],
-  "snapshot_received_at": "2026-10-06T19:31:16.398Z"
+  "snapshot_received_at": "2026-10-06T20:01:28.810Z"
 }
