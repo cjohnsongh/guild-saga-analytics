@@ -1,25 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "76368091103019fbb9a5be021cb505f110e1e28a01cdc6f7b640c5359a4788dc",
+    "data/state/checkpoints.json": "be2f7b4a983d740edcef8db397dd1bee8ce68e7653ff9b668c965119d507d1ce",
     "data/state/hero_deltas.csv": "0ce543fa2cd5c3af423988359a792b4e4782688b61c9bc0d56e7ae5bd81cc2bd",
     "data/state/hero_event_cursors.csv": "c4a0a495b9f6b437db329c7e3de2de7d2d53075bad02d6a5da3fd20066d6330d",
     "data/state/market_live_sales.csv": "05ac10592266a32c479538245f7f8e1b79116b3bfbd046d3a553a15a80407c7f",
-    "data/state/webhook_processed_events.csv": "adb1326e69389888928bbf69827e9008594070554d1690113303d584c1985950"
+    "data/state/webhook_processed_events.csv": "7e4421ce42d017cb449c7cbd4ef823a44e07f460e112563e929e5ba3e834490b"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "bbd1cb64c94309dd91a6e1ab161161c6b8fc6900b9ea47cd430315a118ad03d9",
+    "site/public/data/hero-state.json": "901b35a6524b775974dfcda00c632c6d97d79e92ea5fefc2e380da428e16a1a2",
     "site/public/data/market-history.json": "7ac4f898aa44aace12c3a2b5db711204fb68a3b95a5e83d592a8440b6051cd42",
     "site/public/data/summary.json": "6b7e91e3f817578e232211a7a003b76cf4fc4b17698fab8559df1086788afd4f"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 4,
+  "signature_count": 1,
   "signatures": [
-    "4oa6diva7NRDP1ecwPuHmxGStgfYanYkDiJFVMmUrVGExWgMSxGpCGmsWKn7tv4Ex1fxgVJ8H7t45FYeKtSe1hMx",
-    "2dFQoneRmL3oDRsevZXRhRpx5eqC1KZbqKhWDMQaLhwWWxoU1P8EXex96WJ4mQVXqDT3FyGdAhbfssuifqcqfCxx",
-    "5BEheGVYnB7yVH2e7T2sdT15zpEetWR4mBoyEm6Dzt7YymGizQBzZCEpWgsdnTo3TB7J7N2YNfjZsbuLBRsJfM9p",
-    "4t3hy4WPQK4VVVu6YWG7imufhsqBVLKsN8NuFeQJpCqnmrtDMzyEfgmnKTXopTXmumgBzzH9UbPhGr6kSJs8kQo"
+    "4FEnJga7XFgVHmry6T8JndBy5XSyoKwSsQxcorEpnQr21WFRFKgb2TWWDZipv1W4Ppzge2zsX1zUhAjTyicBfMxF"
   ],
-  "snapshot_received_at": "2026-10-08T04:31:43.410Z"
+  "snapshot_received_at": "2026-10-08T08:31:18.317Z"
 }
