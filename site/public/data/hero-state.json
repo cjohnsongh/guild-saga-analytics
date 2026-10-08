@@ -1,11 +1,11 @@
 {
-  "as_of": "2026-10-07T21:31:17.430000Z",
+  "as_of": "2026-10-08T00:01:20.983000Z",
   "kpis": {
     "active_supply": 9823,
     "beneficial_holders": 1959,
     "staked_heroes": 5854,
     "staked_supply_pct": 59.6,
-    "quest_active_30d": 1286,
+    "quest_active_30d": 1205,
     "quest_limbo_1y": 3641,
     "burned": 177
   },
@@ -57,17 +57,17 @@
     {
       "order": 1,
       "bucket": "Active 0–7d",
-      "heroes": 886
+      "heroes": 526
     },
     {
       "order": 2,
       "bucket": "Idle 8–30d",
-      "heroes": 400
+      "heroes": 679
     },
     {
       "order": 3,
       "bucket": "Idle 31–90d",
-      "heroes": 124
+      "heroes": 205
     },
     {
       "order": 4,
