@@ -1,22 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "9d3dc62012f29fcf2eb1290364a6d8999b218a3e8aaf2a31197f2adbc287b719",
+    "data/state/checkpoints.json": "4f46c89c33b79d9512d1570025771ee87e07ae97b1e2ad4afd5b1fa59ae52ea4",
     "data/state/hero_deltas.csv": "f4c6fc4a3bac8bc1bbefc2c234da197943d3a908774ccfc07387171ca6d04663",
     "data/state/hero_event_cursors.csv": "44dc12b1bb5c35e41cb4eb37f12da4ce679d4403f5f5e0496a33f0596638b9bd",
     "data/state/market_live_sales.csv": "c786c8eb76d82dffee9c92de67971c4025339da744305f45983cda11f2fdd0a0",
-    "data/state/webhook_processed_events.csv": "c4260d292cc3027698b8b12b8fd103078157febb838e03d6f6fa65be89b540fc"
+    "data/state/webhook_processed_events.csv": "935100cd59a08cb9b4cc4b71befed146c4049fd10d8530d7237a7fb548c0bc02"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "1efcb81e9e59afb986361b77dab6259161bf167e14ce4f33851fe3138d900392",
+    "site/public/data/hero-state.json": "ec262d5275143982fd11c391f4cc37f8f8e678bb307e2f1d95fec536927286e9",
     "site/public/data/market-history.json": "e9d668d74e15e82b14f2b6d75cadb94cb67fbe8f64121f71839cdfbd1710b965",
     "site/public/data/summary.json": "d48f2cb25ef9a607d9052dd51d60942f158681edc54b89fdbd512331a91454bb"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 4,
   "signatures": [
-    "41GJmhJEarogRTAJmyapoFPck1i8yXtvvH2ENzED8ueKXuW7zwPCs4BioU3bg39hyXvit5otcSP6fjmWqBU4kwU3"
+    "rJxGVtKpaJhEK83kBJdYA7c6ysQ5bEY2J73wbUJ8J9aKtRsUTS1QdYNnLwvZKKJLwkQJ22n4QExZnmivwk283Wn",
+    "2kDmXv4A6bx4rbaxYh1RtnJPBDewLJX2Y5Khnchig4ZicX8FD484ZSado5hJzK2cPpfAJAtLiDABTnFsrCqNFVFk",
+    "3896Hr6KgUmt6xXeLj7pW1Ln4LwxhRrMzfaitWTJLWuSDBVX9Yf7NJztNDPsba14hUhb7A2tX97MKPPdbE8oU2vh",
+    "5iNMxW4gSTD1GS73wjMh253qFqJ5hs251NmhBct2erxNTEMrRZ3KqqdQnZzvfWmAF3orUjr3KYwrzU32e4v7SjBs"
   ],
-  "snapshot_received_at": "2026-10-09T06:31:11.293Z"
+  "snapshot_received_at": "2026-10-09T07:31:47.459Z"
 }
