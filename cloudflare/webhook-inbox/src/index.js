@@ -23,6 +23,7 @@ const CRON_DISPATCH_EVENTS = new Map([
   ["30,50 23 * * *", "floor_listings_daily"],
 ]);
 const DISPATCH_RETRY_DELAYS_MS = [0, 2000, 5000];
+const ACK_BATCH_SIZE = 100;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -194,30 +195,41 @@ async function ackEvents(request, env) {
   if (!pipelineAuthorization(request, env.PIPELINE_TOKEN)) {
     return json({ ok: false, error: "unauthorized" }, 401);
   }
+
   const body = await parseJson(request);
   const signatures = Array.isArray(body?.signatures)
-    ? [...new Set(body.signatures.filter((x) => typeof x === "string" && x.length > 20))].slice(0, 100)
+    ? [...new Set(body.signatures.filter((x) => typeof x === "string" && x.length > 20))]
     : [];
   if (!signatures.length) return json({ ok: false, error: "no_signatures" }, 400);
 
   const processedAt = new Date().toISOString();
-  await env.DB.batch(
-    signatures.map((signature) =>
-      env.DB.prepare(
-        `UPDATE webhook_events
-         SET status='processed', processed_at=?, last_error=NULL
-         WHERE signature=? AND status='pending'`
-      ).bind(processedAt, signature)
-    )
-  );
+  const missing = [];
+  const notProcessed = [];
 
-  const placeholders = signatures.map(() => "?").join(",");
-  const statusResult = await env.DB.prepare(
-    `SELECT signature, status FROM webhook_events WHERE signature IN (${placeholders})`
-  ).bind(...signatures).all();
-  const statuses = Object.fromEntries((statusResult.results ?? []).map((row) => [row.signature, row.status]));
-  const missing = signatures.filter((signature) => !(signature in statuses));
-  const notProcessed = signatures.filter((signature) => statuses[signature] !== "processed");
+  for (let start = 0; start < signatures.length; start += ACK_BATCH_SIZE) {
+    const batch = signatures.slice(start, start + ACK_BATCH_SIZE);
+
+    await env.DB.batch(
+      batch.map((signature) =>
+        env.DB.prepare(
+          `UPDATE webhook_events
+           SET status='processed', processed_at=?, last_error=NULL
+           WHERE signature=? AND status='pending'`
+        ).bind(processedAt, signature)
+      )
+    );
+
+    const placeholders = batch.map(() => "?").join(",");
+    const statusResult = await env.DB.prepare(
+      `SELECT signature, status FROM webhook_events WHERE signature IN (${placeholders})`
+    ).bind(...batch).all();
+
+    const statuses = Object.fromEntries(
+      (statusResult.results ?? []).map((row) => [row.signature, row.status])
+    );
+    missing.push(...batch.filter((signature) => !(signature in statuses)));
+    notProcessed.push(...batch.filter((signature) => statuses[signature] !== "processed"));
+  }
 
   return json({
     ok: missing.length === 0 && notProcessed.length === 0,
