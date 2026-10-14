@@ -1,25 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "676576e56d198990497346ea8a37215707804e113acd183a0a6f7c9b6206cc92",
+    "data/state/checkpoints.json": "f04521338357792b9cc6fdc48b90c73a396e71b7866f0fbe018de52ac42500fc",
     "data/state/hero_deltas.csv": "73611dd6cc6f164ebaa596556ba7d7ad3d79a73e9a3299bdabbae2093affeb65",
     "data/state/hero_event_cursors.csv": "3af50767827adcc11c14e42a47e378dcb9b0994f37303d8401d77294140ad18d",
     "data/state/market_live_sales.csv": "c786c8eb76d82dffee9c92de67971c4025339da744305f45983cda11f2fdd0a0",
-    "data/state/webhook_processed_events.csv": "2f5e0ce152ed3ce9b28d1e20000ad102ce35a146a004263a52e2147a475bb953"
+    "data/state/webhook_processed_events.csv": "809ce003c00d9a99cce370971ff3701fc1d7c64a9c10026fc42e8950af8df303"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "9cce90bf9f659a6e8ffac2f658f49da049cb3a1adda14c2eeb87c21042025d27",
+    "site/public/data/hero-state.json": "b61a47a787ecf100676c9a626fc93b2eb159f01cc82827ffa700932de0277e34",
     "site/public/data/market-history.json": "360713bfd8e6d7648e03a569a33d9a91f00a38d143cda41b8056f377b2410753",
     "site/public/data/summary.json": "b77f89c767dbfbb05c03b43663f28151ff5b3e2df2519b9824c89b3b40d35b72"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 4,
+  "signature_count": 1,
   "signatures": [
-    "4pFJ9J8Uvn23YVqVM93WU1XCMqGMsbx68A4qR1CB5J4LjiCLSdqkzsF3YXh2YfWqnJva9DEopR5xBRXUDhA4jeBx",
-    "2H3tEgpZCV9k8Qc9APJYmVXGi7eM9w17E5qKZHFFxKggPbeBke33afximzE4Qh8Cusn7kHmCS69W38mNdnoLfUmg",
-    "5BkYV5yHhZMf85jmHoLkWi7mt7wZi3G4U4AnDB4VsicxUxcphoVchFgCDD4oZjtoRAiRSjArakuGojLmbeWp85qx",
-    "2qJP68HaYbjmjbaC5QhbSFgm4XU1i6YKJtoaMma4R7M4b7cLZuPAPGox9GBYQKNU8oTdDgkrhgAa1iNEPVJwGBUf"
+    "2ziVZEhfCLtxk83tDoV5G446Tc78SmVuJoDMkGgUQ4q7qsaX8jJPpguiQCaD8fkm1dotpBrn25PmfW34uRUZ1axE"
   ],
-  "snapshot_received_at": "2026-10-14T10:31:32.826Z"
+  "snapshot_received_at": "2026-10-14T12:01:58.204Z"
 }
