@@ -1,22 +1,30 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "5249babf5c464fde068db3a292d19fa643e17db9801375b2efc10b1a91a8409e",
+    "data/state/checkpoints.json": "f6f5b15b0375d5500f0a53fad422a9e6035f12971289d5af0bf1cf0374db00fa",
     "data/state/hero_deltas.csv": "73611dd6cc6f164ebaa596556ba7d7ad3d79a73e9a3299bdabbae2093affeb65",
     "data/state/hero_event_cursors.csv": "3af50767827adcc11c14e42a47e378dcb9b0994f37303d8401d77294140ad18d",
     "data/state/market_live_sales.csv": "c786c8eb76d82dffee9c92de67971c4025339da744305f45983cda11f2fdd0a0",
-    "data/state/webhook_processed_events.csv": "7e83b2e79f6277109a422c52f8bcd9e03acb5aafbf62b4af45fd102fec8fca13"
+    "data/state/webhook_processed_events.csv": "5ea844d251f8f1dce2b997b597c85c48a1cf8ac231cd6c1ecb5860e65a5042e3"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "9da7e2c79a6794f81086c7b3de5e12cd6446645ce11b1fd919166dda9ddeb956",
+    "site/public/data/hero-state.json": "cf8c6164f1c836e857057ed23593fbdf61cb6484819630de69e4c97542e62770",
     "site/public/data/market-history.json": "8bdd83e0cf5a9810be8495c60d0bd2976fd8af40a3f96c532b3b0c9f7d6968f0",
     "site/public/data/summary.json": "b77f89c767dbfbb05c03b43663f28151ff5b3e2df2519b9824c89b3b40d35b72"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 9,
   "signatures": [
-    "2cqNdmnnvstSCpxP2iuFAZeq8xv5sr8CN3H1x8iB67d85Psb9LKAUfipuGE3a4jhCuDByF6BHNf1Xujz8dt1MfYn"
+    "4jcJ3RiGcA9ZELzncMrn94MBBhsstkT4Yj5ZvyqCSdg4NCeFvRvcp9pHYuoPPBiYPwj1SVyxPS2hG7tj3MUpqwmg",
+    "4uAYT7yXtBxJ5nPbdWnzZY1rppC6ivHpkSsJ8iBD6Wsodz64du2AXrduQmew9nPBMK388XHSMQWrPPZ4t87qcZch",
+    "5WfcAeLiGdfiDfpdrUiUmwm5QNjmCjDCfTivVKTtwcEbCM8Mp6zKUmQt5cMNF8ihcDQhu79gTERS7zmgsds311Rq",
+    "5URy8dnF4jCn6LES7anSLq7apNUDYdRhu9KQQbKBW8x1N1udmfBVsE2v6f8jSXhLPPiB1CCrGfybctjaGkPTHMK3",
+    "5XPWoY5qDzW91ux2HT9KNzbMk3aF1SDe1PwyJYf6pwfxQuh5BUKRYFL7BJ2zpSRLeea47zJ9pssaV2k73Tu3Xydt",
+    "J2coXpFwkkDRRKq1aZvZcanYAAh9Uv3jG7LPyWgBAaTnLBSe5d2HXavjrUzEoi48YdoKe8KEDbGBD3EZuuuuscw",
+    "srgeXC31dzq67jEMUgR3VSUjmAzm92rnjbzdqbmG53rbNYtbM7pPd2KKqsqRwQ2ugFo8exbUnnRsseoBD8grRF6",
+    "BksnmPvEFJcfkkEacS3rB78BZagtMQduQ5Q6zdSB83PpLNHRiwCzppDx9S6gsjGczM5qRnLkAiBEiw2PRcCmYQ6",
+    "2eib53bLq58xvDfLHWhaV7dnott71JKx46yTQNDZiJEgDVVw3cDbzwbnC3TqLe2jAzwU1PzHHdSbRsKF4TDHRNkJ"
   ],
-  "snapshot_received_at": "2026-10-15T11:01:33.685Z"
+  "snapshot_received_at": "2026-10-15T14:01:48.123Z"
 }
