@@ -24,7 +24,7 @@
     "mint_plus_royalties_sol": 16592.1
   },
   "floor": {
-    "floor_sol": 0.045,
+    "floor_sol": 0.03,
     "listed_count": 432
   }
 }
