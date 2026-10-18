@@ -1,22 +1,28 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "5f6f793d7ef278f2bd0c0645f44d0a8710d66b152fbc11e82619f6f21f63fb5a",
+    "data/state/checkpoints.json": "6b87e9e3298245955d368f7a6357d31322a7f0c200b8bfc354eaaf98afe5d8bc",
     "data/state/hero_deltas.csv": "3bf05c8217a13d178305fdd0b6003c19d801d5b6a4e8af4e9df0a63398b9da8f",
     "data/state/hero_event_cursors.csv": "3af50767827adcc11c14e42a47e378dcb9b0994f37303d8401d77294140ad18d",
     "data/state/market_live_sales.csv": "c786c8eb76d82dffee9c92de67971c4025339da744305f45983cda11f2fdd0a0",
-    "data/state/webhook_processed_events.csv": "da38ec7ed2f8f0c09e1d73946cd164458acd547588ddee54c009a451322e5b52"
+    "data/state/webhook_processed_events.csv": "ab9ad7792e2e11b59b694721b2d90cf8bf159c06b43996d603130e0a8d82516b"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "211c2c22849f882a3d43a9c19b8d3a7f1766bc7ba88fa838252e1bf10b16dc72",
-    "site/public/data/market-history.json": "8051e7e2e1fce2aa924db171996f39f3e58431f2b144cb6167ccea71d954fca5",
+    "site/public/data/hero-state.json": "b22417f668c079d732f8f53c955d976165e4a723989ebd6bb2ef241cd198439f",
+    "site/public/data/market-history.json": "dc0ca4063dc22e9a2a280abbf925c99735ca9297ebc529834b0b6c400c4baabd",
     "site/public/data/summary.json": "b1ac78befc2b0079fa0c9f132096fb77641bf4b43478c73d797a8ec43a4bdf6b"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 7,
   "signatures": [
-    "5f7NsyCqNZZKVXDKihdmSoaaPcwBmfKJ7TXugczT9rPint93seSDw4ZYZLiBFZ8aeeJ48X7RN5dNottnPKPb1TzJ"
+    "3iWv1aYKq4GvYiFnS5m1e6HT2nxXtMrTCYNVzv1UvxDGmTnYCTmhTAr1rbX2T6zUXjqwZod4bb8Uk2d4VJ1Cknqr",
+    "2VfjjsdEEhptAAAU9KiqtHR2M43Y43Y6qjjMxdEaAbo99XnHXoar4nE1NcJ6kMAj57pFsM1k34yweL5VGEiNArqr",
+    "2pq1LJYVJGcb5vn1XbxrVn4JKqezRCUZ1m6mrJEdRKRCraLBKyzrCcTYq2UX3Vs1C1pVCzFvhpiJMirXHBXvw6i4",
+    "293GzzFgBfn1JCF5optLHeYVfNfT3ADnq3QZiZk5zQB7rrXAFJDCtcUWX9RWcLM1A4cQeefFeES2VfB4HYni4yn9",
+    "22qWydRWynnZvko1ZeShtX2uMe4xawWuXhxvL4Qse6Z4B4gTRjHMbf8Zz43hwixXpLMC2Uo3sTBSDz1qLhxt1GSr",
+    "53tTn7sP3oQmeQDhvqC3nBTzmYAjn19V1xCpTmJ1Maiw7onqW9P27ETaHXBdBwo2VCS5y45M9qti6jwDcQa5Aggu",
+    "62qgERHgYzX6p4mTMU2pCwCREymajGmhBcvgm9xj3WkiDATKs4jkjweSGK9EJnJxVKMrySAqxGZnxpVJpwQvDud3"
   ],
-  "snapshot_received_at": "2026-10-17T23:00:40.566Z"
+  "snapshot_received_at": "2026-10-18T00:00:33.547Z"
 }
