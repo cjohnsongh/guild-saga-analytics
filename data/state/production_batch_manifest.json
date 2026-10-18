@@ -1,23 +1,24 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "cc4d52cb97e378c75e6bc6f67c3e7c07d24f4b708e0352cff0689cf944f520e0",
+    "data/state/checkpoints.json": "e1dc5b1033832635be658327a4f8df93c8d2b8d337a5b37770cb0072e03bb25d",
     "data/state/hero_deltas.csv": "3bf05c8217a13d178305fdd0b6003c19d801d5b6a4e8af4e9df0a63398b9da8f",
     "data/state/hero_event_cursors.csv": "3af50767827adcc11c14e42a47e378dcb9b0994f37303d8401d77294140ad18d",
     "data/state/market_live_sales.csv": "c786c8eb76d82dffee9c92de67971c4025339da744305f45983cda11f2fdd0a0",
-    "data/state/webhook_processed_events.csv": "aaf80514b4ec0de005f0c00ff648bed32f7c3138e1a431619bab201087df5d76"
+    "data/state/webhook_processed_events.csv": "d889bfabe8aad2da1b0b7d670e7f2969323da585adbdaa94ec5da91931376951"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "3836afaa8d8ced03f3c92bc83d628fb7bb67a6153c050f9fb2ae3898ce17e5f2",
+    "site/public/data/hero-state.json": "e7f2d4f6ce8065187a80f2a4911e07d2a2594d307dcb8fecb5607d38c43061e3",
     "site/public/data/market-history.json": "dc0ca4063dc22e9a2a280abbf925c99735ca9297ebc529834b0b6c400c4baabd",
     "site/public/data/summary.json": "f9fa9568b59dd7753a6eacd2cd66554a48dbebfbf0dd9d6513a264d676c87e0f"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 2,
+  "signature_count": 3,
   "signatures": [
-    "5P6hbjsbEAV6RWWTM6VMcvXkvL2C7gyrAYR5D5MLq7ot7QxqUS3m2KYBZHqaTX9VQbhqR8wHqzDiMduPRdmUTbTM",
-    "3XFF8JWNphXFWuGMLaUcZg55zAiknbKRc7CV11rW4myqWh6ovkrnzCoFxY8sNdMzQJWma9iG89bCEBZYvFE3yMdC"
+    "3cGQvo7ge28yQZ184rZGMxdGXcp5s1vjXSjvdAvna5ZPFT6AkHQezvq1xhvreRyD41ZBJVovA86EaVqaaMK35xDE",
+    "5x8XiKhHuijYbggGXnqjpHyENG3GKPtZEWKXS4rmSEcrbpUtLzu59mvsSohxCVQ8god1K169Hanto781JsdLEkZ1",
+    "4KZNh6Ho1XravXBj2Zx8t7vRfY8RbDnu77ete3vw9117LMzzpVtr6akGpAKqLjdDHXBradpswKAGD49WJ6H52ejp"
   ],
-  "snapshot_received_at": "2026-10-18T04:30:32.865Z"
+  "snapshot_received_at": "2026-10-18T05:00:32.180Z"
 }
