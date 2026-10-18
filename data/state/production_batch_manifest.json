@@ -1,22 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "9d2f2e3947820ad8958d8eb0d7bb091340bf22d32ac71d6419796fd3717084dc",
+    "data/state/checkpoints.json": "5f9812f80e34c29cb2c9825971f5ad0743ebf7ede805b3f939e606b25a52dd65",
     "data/state/hero_deltas.csv": "ae6ddb6ff2a2aa3bce13c19550126812e378b6a1e198783f21dc8bf623936507",
     "data/state/hero_event_cursors.csv": "c016682d80b34f47b9a9bcfec4b4cde65ce510e35b6591bf270b7cb6e17608b1",
     "data/state/market_live_sales.csv": "c786c8eb76d82dffee9c92de67971c4025339da744305f45983cda11f2fdd0a0",
-    "data/state/webhook_processed_events.csv": "d554a6b1fb3ae80523147b9a14f7a8a01c5ed18b30ae35b7fd4c7fd332e5a18b"
+    "data/state/webhook_processed_events.csv": "558eec6ab6ab768997c61bbfb01c352fce0e4b71d3bf3461541d101f28df404a"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "ba7ec0c415ffce312022aa60bf6839a353969f0a81310fd0b02ec64498e26ad1",
+    "site/public/data/hero-state.json": "93499e9083f336e1cc43d3f6387e67f69044aafd3fcd4bca1d8301b5794ac1d3",
     "site/public/data/market-history.json": "dc0ca4063dc22e9a2a280abbf925c99735ca9297ebc529834b0b6c400c4baabd",
     "site/public/data/summary.json": "bacc85dca125ad039f05223c88ac36cfb00ab9d2bcc9b0605dea2c911446c9c1"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 4,
   "signatures": [
-    "2npaUfR4M5qw2sMEv5U5zyqwQo6nwZKJPGEqcXpq1Hv4HwHeQvKHNXagRCHVKtZxsXBJcH3v5TJ3ZX1afBKK1RHn"
+    "2N6fCNG6HAXdkCW51TsE8vP1MRfb43yGJ7zoC6Jh91kvXtDJ3BDTqX7bkRspXYFwcjMkADPa9K7N6gCZrFKbKvnu",
+    "2eBRjJYRtVmhqt4GgvH62eBGi26AJf7tBhiRQjTPNZJYuDfkQLqdPf8AntY7aPoDH1MXbyudraNnj2GU5FrWDgD1",
+    "LFHHQhNjbha5UcbUmDZr98RG8c2VQowJXkqKxJWxqqr1kP5qKaZH8UCoeLNtCnr9SeWhiGxL1Dw9syHtiE9T2Bj",
+    "36De4xK4ejW4Emx4uE6Grx7pAVy6k8muWsyGVdoBg4gMMHXWqn5HXi78DGALQLs1k4paab3syGP8obGbSdycHN9H"
   ],
-  "snapshot_received_at": "2026-10-18T21:01:14.136Z"
+  "snapshot_received_at": "2026-10-18T21:31:14.830Z"
 }
