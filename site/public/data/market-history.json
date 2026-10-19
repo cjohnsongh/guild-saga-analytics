@@ -1,8 +1,8 @@
 {
-  "as_of": "2026-10-18",
+  "as_of": "2026-10-19",
   "kpis": {
-    "secondary_sales": 19809,
-    "secondary_volume_sol": 35726.196237474,
+    "secondary_sales": 19810,
+    "secondary_volume_sol": 35726.226237474,
     "unique_buyers": 5474,
     "heroes_ever_sold": 8405,
     "guild_saga_royalties_sol": 1742.1,
@@ -347,8 +347,8 @@
     },
     {
       "month": "2026-10-01",
-      "sales": 2,
-      "volume_sol": 0.04,
+      "sales": 3,
+      "volume_sol": 0.07,
       "royalties_sol": 0.0
     }
   ],

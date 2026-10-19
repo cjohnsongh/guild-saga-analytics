@@ -1,25 +1,26 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "e62fec10f90f1c3bbbdacc68cbbd37c55f2b8d94e2f29a6083bf3cb7d1d41bd3",
-    "data/state/hero_deltas.csv": "4faef8d5a949105bb42459e2e7a03658e6122aaf2affec5371a9d167a74287c1",
-    "data/state/hero_event_cursors.csv": "c016682d80b34f47b9a9bcfec4b4cde65ce510e35b6591bf270b7cb6e17608b1",
-    "data/state/market_live_sales.csv": "c786c8eb76d82dffee9c92de67971c4025339da744305f45983cda11f2fdd0a0",
-    "data/state/webhook_processed_events.csv": "ef28b7544a502c84b3d124d0eccfeca27a463f4cbf1a3401125646ee7f844876"
+    "data/state/checkpoints.json": "869318deb85231104ada311528195b9693d65558433dfb3800c5e3e08416c92e",
+    "data/state/hero_deltas.csv": "fb6e056982fe6fc6134f69a9851eca73103e044953e618e1da60f6a4a7ca7c9c",
+    "data/state/hero_event_cursors.csv": "d400d06e90e62baee99a7d9042f90f7dd0efed03d6140d1a1cd1faafc14bf789",
+    "data/state/market_live_sales.csv": "5ff259abe34b01ac6c143587c69e48b302b496e93a8c469c3eb2cdba05b79988",
+    "data/state/webhook_processed_events.csv": "1e98f6e3e11024fbacf740516db8a5f3d91a185fad5f672771342f782e047bb5"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "ef0de6874739de65640725b07936a4e95d175e0a57eae822713aa39b1caf50e4",
-    "site/public/data/market-history.json": "dc0ca4063dc22e9a2a280abbf925c99735ca9297ebc529834b0b6c400c4baabd",
-    "site/public/data/summary.json": "bacc85dca125ad039f05223c88ac36cfb00ab9d2bcc9b0605dea2c911446c9c1"
+    "site/public/data/hero-state.json": "691a8baa5eb1534cdb72bdd5843cf6fb654a45a0f11e20f1f4e674d1246d1020",
+    "site/public/data/market-history.json": "7c4982fe472fbbd16fcd221d1af77cd764b3382c89915f3da231e82182527bfd",
+    "site/public/data/summary.json": "2be0eca7dda52f46a0763cdbf53538b3d8bad17a722e164ad91c4d6d94be511a"
   },
   "reducer_counts": {
-    "QUEST_HERO_UPDATES": 3,
-    "WORLD_QUEST_RESTART": 1
+    "MOVEMENT_APPLY": 1,
+    "SALE": 1,
+    "TRANSFER": 1
   },
   "schema_version": 1,
   "signature_count": 1,
   "signatures": [
-    "3dEqC2qordqNT1LKiFz7BNAseK1iELVU1Cbmi2zKnJRZxNXzifd8tgSk32V1CBBochMUG2fdLD741KBuBiQ9Wbev"
+    "4xgg7vkS1EW2wjcV9MpXVGhzEgCmWULgjNuCn6cZzjtKzs4egJXY4C7Xg3ERmSUtitHfTWCWaB4rwvg5yA9daHvR"
   ],
-  "snapshot_received_at": "2026-10-18T22:31:12.859Z"
+  "snapshot_received_at": "2026-10-19T00:31:12.745Z"
 }
