@@ -1,22 +1,23 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "33a7531fd880a9d85c2923d2fa851fca32825dc7a1df9dd2bb3c677f2f78ed3c",
+    "data/state/checkpoints.json": "21bb468c466e4fe7e282b988af0ab07f28fe35ce211e86e3071cb1f39a209c6a",
     "data/state/hero_deltas.csv": "fb6e056982fe6fc6134f69a9851eca73103e044953e618e1da60f6a4a7ca7c9c",
     "data/state/hero_event_cursors.csv": "d400d06e90e62baee99a7d9042f90f7dd0efed03d6140d1a1cd1faafc14bf789",
     "data/state/market_live_sales.csv": "5ff259abe34b01ac6c143587c69e48b302b496e93a8c469c3eb2cdba05b79988",
-    "data/state/webhook_processed_events.csv": "60018e294645a4e96b7d57caa33f82384d32587b0fb544dee7a863552c29cd39"
+    "data/state/webhook_processed_events.csv": "77ac535d11fe51e29bcc2de9206c98430459a3d39cd7ba31c6202d975f88a956"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "34db8d86c26b0fe02709400362235994541de991f0d58b65973320b4048035da",
-    "site/public/data/market-history.json": "7c4982fe472fbbd16fcd221d1af77cd764b3382c89915f3da231e82182527bfd",
-    "site/public/data/summary.json": "2be0eca7dda52f46a0763cdbf53538b3d8bad17a722e164ad91c4d6d94be511a"
+    "site/public/data/hero-state.json": "ebcd4822aca6ee40b443a7b3971f97b2f5fc90000e032b96eec4b001f7fa30bc",
+    "site/public/data/market-history.json": "c87d4a3f71f2cf92a4af04bd1e3a8d90782fc1ddcbafb8151ab924538960b62a",
+    "site/public/data/summary.json": "ebc376ea619227f92268644aa61c0c8bd2b16713be809d4bb1d4ed6645ac42a5"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 2,
   "signatures": [
-    "4hXaAsyanuHALbJQf4JYDW3cJ8qXcW6jumD6ZJJwrZbrJxKRvWB42jj6HP3DpZpoSjXxCykgmaAeFGmGJGWhCakA"
+    "fY1KnxDcYZPoxMxQco7PnR5LyPdhKsKLqqyCbaqqLAyRSkcXooGx5ZtQiZWZaMqJJdr8zMDGrP47XEpKMdELzfc",
+    "gSzwwuDTBw6sKQ8iKptHPQiGMgVXpJxqy9AbrSqfqGZ9A3qsLvnQtkG5eTueQi6Awq1tCK6QahT5PEPuc3QonAH"
   ],
-  "snapshot_received_at": "2026-10-19T23:01:14.783Z"
+  "snapshot_received_at": "2026-10-20T00:31:13.922Z"
 }
