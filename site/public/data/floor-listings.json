@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-21",
+  "as_of": "2026-10-22",
   "kpis": {
     "floor_sol": 0.05,
     "listed_count": 431
@@ -10033,6 +10033,12 @@
     },
     {
       "snapshot_date": "2026-10-21",
+      "floor_sol": 0.05,
+      "listed_count": 431,
+      "source": "magic_eden_snapshot"
+    },
+    {
+      "snapshot_date": "2026-10-22",
       "floor_sol": 0.05,
       "listed_count": 431,
       "source": "magic_eden_snapshot"
