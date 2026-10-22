@@ -1,22 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "72a76a45d92701f69f4f8ff3ce3f2e5b273592f348ecf24c406fffe61363bb08",
+    "data/state/checkpoints.json": "4085200002d31516bb26fb2e2691f750a7c4f64491a96eab3df4ccec710722f8",
     "data/state/hero_deltas.csv": "252d6cdc2e052013e381289c9e88b1f755930c95cac602e53ac29b5d5bc807b1",
     "data/state/hero_event_cursors.csv": "d400d06e90e62baee99a7d9042f90f7dd0efed03d6140d1a1cd1faafc14bf789",
     "data/state/market_live_sales.csv": "5ff259abe34b01ac6c143587c69e48b302b496e93a8c469c3eb2cdba05b79988",
-    "data/state/webhook_processed_events.csv": "78e92cb9445869728b9826ece53cb8ce3b43aff9a8d033a0fe8c775a3a2e10f3"
+    "data/state/webhook_processed_events.csv": "46f8d5cd99b414554d1277a60183cbe5172d18307b137a99817d29d37698804c"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "8cb2e518b30ea5f17cc44a26268c69cc9369afd0f84d7ac3a1d8ca72d198a54b",
+    "site/public/data/hero-state.json": "68e450eeb248f78621f6828decb74d11827db2b56fc43c515aff1ad0b2013ba2",
     "site/public/data/market-history.json": "02c54eb3071a29affaae9e946bdeb2ea9c2ddb7294b6c8aef6fc610e63ee999e",
     "site/public/data/summary.json": "f4b41b92e969287392f28d328b667ce972c8a07f188556de4ef23322cfa0ee1a"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 4,
   "signatures": [
-    "3UbNxHsmKF1KqKLhGXSvTuH9Kiiy3Ai3tvprwUrq7QexqF7rdVV71aCGVNNkW9BDoLXp8U7CyDD9nXQssMi2j3Lz"
+    "4LU4yziJHuiPgZy3bJqNgPCfBJZihyXvNgb4zKj6VHbz9AaJ2TRVm6WS44hjN2whz4gPzUh6bZKV1379UwbGp9Fp",
+    "59EfwBFGjLYtZYsMwJwnkGetAYS2g1B2paQfG4zEzcQ41zmRkBXNzPNrtgPdh12HV1TxEq4T4fussEvEq4kEQaiH",
+    "5JnPAPPVexdAarSPdQhuXijG76pXkiHyhcXaUqGeGRCqhdwySmYFrVBvK9tBZcAYdtDBGF5DM16T3oMoyJwoARFs",
+    "61TFS4mfmNwSZGpTTB4AeJyhBxwV5dVY5JmJum4cRk36xqKP1oz1NsEwboT4CjRsXu62bBw9B3Gc8RDHxh5JSoGz"
   ],
-  "snapshot_received_at": "2026-10-22T10:00:49.741Z"
+  "snapshot_received_at": "2026-10-22T12:00:35.969Z"
 }
