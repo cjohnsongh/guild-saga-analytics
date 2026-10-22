@@ -1,22 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "d92434d406fbfdf5fb99d5eace0cb1d6ac0693e7ff0027e80f8c0c9b5b37a481",
+    "data/state/checkpoints.json": "4719db0c4e69e93db3b33263b1174e0c57162bad48df795600aa0fe15ed65532",
     "data/state/hero_deltas.csv": "252d6cdc2e052013e381289c9e88b1f755930c95cac602e53ac29b5d5bc807b1",
     "data/state/hero_event_cursors.csv": "d400d06e90e62baee99a7d9042f90f7dd0efed03d6140d1a1cd1faafc14bf789",
     "data/state/market_live_sales.csv": "5ff259abe34b01ac6c143587c69e48b302b496e93a8c469c3eb2cdba05b79988",
-    "data/state/webhook_processed_events.csv": "1dedfe61984934492a4d476cf7f7af4bd3fda5667c5fa693e3bd5c5667b4c6d8"
+    "data/state/webhook_processed_events.csv": "233e56da65f9f17772525442f3aa73a6c8aea3cf53218bb83c7c0c37b8752eee"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "cf3f81b1f45ba481a47271bbd5a55928a2834c1654ad019d3b0fbf075e3c8517",
+    "site/public/data/hero-state.json": "b01878d5606704bdc7f361133324f525f77369e83951f2bc139ef96b88853fdc",
     "site/public/data/market-history.json": "02c54eb3071a29affaae9e946bdeb2ea9c2ddb7294b6c8aef6fc610e63ee999e",
     "site/public/data/summary.json": "f4b41b92e969287392f28d328b667ce972c8a07f188556de4ef23322cfa0ee1a"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 4,
   "signatures": [
-    "56koUxmhAjSPgBKowju7EeVXyhKWZi6wuECHMU8y2wY7xMUUB8zcubMEG1RS3KWnp9Av1nCoyHva1w8YjdzTBcwA"
+    "5XKF9yJQop8Qfu6gBTLYvvd7by5oh54YtxhsyREtNPQ6k4nQcCG12NsSUvrSfQByiEoQguRCyVprbAUJVj4tRpr5",
+    "5s2vKorzXJM1AdguiG99NHRWLXLvjGhBTzyS6k3zEssY5cE5dnBeT1ncn7ZmD7mbvqjjVyuJyxmVobzPuA1ZWm9y",
+    "62w4QBXDevs2eXKHKCBiKwwqZDgnQchKEz4vYBqq91yW6LivyCANEUhLrtDFEjBxh5YLF6eLrApkHshRY2NR8gA3",
+    "5rRnXasu3KtaTCYXHYaDZZpUHvYZ3TafhR68V2LPpHZBirkXwSYC6AHnaYqqxyr4VibbtXyMHa7epunxn97M29w4"
   ],
-  "snapshot_received_at": "2026-10-22T13:30:36.117Z"
+  "snapshot_received_at": "2026-10-22T14:30:35.542Z"
 }
