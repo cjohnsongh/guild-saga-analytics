@@ -1,22 +1,26 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "31e02d40fb1d08cc1f4c552cbe0d0a03e2fc3bb6973c88891aa073e5788e2378",
-    "data/state/hero_deltas.csv": "a3f53a9959325f493602c3856292bfb3dcd9f62a87e522f9d92edd31372093e6",
+    "data/state/checkpoints.json": "ff063a48179f0f8deb95319660389d0d12ff39d828f949d257d0a7a034fc965b",
+    "data/state/hero_deltas.csv": "0ef6191a974c892a59cb91a38c9cda83d6fd9b1dbbab83a44fcf032167302532",
     "data/state/hero_event_cursors.csv": "d400d06e90e62baee99a7d9042f90f7dd0efed03d6140d1a1cd1faafc14bf789",
     "data/state/market_live_sales.csv": "5ff259abe34b01ac6c143587c69e48b302b496e93a8c469c3eb2cdba05b79988",
-    "data/state/webhook_processed_events.csv": "9021d792336f50643206411b90352198f01b9c2138d9d72566f94b6b35e6e7e4"
+    "data/state/webhook_processed_events.csv": "81b13fad29b97a3b89b757fa6ecfbf0077bf6f0bac3845f698e38f734b64ab37"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "96be4812a97eae133a327d49d378990f2d5046d623cb28c001f24129c7d3dd6b",
+    "site/public/data/hero-state.json": "b6fc65816a7d279fa42a06ef071a421bd303acfcb879d570b8dedc16cc8dbd28",
     "site/public/data/market-history.json": "34e5b82c0ff0ed315d407a231c69c14e27bb6b6e16882e8a936e936180ed191e",
     "site/public/data/summary.json": "160510102b78bafb971079a7a8dd47bb04a51f71c624f492113c04de4436ee0f"
   },
-  "reducer_counts": {},
+  "reducer_counts": {
+    "QUEST_HERO_UPDATES": 62,
+    "WORLD_QUEST_RESTART": 1
+  },
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 2,
   "signatures": [
-    "3qVEdKEMMkQ7zwfH3g7SLxcvXw1jRbKgV1hTEmErEVZ7bZUgzM3KwboytfWdhM5ySY5jvpLUNPY6zKb5BiX1LU6f"
+    "2m1YNdK4772gAXA1cbmQpMyv6iE797HxGAe67SkjfLX4j8J688JtxPL31xudVYTwNrtDGWNctatrg1s7kjYu7huC",
+    "33zmphVdY56bs4F5b9JvazK9XoXChbPvU5CsQfwcobBHacYsVvjYXxPXoqsr6QyMHVQZJv4d4zjzpPZWFbBgvNCV"
   ],
-  "snapshot_received_at": "2026-10-25T17:00:41.661Z"
+  "snapshot_received_at": "2026-10-25T17:30:34.782Z"
 }
