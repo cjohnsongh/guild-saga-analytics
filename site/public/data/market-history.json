@@ -1,12 +1,12 @@
 {
   "as_of": "2026-10-28",
   "kpis": {
-    "secondary_sales": 19810,
-    "secondary_volume_sol": 35726.226237474,
-    "unique_buyers": 5474,
-    "heroes_ever_sold": 8405,
-    "guild_saga_royalties_sol": 1742.1,
-    "mint_plus_royalties_sol": 16592.1
+    "secondary_sales": 19818,
+    "secondary_volume_sol": 35727.021237474,
+    "unique_buyers": 5475,
+    "heroes_ever_sold": 8408,
+    "guild_saga_royalties_sol": 1742.15,
+    "mint_plus_royalties_sol": 16592.15
   },
   "monthly_activity": [
     {
@@ -347,9 +347,9 @@
     },
     {
       "month": "2026-10-01",
-      "sales": 3,
-      "volume_sol": 0.07,
-      "royalties_sol": 0.0
+      "sales": 11,
+      "volume_sol": 0.87,
+      "royalties_sol": 0.04
     }
   ],
   "first_resale_timing": [
@@ -381,12 +381,12 @@
     {
       "order": 6,
       "bucket": ">1y",
-      "heroes": 410
+      "heroes": 413
     },
     {
       "order": 7,
       "bucket": "Never sold",
-      "heroes": 1495
+      "heroes": 1492
     }
   ]
 }

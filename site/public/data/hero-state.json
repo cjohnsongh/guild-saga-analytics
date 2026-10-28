@@ -1,8 +1,8 @@
 {
-  "as_of": "2026-10-28T11:30:37.203000Z",
+  "as_of": "2026-10-28T12:00:49.798000Z",
   "kpis": {
     "active_supply": 9823,
-    "beneficial_holders": 1950,
+    "beneficial_holders": 1951,
     "staked_heroes": 5854,
     "staked_supply_pct": 59.6,
     "quest_active_30d": 1336,
@@ -14,29 +14,29 @@
       "order": 1,
       "tier": "1-4",
       "holder_count": 1583,
-      "hero_supply": 2659,
-      "supply_pct": 27.1
+      "hero_supply": 2656,
+      "supply_pct": 27.0
     },
     {
       "order": 2,
       "tier": "5-14",
-      "holder_count": 270,
-      "hero_supply": 1869,
-      "supply_pct": 19.0
+      "holder_count": 271,
+      "hero_supply": 1877,
+      "supply_pct": 19.1
     },
     {
       "order": 3,
       "tier": "15-29",
-      "holder_count": 42,
-      "hero_supply": 821,
-      "supply_pct": 8.4
+      "holder_count": 43,
+      "hero_supply": 849,
+      "supply_pct": 8.6
     },
     {
       "order": 4,
       "tier": "30-49",
-      "holder_count": 20,
-      "hero_supply": 760,
-      "supply_pct": 7.7
+      "holder_count": 19,
+      "hero_supply": 727,
+      "supply_pct": 7.4
     },
     {
       "order": 5,
