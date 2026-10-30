@@ -1,26 +1,26 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "c4ff1c1f8cbe3044a31eaee47085c3cc4619786eea0d093bdd4893bfe0dcff7f",
-    "data/state/hero_deltas.csv": "e23a9485007799d5c8f4796fc9016475c26a95877de9e24a57482c36a09e0927",
-    "data/state/hero_event_cursors.csv": "f96dc0a9683e32321b0ff4b35617f47dea99f09482755ad194cd4cbddcabb79f",
-    "data/state/market_live_sales.csv": "e404b750901b247f44ec218d6b6e4898e2be3326187604c61baff1d9167aca4e",
-    "data/state/webhook_processed_events.csv": "966104e77c952531019d1d7a8206a5fa0272004370cf5848fd0f4bc7bb76a85c"
+    "data/state/checkpoints.json": "b418873d99a542f7947e0e76575cab884f026b8aeefb157b7220007feafb1ba1",
+    "data/state/hero_deltas.csv": "2d60118ec2fe7427f2fee6b4569847bf4f0853973a9ac888098dfe58bc7ea4c3",
+    "data/state/hero_event_cursors.csv": "6b628891560782c2b0459b50b1a18dec47274f329a449f0ca2e4a54638930719",
+    "data/state/market_live_sales.csv": "51b4bc8ffad73c72a5c6aee2dd4da4bd7c9d8b30ec5041b7d3c51fa3c1d10607",
+    "data/state/webhook_processed_events.csv": "7d7e6a58a768b9a99c169a1e9ff7ffdc94ea191dc0a1a906b1983f080dd8f863"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "f862a7d7ee25cab9c28ebd7c753fc3e25acf6815efd44d411e774a68799bae06",
-    "site/public/data/market-history.json": "f3439c8327f6b2ac570ded0db47c637327d5ddc73da9509e1223fa82ce5562b8",
-    "site/public/data/summary.json": "00dc16b6f139792d398859f003ea90da530dfac7b49eeb64cc23242591b0a88d"
+    "site/public/data/hero-state.json": "6785ea4a9402f2c833978de939bdf462e67ac3d93a255cad47d545b459c5a14a",
+    "site/public/data/market-history.json": "7e7b3ef8de5c583725b9f6e09a0c291dc70d25d437b66303f6071e861d75c166",
+    "site/public/data/summary.json": "b95aa3f6389ee0d506f3a334b4bc746bd47e761f65c7b39b216363214670c7b7"
   },
   "reducer_counts": {
-    "QUEST_HERO_UPDATES": 360,
-    "WORLD_QUEST_RESTART": 1
+    "MOVEMENT_APPLY": 1,
+    "SALE": 1,
+    "TRANSFER": 1
   },
   "schema_version": 1,
-  "signature_count": 2,
+  "signature_count": 1,
   "signatures": [
-    "XfD3xYXLLcj8MrgwWm8BgbKEwNmopfSQvEaHiXGNifowcMUqesazgLcuut9hLThW7EvvJiYd6bk5xhcdpKYEpVa",
-    "VnwU6PtLYQu1GqsAEnkSoz9qvumEwxGFNz6BYQUFaXHGQeu4hfVmLuNqpCAfMJotDjpJ96xxCzoD88nkT2giUfj"
+    "2527GbHoxJNDNTNkA3Q6mDtYJJuWjiPBkU3hQmLqnP7cBkfrzKuDpiRz3Rsc8XivgvgA4FWxwpDdzHE6vS5M8Tu3"
   ],
-  "snapshot_received_at": "2026-10-30T09:31:15.030Z"
+  "snapshot_received_at": "2026-10-30T10:31:15.362Z"
 }
