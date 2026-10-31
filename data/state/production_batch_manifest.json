@@ -1,22 +1,26 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "f2e3961cc15d42bbbed32d2bcd0263aac504f07bc5c0ea7d501703fd2786594d",
-    "data/state/hero_deltas.csv": "b6c58bf941fd01d1875865786db100a29ff738160e34c115707b6fbc57ad3a88",
-    "data/state/hero_event_cursors.csv": "6b628891560782c2b0459b50b1a18dec47274f329a449f0ca2e4a54638930719",
-    "data/state/market_live_sales.csv": "51b4bc8ffad73c72a5c6aee2dd4da4bd7c9d8b30ec5041b7d3c51fa3c1d10607",
-    "data/state/webhook_processed_events.csv": "ea22e0fd64aabb1bad04801a4a8fa953d0b7f3be33dc6043c7b5a914f8353444"
+    "data/state/checkpoints.json": "b0be46b824bfdf87f69c0c8349f75c18aa10a5829b6682f4636c60c0b4c6639d",
+    "data/state/hero_deltas.csv": "a21bbb0c60c71dff0499451ee52d5cdc67cd5120ae221c71c81d096bbb0be066",
+    "data/state/hero_event_cursors.csv": "ec18e6a83a73da916d6004939fcc0c674c8271b78551f785c761c4f806ee6a36",
+    "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
+    "data/state/webhook_processed_events.csv": "6bda3f1c6d9917b4ad307d1db673ebf8fb0fb5ee9cf7d99beac050756f0fe2e2"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "7054761724307ad054b6bca58773875fcf7711db32fd1cf4b30bf436393325f4",
-    "site/public/data/market-history.json": "84c73e4dd3cca00b8e0785761cc1a58f60453d0eed2c98132abaaae24ec3cc5f",
-    "site/public/data/summary.json": "db0bdc2283c2f7cb4b76bd77b019a1586e82a128ffb056a04991aa205efb47cc"
+    "site/public/data/hero-state.json": "02773ca76a4b49de5e8d72e67453eb5c8e3d5e3868d5d625072a32042af8c488",
+    "site/public/data/market-history.json": "8ec476e9190838cd461556f092e087ad26776cb3c446c0b1b9812fe9a6ccaf9a",
+    "site/public/data/summary.json": "7e71323d4b5976cc819af2dc680a01413fcb5d01798a34596e645fcb009f82ff"
   },
-  "reducer_counts": {},
+  "reducer_counts": {
+    "MOVEMENT_APPLY": 1,
+    "SALE": 1,
+    "TRANSFER": 1
+  },
   "schema_version": 1,
   "signature_count": 1,
   "signatures": [
-    "21rLEDtcPpCVToL8hKEgxqntdXypfKDX5H9Uq9EfsNcC3Nd4kVX136DCASHEbmhixCQD9M9tSXvwzShGioMQcEbP"
+    "mJjSvBjmCNURWqeCLPP7d3GyuD3vZb5JnzU2DJcGTX8mfGAhSrXN9RzjWX7NCVQcMmZRwQjZq5zE2Bg2HmQHVd1"
   ],
-  "snapshot_received_at": "2026-10-31T08:31:15.681Z"
+  "snapshot_received_at": "2026-10-31T09:31:13.384Z"
 }

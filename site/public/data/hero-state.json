@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-31T08:31:15.681000Z",
+  "as_of": "2026-10-31T09:31:13.384000Z",
   "kpis": {
     "active_supply": 9823,
     "beneficial_holders": 1951,
@@ -14,7 +14,7 @@
       "order": 1,
       "tier": "1-4",
       "holder_count": 1583,
-      "hero_supply": 2656,
+      "hero_supply": 2655,
       "supply_pct": 27.0
     },
     {
@@ -42,7 +42,7 @@
       "order": 5,
       "tier": "50-99",
       "holder_count": 25,
-      "hero_supply": 1695,
+      "hero_supply": 1696,
       "supply_pct": 17.3
     },
     {
