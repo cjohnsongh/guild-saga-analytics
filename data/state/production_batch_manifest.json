@@ -1,22 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "01036d67b466298b27d97700153cd70f5c04d45ba9ac46e0196cbc69225af575",
+    "data/state/checkpoints.json": "896666c749839bf184e5b36436c120817c550cc5863922436b96db0c24b03e9f",
     "data/state/hero_deltas.csv": "7df12c7f0dd3dc997e5d817cc9060db6ce957ba8f729edac05076808a94cabb6",
     "data/state/hero_event_cursors.csv": "f72e2d344a41a6b7d31e0487d9aba1de1fa1e1fe6c95feaa575afcbdb0f3612b",
     "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
-    "data/state/webhook_processed_events.csv": "93e2f7c6b82329c1b82fef6cf2d0d65cb1b08edb11486afe08ffe2fb353095f1"
+    "data/state/webhook_processed_events.csv": "bd450e87d722873b350ec17b114127a940bdba14068c7260583d701a209cfb71"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "602a94659d898035586018e4d7f53c603342f8b9a0b7db40d7b72be82e190d9a",
+    "site/public/data/hero-state.json": "c39fdf9d741ca0c1ade4113faf72181f7b35904cd223f9d6dd1ba9d5d3d70a27",
     "site/public/data/market-history.json": "324afbaa01b9f572f667ff0a660ed0eb5311bcca8a1444ab7c5774828c1e5477",
     "site/public/data/summary.json": "958600d84c2f3f29678bcbac4e45c15a528a1bc5291bf4203d97d99dca463f57"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 4,
   "signatures": [
-    "5JUhC1ngWdkgt7misyzrxsCQ5jujTeetxwzGp6sfQrDCSRLiYN9EQqrC6mcBuk2Vp1LMC4pbUhz8y3Zh9EvnVJPU"
+    "3gcR1yMJ98qeAT4TkoxcY6BLaxKLyHKqsLHR37NTjxcHLRgGDimKSEb7oFLDcPsPDzeNRAaJkN7X5MwBspdY9KK3",
+    "4MePuweupfhWdDopYWxG5xtgD3BQkCZFBgCAeYkCwDg2ZGimMTCtzFvNYTw4BDkM8RQ8rQx3ecm78RWC9PcD1VXm",
+    "3VsouJdHMxV6rgESMdHAwqbuBh6A8wBeDM7nUun48GAJefr9VhadYM9RdWqerwW1X3jJuUWJhNkBEgE4TX94GV5k",
+    "2K81eJ6iVvRW6Crbe7VnnDD1xQe1V3PpL6F155YuncNUnVDjvbuuP5e5zuBRhJxoBAMY1FCJ98T6PnbGGgVwtjcY"
   ],
-  "snapshot_received_at": "2026-11-02T21:00:31.464Z"
+  "snapshot_received_at": "2026-11-02T21:30:27.800Z"
 }
