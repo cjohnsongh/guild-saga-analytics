@@ -1,23 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "c2fc6a9aca45b53462cad0c169ee1afc1a936d97295da1313a07344921975054",
+    "data/state/checkpoints.json": "144bc34cdd265211354eaa5e5b339721488dfe6b58ff4c7e0c3f6040ca3d2619",
     "data/state/hero_deltas.csv": "949ed7b36090a162667458e6ef2dfe1c3ec3ac71c4b3b265d0af56902fad4cf7",
     "data/state/hero_event_cursors.csv": "f72e2d344a41a6b7d31e0487d9aba1de1fa1e1fe6c95feaa575afcbdb0f3612b",
     "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
-    "data/state/webhook_processed_events.csv": "8784bbcc27ab1290378bfc16212ff63900f7155a1b280a58f5adec0cb05d12e5"
+    "data/state/webhook_processed_events.csv": "7cc71269cf73a2bc8b00bd06897c045be64199227c0b10e09f5a0e81999b96e3"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "bef7c761f8bde76aab6163317907b22d6867077116c5e87505b172f2e27f84bf",
+    "site/public/data/hero-state.json": "7d284bce2a2c212859b9b32d889b94417d393f19de274aa57d31227bdb08dac3",
     "site/public/data/market-history.json": "4ae329ed1174e28d6cb573d50b439c6c562a9af0c032ff2034a4f5c58866e49c",
     "site/public/data/summary.json": "a381da520aaf379cf82f28c38132d3aa9edcf86a0161edc76a4526ccb163bbdf"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 2,
+  "signature_count": 4,
   "signatures": [
-    "2dTJ4zFrm9yEJu15rjzdcvLRRXLsDEujAgwiyd4x4DbD77xiwbiVdyspmMBMkkPnkYXp7y9Ji8kpmuPPEBR9k7m2",
-    "5aihVK4kaG97GsGkTh5zeW9vHE6xYL1FbDm3d1QWA76URnSm1PWVNTV5hT1b5sZiREr31XMuWWBT3dc4ycQ1kkvh"
+    "3LWsAAKRik8VFNkxKLPwpUuWu5J5S6fojDtDwjoySiown8NiaxcTPFpRN8ATErXf67kd7g9nG3r2yupFesBVaoVB",
+    "4PDWS5WPBUGGykiogxcTxQEXi9PWV3W8BMY1fPgtrq4jsG1dv5m8ZJuy9MsxFPuKrYw6ht6xogtD5tVwJawLByq4",
+    "3aqtVtMbWuCuupGPrUGpvdtZ8x2b5zh9zwhTggDBgRPzLWwvF13UNfVpTdTyApAJzzWbXqiXs6jtSJuWMJ7JmMhz",
+    "44qVW4fAXy5bTVFs1z9gqmM9H12k69GyYi3bGVLsLG2k7heEnvW4qqfyQsGuZoemiM7r24PPCp3mFgVcvDi6Hbi6"
   ],
-  "snapshot_received_at": "2026-11-03T15:00:30.707Z"
+  "snapshot_received_at": "2026-11-03T15:30:31.792Z"
 }
