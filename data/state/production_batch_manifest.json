@@ -1,22 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "b2948f9ba699733362a853ae70be1809f7f5c807bd826ded3dbe6b047ae4e17d",
+    "data/state/checkpoints.json": "95a94074c85c47a9cd22fbc28796bd95ae66727fd912340211e756db31dca09d",
     "data/state/hero_deltas.csv": "949ed7b36090a162667458e6ef2dfe1c3ec3ac71c4b3b265d0af56902fad4cf7",
     "data/state/hero_event_cursors.csv": "f72e2d344a41a6b7d31e0487d9aba1de1fa1e1fe6c95feaa575afcbdb0f3612b",
     "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
-    "data/state/webhook_processed_events.csv": "e70313f2fecd6c6f43121d27674410e4b3f7c2200e0d4d576d4dfd31f99572e5"
+    "data/state/webhook_processed_events.csv": "88d61ac6da3b49187a4663624dee05b50f8d0ea0fe39ff1f41df3530baecb828"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "dc6fa50b7fb2f0f55d3430d2f500519951ede65140466caa75e1083ac7a588cc",
+    "site/public/data/hero-state.json": "dc10c2091b982645820a54f48f619c616297b28dde24f5cb302c8fb952dbc486",
     "site/public/data/market-history.json": "4ae329ed1174e28d6cb573d50b439c6c562a9af0c032ff2034a4f5c58866e49c",
     "site/public/data/summary.json": "a381da520aaf379cf82f28c38132d3aa9edcf86a0161edc76a4526ccb163bbdf"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 4,
   "signatures": [
-    "5tWxgcsV4aHgkSuU3rbnjVN2WafcB27hD3AKkgUnyvwbcQLX6gPCjwjyAerAp573xebe185ixYzPGoddkgY7v3x2"
+    "mcNdndsuvfRAKJdUvAZyMCh8rn26SEXv4Gg96UhCSKmB3k9WGrhCYPhL1fCG8AWoAvKdSUfe98skcLYvKdhuETx",
+    "26QD7HtD2AuKDcf8gHaDdajayu3K5uBHGTSXcBZUqD4Dh9AtpD6bNGmpwLjBH2baTPtSBgpULf5X7mP5xFbJztWM",
+    "aHsSkEQigAgedQs7ehxg968hg53Loudd6PXVn4yhLzxPabHhQamriJm8rYXnUQ8p8CbJzerpT83R4SNih6FU49L",
+    "p3e39qZmR4DgmVBEqLgLLjqmpsgFnJGNC71h2pB4e1QmcVtr7BGnMWyxhcw6RKEsx2wxaooKvLC7cXzjs77rKn9"
   ],
-  "snapshot_received_at": "2026-11-03T19:00:50.535Z"
+  "snapshot_received_at": "2026-11-03T21:00:48.997Z"
 }
