@@ -1,22 +1,26 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "71a2e6bc6009e741248da06b51d227a7dc04c0d4ff4b1aa3d31fbdde73ba9dc5",
-    "data/state/hero_deltas.csv": "069c8d6502be20ba18109cedf6a30205051683190562c6fb49cac94e84bb8713",
+    "data/state/checkpoints.json": "8250a623bb3f7add4d200b12d74edb0b5fc2bce391ed359053d6be2e289df253",
+    "data/state/hero_deltas.csv": "2b5087ba1bced533cd02b656a774416d9c203e2cdaf5385e520a40247be985ae",
     "data/state/hero_event_cursors.csv": "f72e2d344a41a6b7d31e0487d9aba1de1fa1e1fe6c95feaa575afcbdb0f3612b",
     "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
-    "data/state/webhook_processed_events.csv": "41a724af0a71ded7e075f90d7f2703204ac691112044358bf0a7992dd3b94343"
+    "data/state/webhook_processed_events.csv": "875dde21a291e0f5afcbfed6eff2470e0e0f42c699aab78e2271b5ea4c1fe7b1"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "c1803f7b9d86f0c0c2a9b6ba6fc0dac0ac70a6e015c3428de24d344d6e400e57",
-    "site/public/data/market-history.json": "26a723c95d5b3b2a9ee4996a901e95448e32e6a3145a359e32caff99e39103c3",
-    "site/public/data/summary.json": "99e72a32c275daf70abcbb71b8197c90a77bc202df6242ac4ed73e98a4c2ff02"
+    "site/public/data/hero-state.json": "eb2894f2a1216417df638e24c4681f2165a27a0f8ab46dc512c41db1af8639c1",
+    "site/public/data/market-history.json": "da6a55f68321cd95a0b232100e27110a46d0af9de21c79ded79165cf568fa587",
+    "site/public/data/summary.json": "45595c47cabafed4a04c2e5637aa2b2c714bf4e036a5927f3759f3012bec42d5"
   },
-  "reducer_counts": {},
+  "reducer_counts": {
+    "QUEST_HERO_UPDATES": 50,
+    "WORLD_QUEST_RESTART": 1
+  },
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 2,
   "signatures": [
-    "3gYYCBVmoDCJMkM1sR4aa4pxejmmDU6UBntwM4giiN5iJbMe7YEeYYCNcYio39dsznroWHmqFrQ8D4pmKAL17BjJ"
+    "3rTSnSkU17UmMCvHwFFQoLzhRXYu4sVP9Lev3uCmbMQcgyNQV99Ca8JLdkqr43ZehxFCeS4DQZSTP2647junwneH",
+    "3Z4GUZswGBLfue9mCUhBpNuZfUEFX2n74x2yhEgdVrQEZBGaN9ZhtTTphrssninUsNXo6kEnL26KxjJwcEtDDCAp"
   ],
-  "snapshot_received_at": "2026-11-05T22:31:14.502Z"
+  "snapshot_received_at": "2026-11-06T00:31:18.346Z"
 }
