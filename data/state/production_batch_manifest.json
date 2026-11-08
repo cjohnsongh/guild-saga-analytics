@@ -1,22 +1,28 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "4352e927a2a23b76f2ff66902bac87bdef917ee6fbd04e2c778d0c5dd51afaee",
+    "data/state/checkpoints.json": "576346cea77ede4fc023991e167685f87681a822308a1c6317f4573b1951b4e3",
     "data/state/hero_deltas.csv": "bc97f5e4b0fe8288e6d8a5d1b889ef707cca49bee826e7402bb7b2c243a6372b",
     "data/state/hero_event_cursors.csv": "f72e2d344a41a6b7d31e0487d9aba1de1fa1e1fe6c95feaa575afcbdb0f3612b",
     "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
-    "data/state/webhook_processed_events.csv": "d5edcb61e3dc51f04cbd4f36533cf4c5bd16a2f74680f8ef5098bae1c71bd62d"
+    "data/state/webhook_processed_events.csv": "0c5710805c7d64eb14621aed857cd197e2c44390447aee0a05ea74d29884b95c"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "db21cae0a0dee4decdc0f8f523271fb81ea598a3ab85274e3cf9a6a08348dd49",
+    "site/public/data/hero-state.json": "62d5694ffa46e41beb2584ceb16f2091bb23a17caf9bd08ccadb1b3f791d909f",
     "site/public/data/market-history.json": "21322ea381ce95816cd7964997594810ac9feb66eb7458e8abd1b5d77f12c7fd",
     "site/public/data/summary.json": "45595c47cabafed4a04c2e5637aa2b2c714bf4e036a5927f3759f3012bec42d5"
   },
-  "reducer_counts": {},
+  "reducer_counts": {
+    "FAILED_TX": 1
+  },
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 5,
   "signatures": [
-    "4sqXkYoybvuEnDCKte2NVsG4TF2VSxBmhLuaMtJLTqiK7gUwyNJSLFXvnSbZYwADR5XuxLAYp8pbhNYdBPJ81JK7"
+    "39AdThnrLS9KHm8KNnkTeb9MmgytJ9oeajNWYcdJeyBSUPmS6Jnb8Qe1qz2K65LJ7qBSV4pDgkRBQD2ni5fo5zFN",
+    "5erm4K68b1vr4RkCejQLHvxctUMPuD38LBu8DrnVdnPSGf2EG7pxczSdTs18HfFE8ggYKQdPcK8Tw5WTZFkdLUan",
+    "3Mr1MytovbZJGhWR56XYBbaNcekvi8og5hqnx8szqHBPW58q7iU91AvdUWMGbwj6C2TR5QDCkrLmPHuo2GyAR8GP",
+    "4AF4PM8cuLktjHMgHQzCk4XJGFi5XEhD49rdJX7CVKwMFkpFLYnDnNn5WPCZDqUxpyY7B9rBfKbEfHa6QeK1FkNG",
+    "553ipXiMgwKn4TsJkbocwdywwtJQPimuks3f2emR2SAYWJXEG6jJHj77MMDWLZe6gw9jpPuv8877sVgVimrNdWNY"
   ],
-  "snapshot_received_at": "2026-11-08T06:01:14.971Z"
+  "snapshot_received_at": "2026-11-08T07:31:12.661Z"
 }
