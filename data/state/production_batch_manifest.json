@@ -1,25 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "8a030cb7b4ba2024727faf7af4ddf72c925d180eb9f181a5f5fd2349e0a38709",
+    "data/state/checkpoints.json": "43ffbad4ce257f61b0b1aef12508db6374d723835a289b01f4300e079fa73728",
     "data/state/hero_deltas.csv": "c5e897b9d8f912271ec7ded77c20403409be46194319ba5be2b79217ff5225d2",
     "data/state/hero_event_cursors.csv": "f72e2d344a41a6b7d31e0487d9aba1de1fa1e1fe6c95feaa575afcbdb0f3612b",
     "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
-    "data/state/webhook_processed_events.csv": "9eaeb694db18322a9da74f264da4e8efb20ffbfdb004248f3c8a82dae73d41c4"
+    "data/state/webhook_processed_events.csv": "f7af7634686a960c0d5c8c6a63296335e47055b6fe3b9a8cfee6e8bd4d847a8e"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "73310e72c68626146cff2bbb2609bd42018c0f9b237df4b650ea197fd4bee3c3",
+    "site/public/data/hero-state.json": "a61b03c3dfee711e6d590b2aaba25328c95569d781c6dbaa0a47e8e6b45dcaca",
     "site/public/data/market-history.json": "21322ea381ce95816cd7964997594810ac9feb66eb7458e8abd1b5d77f12c7fd",
     "site/public/data/summary.json": "05a5f56661fedd4b0617f4a416e40ccf6ca333a339a98f3605a631f56988e479"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 4,
+  "signature_count": 1,
   "signatures": [
-    "4EQNmVm7ymK73V4GxoTebuJoQSFp6HssP1s8G9VXyKVKgxEJKrhgeRB9GykthxHW41uQrZbC5w3qqrioG7rQ6xik",
-    "5QGTVYhcGv4F46eJV28FQ9AsPZ93F8awStLbS2AyLU9KTUqkQMc5gFGtK2bu2991mdQYtiejgUkEHwU5ttEs8QrY",
-    "T3b9jHch1kzcXbjT2uj7YqrRtqYvu6GMHZaFDyypDJopmT1usWyqwTidLZWjZo1RHEDwrVATNKjrA3ZY5PAKREG",
-    "5MfoC7fouBRJdgA3BovYJfAUEWWJNXNBX7nkzSJJAfS98e2gnXf2qmbtuUpsKmQrMQjPz6YabKaFppTtNiJBDbQd"
+    "5r66M555yE74TeSx5ZmfgAeF1PGJ3rKCzWQFVbJytoTM5BFF9FitJ67Csv311qb58weXz5UYGifKjMUnMxeTiUFi"
   ],
-  "snapshot_received_at": "2026-11-08T18:01:10.667Z"
+  "snapshot_received_at": "2026-11-08T19:31:14.104Z"
 }
