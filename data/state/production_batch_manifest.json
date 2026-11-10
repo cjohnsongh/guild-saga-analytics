@@ -1,22 +1,26 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "f4f985179baa631af7a1395b25b66038aa87d1f9ea2484f6c5fe1906145854aa",
-    "data/state/hero_deltas.csv": "814468f874def31f2c69fccd32ea8f7cd5c3a108de3de8792e164557d98f860b",
+    "data/state/checkpoints.json": "d61e778399e85db3a23f515aa8ef1520a0685168c47a10cd3b9799e84203c6b0",
+    "data/state/hero_deltas.csv": "18119f4806da0c76d6dd0890cc869fb3638dcea71437c92cc5da52de3ae0dd63",
     "data/state/hero_event_cursors.csv": "f72e2d344a41a6b7d31e0487d9aba1de1fa1e1fe6c95feaa575afcbdb0f3612b",
     "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
-    "data/state/webhook_processed_events.csv": "22295a183d1c845c3eccae857d0c8ba4b29ddaa25423038dc4d4b3ed43aa3322"
+    "data/state/webhook_processed_events.csv": "b343935a935979fe63966aeada8dcd6b3fbc1c6beb0e027bb82178da68f4190f"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "2daf735b49cf2da1ddcf13cf3042009b14ddcf791da137f47cb73ad370446902",
+    "site/public/data/hero-state.json": "4445ceb408cf14f2f0cfab64e6061bebdaa9a734a4f5ce38ae0ab68038e04f1d",
     "site/public/data/market-history.json": "f0cd546bd34eb2ce3193507fd60fa8f65ca770436afb1fecf33f1a7c4d5b173a",
     "site/public/data/summary.json": "05a5f56661fedd4b0617f4a416e40ccf6ca333a339a98f3605a631f56988e479"
   },
-  "reducer_counts": {},
+  "reducer_counts": {
+    "QUEST_HERO_UPDATES": 28,
+    "WORLD_QUEST_RESTART": 1
+  },
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 2,
   "signatures": [
-    "2kNNiHWwbS83rnyKp8H7ve2DM5dx9i1HnazK6VSYipRuttYSaxoHPYkyjjqBQDceUWvNFiZCt8anAHtFZA4RgGKT"
+    "5MiQNVTiNqAkap6UE6ZGeHGqyquiS7smZazQEnXTTLJTz1fxWihjaG2UKFk41gZQaU7RZeXBAHLKDdKb3fmfdQpY",
+    "4qC7R44jJ9DaLXLUk5FdBhHeqLZfaps6SrsibFHAwft1JpFiCgJAZ86TAMzvQn5kQT6AxDY9nQSFDK4vmnQ7NSKb"
   ],
-  "snapshot_received_at": "2026-11-10T09:30:37.571Z"
+  "snapshot_received_at": "2026-11-10T11:00:42.180Z"
 }
