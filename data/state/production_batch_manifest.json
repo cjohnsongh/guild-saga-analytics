@@ -1,23 +1,24 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "fb8fe0b4834ba9d7c8382408269d3fb3ffed0a7b6c6af9594c892beba5d8ea13",
+    "data/state/checkpoints.json": "a5cca0fbc36943f43adcedafb3d96d4b1e28d29020007e9ae1c4a38981c50e54",
     "data/state/hero_deltas.csv": "770249b93e3a7ac7e27633740ebc084d702f4c053c64dbab50d7ea23adc28683",
     "data/state/hero_event_cursors.csv": "f72e2d344a41a6b7d31e0487d9aba1de1fa1e1fe6c95feaa575afcbdb0f3612b",
     "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
-    "data/state/webhook_processed_events.csv": "a23ecd0c7746d1b448678e2619b428549e31b66cf0d12efd19909977d74e42b0"
+    "data/state/webhook_processed_events.csv": "12c745681a756d7c00a0331341f85fe7f6d93ae8484141ed73f0f9ef4469dd5d"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "ed3e48d96a29646a0744078f753da99f2ab24ce33b142fbed1236fc1e04ce4e1",
+    "site/public/data/hero-state.json": "444986ef79c8c417f531dcf329fcf79f99f6304c5db321f7203f76b7bb406203",
     "site/public/data/market-history.json": "eefc665090d1392942270478b2cdf12fe7e0f2e0b93aab2e23418eb03fee5f5d",
     "site/public/data/summary.json": "27971fd80993d7091640a0a240d84e40bf866bca28f29e57d555ccbd874e65ef"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 2,
+  "signature_count": 3,
   "signatures": [
-    "5NaUL7yMTVHoSLZvzpcugrcSxcjftXgxQmu3D87rEBzwtHTse8KhrSqPWhuKQ2CHia59zM56zhvnktwqU1EYEVsg",
-    "2Ka6uYSSSybdgdguKMswDwEiYQGAHTUfzkzfS4ooSTjFTvPLSyz7XNro489iSW3dVKkszWyzaXu9CNewFREGH5gB"
+    "4FbmkkTKWVg9nd7KQhGtwecczV38kJE1ho9oSujsFXhKkBeYaeHQJa6aRwG5nQdbUwgEvKh8H76T9sbPPtKW1uq8",
+    "4iUKvjaifZHh7mwcCFXNrZ85ZAdyTt3a1gsGWZYmNUt7D3k1mwhxQAQ7Z3eKt46MhwMkJKD1x6eF3iSW4cLvRKKy",
+    "5tcpERLMnFgofhXXFJHoNCdWrhHaNadsLrn3CHNh6pLGvYppcdKMoLwHyVbcSn6V7JNccGYDVN4osiaEgvZx5Zjr"
   ],
-  "snapshot_received_at": "2026-11-12T22:30:39.647Z"
+  "snapshot_received_at": "2026-11-12T23:00:48.456Z"
 }
