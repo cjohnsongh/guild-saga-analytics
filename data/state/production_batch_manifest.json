@@ -1,24 +1,25 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "a5cca0fbc36943f43adcedafb3d96d4b1e28d29020007e9ae1c4a38981c50e54",
-    "data/state/hero_deltas.csv": "770249b93e3a7ac7e27633740ebc084d702f4c053c64dbab50d7ea23adc28683",
+    "data/state/checkpoints.json": "42400c9b20081dbf47d84b9cef835703c7f7c74b45c67505deef48a60c22bd80",
+    "data/state/hero_deltas.csv": "6a83c36eaf199aaefcc683d1e6df7f5cb2cf6233214a1e1793891329e9b24029",
     "data/state/hero_event_cursors.csv": "f72e2d344a41a6b7d31e0487d9aba1de1fa1e1fe6c95feaa575afcbdb0f3612b",
     "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
-    "data/state/webhook_processed_events.csv": "12c745681a756d7c00a0331341f85fe7f6d93ae8484141ed73f0f9ef4469dd5d"
+    "data/state/webhook_processed_events.csv": "b9c1deec5d8f7326f528133ebb0850a7277ccdb5c3c6a86b5248befbb98b625f"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "444986ef79c8c417f531dcf329fcf79f99f6304c5db321f7203f76b7bb406203",
-    "site/public/data/market-history.json": "eefc665090d1392942270478b2cdf12fe7e0f2e0b93aab2e23418eb03fee5f5d",
+    "site/public/data/hero-state.json": "045f583a51f30a5cb10dfb009b2a4cf3bcf0adad3f610e874e057ad726eb01de",
+    "site/public/data/market-history.json": "41725c4e0462525b9344a1fb3960eb146455f7b5d68328aad1728e973e415a93",
     "site/public/data/summary.json": "27971fd80993d7091640a0a240d84e40bf866bca28f29e57d555ccbd874e65ef"
   },
-  "reducer_counts": {},
+  "reducer_counts": {
+    "QUEST_HERO_UPDATES": 3,
+    "WORLD_QUEST_RESTART": 1
+  },
   "schema_version": 1,
-  "signature_count": 3,
+  "signature_count": 1,
   "signatures": [
-    "4FbmkkTKWVg9nd7KQhGtwecczV38kJE1ho9oSujsFXhKkBeYaeHQJa6aRwG5nQdbUwgEvKh8H76T9sbPPtKW1uq8",
-    "4iUKvjaifZHh7mwcCFXNrZ85ZAdyTt3a1gsGWZYmNUt7D3k1mwhxQAQ7Z3eKt46MhwMkJKD1x6eF3iSW4cLvRKKy",
-    "5tcpERLMnFgofhXXFJHoNCdWrhHaNadsLrn3CHNh6pLGvYppcdKMoLwHyVbcSn6V7JNccGYDVN4osiaEgvZx5Zjr"
+    "28Ud2MftATLztH4LByk8xBGckEUrZLzhu3MmdTvqNGhfMacZuioszfGUWFAPBCbLCvDptPiDxuaVcE7irJUNNzbW"
   ],
-  "snapshot_received_at": "2026-11-12T23:00:48.456Z"
+  "snapshot_received_at": "2026-11-13T00:00:43.700Z"
 }
