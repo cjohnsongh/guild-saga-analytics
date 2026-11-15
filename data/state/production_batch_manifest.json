@@ -1,68 +1,23 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "f888e702b72b12cebed8fb0f7d9a39be5915d759d2ab7a41e1fd08fe93045d4e",
+    "data/state/checkpoints.json": "b7536886380a60c95f4d26837978a30fee6832d749ad3246b8d0c28edeb17718",
     "data/state/hero_deltas.csv": "f0f26860015ec65449a7307880303da1a0eb0692884169e015274391f0984e9f",
     "data/state/hero_event_cursors.csv": "f72e2d344a41a6b7d31e0487d9aba1de1fa1e1fe6c95feaa575afcbdb0f3612b",
     "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
-    "data/state/webhook_processed_events.csv": "2ae3e598e73d6e9c4a952d2f3e532032f7e0da32d5b3734471c250136f590a0b"
+    "data/state/webhook_processed_events.csv": "2e27717ec189ce8ed08ee9893df5d5d51952c3b4db7324f987732e3bbbde5c65"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "ee0a81ca1326c251c2e337501103cc27fafcf6ef2293a7d7b2d997297d0c45ef",
-    "site/public/data/market-history.json": "a4eff360cbf855f5b2a187d18d69c8ab91fcdf7a74b0e18c1b531298de907a89",
+    "site/public/data/hero-state.json": "bebfa67ac5b49579b91c3eb867ea7b20e55809f2fa52d2865ccd07cfc6958c62",
+    "site/public/data/market-history.json": "da3268f25780ce4d074c2bbaee90da223bb61ed13a9f93f870eb93daa968637b",
     "site/public/data/summary.json": "a612706030a59f9894755167014fc432abdbd6069b1be93e6a0984b6ae0d4383"
   },
-  "reducer_counts": {
-    "FAILED_TX": 1,
-    "QUEST_HERO_UPDATES": 115,
-    "WORLD_QUEST_RESTART": 6
-  },
+  "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 43,
+  "signature_count": 2,
   "signatures": [
-    "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"
+    "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"
   ],
-  "snapshot_received_at": "2026-11-14T23:32:17.728Z"
+  "snapshot_received_at": "2026-11-15T02:01:08.868Z"
 }
