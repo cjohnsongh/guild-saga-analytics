@@ -1,22 +1,24 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "0c1c4b8816d4b573bdb04c42e0d3ce13fc9dacfe9b948c3d578aba263864507e",
+    "data/state/checkpoints.json": "21464eff20189da6b8dc43125590a6aebf813d5a50c4490f2a681c8bf55c6507",
     "data/state/hero_deltas.csv": "b977325a71ee9bdb44946d86a758f3557c218474a5810aea510cdedcafb9e09c",
     "data/state/hero_event_cursors.csv": "f72e2d344a41a6b7d31e0487d9aba1de1fa1e1fe6c95feaa575afcbdb0f3612b",
     "data/state/market_live_sales.csv": "f7241ca2bdf06f5003d09536b4be9aa2e7fd2f5cd9433157c98984633edb0597",
-    "data/state/webhook_processed_events.csv": "e97ec67a93471d137b3e2ece7ee5298f4409e2230377f8a4c69825659dfc6a0a"
+    "data/state/webhook_processed_events.csv": "e06b926808555e5337e4e03d4dd4e917d81e784d47c12cfeff44bdbb1f894962"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "9937d48cc4892ec90da7d8ac09e9ea9d2fb5bfc92a0c2fc44982708e11abedd7",
-    "site/public/data/market-history.json": "5768d39653286158ea4a1aa623b9021884409e0d3703e569a500ec4f5c820109",
+    "site/public/data/hero-state.json": "d8e44d78d2be80744dc73fac2138455e139142d5e6e73f142372f1ea0adc8f2a",
+    "site/public/data/market-history.json": "b9a47dc5a4e7c0e2c363342880068761ace11bf5f4a65a386f42eefdff6265ec",
     "site/public/data/summary.json": "5437c37a5136472610f6bc69ca21277c812680ac1a2e7df0eff9bed19063c3bd"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 1,
+  "signature_count": 3,
   "signatures": [
-    "XELL3xscXQYjmPCttW1jx4ZLq9mxJiTJmsmM3pL25F2ZRZ61hFQ4XcawmCrtd2JbmFykDTzADDJAo1bEM1wD49H"
+    "2HXPJXYTFtWisyjsLffvGJQRv6bfLPZngsSb9HBh1SmAQR18owrBoCPKQmVTV5ebu33XkvyFFyjjuabf2muWiG8S",
+    "swaJTekFiH2XauXm6EFaUW8uV15WrmZRqtqzJnH5tXVEM2NWBnDD9YFnjEVuwjaMwQUVbQkktiTKEsnri5XZaZ7",
+    "5rJD1QaTSpJhtyAMiY4NhDUP26aBNwAfttb643tYmqZrLAkFcmGbGR9pNYFVQ7v1RiQFgdyd7BTXYtXgDbi6a17S"
   ],
-  "snapshot_received_at": "2026-11-17T22:30:57.215Z"
+  "snapshot_received_at": "2026-11-18T01:00:50.564Z"
 }
