@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-19T23:30:49.813000Z",
+  "as_of": "2026-11-20T00:30:43.306000Z",
   "kpis": {
     "active_supply": 9822,
     "beneficial_holders": 1949,
@@ -57,12 +57,12 @@
     {
       "order": 1,
       "bucket": "Active 0–7d",
-      "heroes": 951
+      "heroes": 948
     },
     {
       "order": 2,
       "bucket": "Idle 8–30d",
-      "heroes": 345
+      "heroes": 348
     },
     {
       "order": 3,
