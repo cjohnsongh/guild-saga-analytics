@@ -1,25 +1,22 @@
 {
   "activation_boundary_utc": "2026-08-29T01:58:29.082Z",
   "canonical_hashes": {
-    "data/state/checkpoints.json": "29b84a0db80f05ef003cca41bcf0b251b8a5b4035786ccaaa8f3eb451132b363",
+    "data/state/checkpoints.json": "9915e4af8382efc7cae32f4cb220ff7c0367b1663961c31b03ce2a9e2d0ccb69",
     "data/state/hero_deltas.csv": "ceec45b9bab420e2fbadb6204a31db383d8b99b053a135fcd610be4655416827",
     "data/state/hero_event_cursors.csv": "046fa4050fa18890aafabadc64f80eafcc015cac4b237f047c70d3a4b99ab410",
     "data/state/market_live_sales.csv": "cc77f6dbcc8c6659e80b869a2f45e6e75f6a1b7c4e84c49da28601dd6060050e",
-    "data/state/webhook_processed_events.csv": "a50ecd4f27f356bd065901fa5349c53e03c785e233193239a8203be04979be6b"
+    "data/state/webhook_processed_events.csv": "1bb425f5af66d392230c081454fdd821ffa03796311179680eebad8fa84e60f0"
   },
   "public_json_hashes": {
-    "site/public/data/hero-state.json": "2c33e7aa2884e87106ec002394019028ca698d483941cdcfe4c851bce818cbbc",
+    "site/public/data/hero-state.json": "159e46dc226dff680b6d7e4b026b5f431e6a1eb1ea88725d4f84988bd3b603b9",
     "site/public/data/market-history.json": "74d8e8fd778de47957f88efe666a5e7444a75a1cc46c916e17b63ce58aad60fd",
     "site/public/data/summary.json": "7d96f588b5f1ffaf52e5460333f05132c2642759475ccb5112a28df21442e501"
   },
   "reducer_counts": {},
   "schema_version": 1,
-  "signature_count": 4,
+  "signature_count": 1,
   "signatures": [
-    "5DhB4wKCaPTBAvxfcL3abd6t1H9DwNK94JotNowNJdeTZCfJ51Sgdxj64UP2GhZmmpbMXK3UvCEEsqbVdYekz5Xx",
-    "2BjqhV9iJ2tpZPtsZBMttoaSGEToL4oSZDNWM8ghijX2cPQfAQELgoQutrnK1gJGEBPuCvujuYwnpSANnngM6PDE",
-    "21A7wNfzESeo5NK4qUxZP4kBdzRsJS9ZMoH6qteGbMJsGr2ZGtPd6zbXcRq3KKnFBo4i1rmFgzRNahXUrJvZ7vfk",
-    "3vkYQRMmGJJVaj6JZZC4CCqpaa6AY3HvFR3C5WA13AnYHPm39xZuuddZsVu5zJgBsGnBg2MgW7oug64LV5AJj8bN"
+    "48GcFK9xWzqkgi46r3uhJDsU7Fp7nhfoiqJLhxJbfHLGhQa45wx6dWT1frkxCCfeB9urgY9W2YiEqAWsTySmjd5Y"
   ],
-  "snapshot_received_at": "2026-11-25T22:31:10.445Z"
+  "snapshot_received_at": "2026-11-25T23:01:06.837Z"
 }
